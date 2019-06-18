@@ -4,22 +4,6 @@ pyCoda package
 Submodules
 ----------
 
-pyCoda\.DecayRate module
----------------------
-
-.. automodule:: pyCoda.DecayRate
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pyCoda\.core module
-----------------
-
-.. automodule:: pyCoda.core
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pyCoda\.cross\_correlation module
 ------------------------------
 

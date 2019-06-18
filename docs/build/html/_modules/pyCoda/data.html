@@ -93,8 +93,7 @@
     <span class="sd">&#39;&#39;&#39;Collection of functions intended for data related processes.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
-<div class="viewcode-block" id="utilities.DB_group_names"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_group_names">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">DB_group_names</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="n">group_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="utilities.DB_group_names"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_group_names">[docs]</a>    <span class="k">def</span> <span class="nf">DB_group_names</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="n">group_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Read in group names found within group. If group is not provided the</span>
 <span class="sd">        upper folder structure will be read from.</span>
 
@@ -124,8 +123,7 @@
 
         <span class="k">return</span> <span class="n">group_names</span></div>
 
-<div class="viewcode-block" id="utilities.DB_attrs_save"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_attrs_save">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">DB_attrs_save</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">):</span>
+<div class="viewcode-block" id="utilities.DB_attrs_save"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_attrs_save">[docs]</a>    <span class="k">def</span> <span class="nf">DB_attrs_save</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Save attribute to database head.</span>
 
 <span class="sd">        Parameters</span>
@@ -146,8 +144,7 @@
                     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Key:&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span><span class="s1">&#39;| item:&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
                     <span class="n">h5file</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span></div>
 
-<div class="viewcode-block" id="utilities.DB_attrs_load"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_attrs_load">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">DB_attrs_load</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="n">attrs_names</span><span class="p">):</span>
+<div class="viewcode-block" id="utilities.DB_attrs_load"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_attrs_load">[docs]</a>    <span class="k">def</span> <span class="nf">DB_attrs_load</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="n">attrs_names</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Read attribute from database head.</span>
 
 <span class="sd">        Parameters</span>
@@ -176,8 +173,7 @@
 
         <span class="k">return</span> <span class="n">dict_attrs</span></div>
 
-<div class="viewcode-block" id="utilities.DB_pd_data_load"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_pd_data_load">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">DB_pd_data_load</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">whereList</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="utilities.DB_pd_data_load"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_pd_data_load">[docs]</a>    <span class="k">def</span> <span class="nf">DB_pd_data_load</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">whereList</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Loads in a pandas dataframe stored in group from the Database.</span>
 
 <span class="sd">        Parameters</span>
@@ -223,8 +219,7 @@
                 <span class="n">group_df</span> <span class="o">=</span> <span class="n">group_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">whereList</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">group_df</span></div>
 
-<div class="viewcode-block" id="utilities.DB_pd_data_save"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_pd_data_save">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">DB_pd_data_save</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+<div class="viewcode-block" id="utilities.DB_pd_data_save"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_pd_data_save">[docs]</a>    <span class="k">def</span> <span class="nf">DB_pd_data_save</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Saves in a pandas dataframe stored in group from the Database.</span>
 
 <span class="sd">        Parameters</span>
@@ -241,8 +236,7 @@
             <span class="c1"># Save the database</span>
              <span class="n">df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">h5file</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="utilities.PV_TS_DB_merge"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.PV_TS_DB_merge">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">PV_TS_DB_merge</span><span class="p">(</span><span class="n">CC</span><span class="p">,</span> <span class="n">PVdata</span><span class="p">,</span> <span class="n">mergeOnIndex</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="utilities.PV_TS_DB_merge"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.PV_TS_DB_merge">[docs]</a>    <span class="k">def</span> <span class="nf">PV_TS_DB_merge</span><span class="p">(</span><span class="n">CC</span><span class="p">,</span> <span class="n">PVdata</span><span class="p">,</span> <span class="n">mergeOnIndex</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Merge/concatenate based on the time axis. The expected structures of</span>
 <span class="sd">        &#39;PVdata&#39; and &#39;CC&#39; DataFrames is a ``Time Stamp`` axis and a ``Time`` index</span>
 <span class="sd">        level on which the concatenation takes place.</span>
@@ -303,8 +297,7 @@
 
         <span class="k">return</span> <span class="n">PV_CC_df</span><span class="p">,</span> <span class="n">col_tup</span></div>
 
-<div class="viewcode-block" id="utilities.DB_COL_stats"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_COL_stats">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">DB_COL_stats</span><span class="p">(</span><span class="n">DF</span><span class="p">,</span> <span class="n">colList</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">stats</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">],</span> <span class="n">norm</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="utilities.DB_COL_stats"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_COL_stats">[docs]</a>    <span class="k">def</span> <span class="nf">DB_COL_stats</span><span class="p">(</span><span class="n">DF</span><span class="p">,</span> <span class="n">colList</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">stats</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">],</span> <span class="n">norm</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Extract stats from multiple columns with a ``CommonKey``.</span>
 
 <span class="sd">        Parameters</span>
@@ -347,8 +340,7 @@
                                      <span class="n">DF</span><span class="p">[</span><span class="n">baseName_stat</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">DF</span></div>
 
-<div class="viewcode-block" id="utilities.CC_lag"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.CC_lag">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">CC_lag</span><span class="p">(</span><span class="n">CC_df</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;us&#39;</span><span class="p">,</span> <span class="n">relVel</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="utilities.CC_lag"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.CC_lag">[docs]</a>    <span class="k">def</span> <span class="nf">CC_lag</span><span class="p">(</span><span class="n">CC_df</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;us&#39;</span><span class="p">,</span> <span class="n">relVel</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Convert CC lag or First Break Picked data from number of sample points</span>
 <span class="sd">        to time or relative velocity change based on:</span>
 <span class="sd">            .. math::</span>
@@ -405,8 +397,7 @@
 
         <span class="k">return</span> <span class="n">CC_df</span></div>
 
-<div class="viewcode-block" id="utilities.CC_integration"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.CC_integration">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">CC_integration</span><span class="p">(</span><span class="n">DF</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">intType</span><span class="o">=</span><span class="s1">&#39;trapz&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="utilities.CC_integration"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.CC_integration">[docs]</a>    <span class="k">def</span> <span class="nf">CC_integration</span><span class="p">(</span><span class="n">DF</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">intType</span><span class="o">=</span><span class="s1">&#39;trapz&#39;</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Performs the integration of multiple columns witin a dataframe which is</span>
 <span class="sd">        expected to contain row index levels &#39;srcNo&#39;, &#39;recNo&#39; and &#39;Time&#39;. Each</span>
 <span class="sd">        srcNo and recNo pair over time will be integrated and added back into the</span>
@@ -465,8 +456,7 @@
 
         <span class="k">return</span> <span class="n">DF_int</span></div>
 
-<div class="viewcode-block" id="utilities.CC_to_K"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.CC_to_K">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">CC_to_K</span><span class="p">(</span><span class="n">DF</span><span class="p">):</span>
+<div class="viewcode-block" id="utilities.CC_to_K"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.CC_to_K">[docs]</a>    <span class="k">def</span> <span class="nf">CC_to_K</span><span class="p">(</span><span class="n">DF</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Convert all Cross-correlation coefficients to decorrelation by applying</span>
 <span class="sd">        the simple transform:</span>
 <span class="sd">            .. math::</span>
@@ -490,8 +480,7 @@
 
         <span class="k">return</span> <span class="n">DF</span></div>
 
-<div class="viewcode-block" id="utilities.Data_CSV_dump"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.Data_CSV_dump">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">Data_CSV_dump</span><span class="p">(</span><span class="n">DF</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">colNames</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">CCtoK</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="utilities.Data_CSV_dump"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.Data_CSV_dump">[docs]</a>    <span class="k">def</span> <span class="nf">Data_CSV_dump</span><span class="p">(</span><span class="n">DF</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">colNames</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">CCtoK</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                       <span class="n">shiftCols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nthRow</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Dumps data from pandas dataframe to csv, intended for tikz plotting.</span>
 <span class="sd">        Note, the following char will be removed from the column names ,\&#39;_\[\]%</span>
@@ -547,8 +536,7 @@
 
         <span class="n">DF_out</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="n">index_label</span> <span class="o">=</span> <span class="s1">&#39;index&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="utilities.Data_atGT"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.Data_atGT">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">Data_atGT</span><span class="p">(</span><span class="n">DF</span><span class="p">,</span> <span class="n">targetCols</span><span class="p">,</span> <span class="n">outputCols</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">pointsCol</span><span class="p">,</span> <span class="n">shiftCols</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="utilities.Data_atGT"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.Data_atGT">[docs]</a>    <span class="k">def</span> <span class="nf">Data_atGT</span><span class="p">(</span><span class="n">DF</span><span class="p">,</span> <span class="n">targetCols</span><span class="p">,</span> <span class="n">outputCols</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">pointsCol</span><span class="p">,</span> <span class="n">shiftCols</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Extracts first datapoint greater than a defined column value</span>
 
 <span class="sd">        Parameters</span>
@@ -605,8 +593,8 @@
 
         <span class="k">return</span> <span class="n">df_trans</span></div>
 
-<div class="viewcode-block" id="utilities.TS_Time"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.TS_Time">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">TS_Time</span><span class="p">(</span><span class="n">DF</span><span class="p">,</span> <span class="n">secPerSamp</span><span class="p">,</span> <span class="n">traceSlice</span><span class="p">,</span> <span class="n">resampleStr</span> <span class="o">=</span> <span class="s1">&#39;1 us&#39;</span><span class="p">,</span> <span class="n">csvDump</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+
+<div class="viewcode-block" id="utilities.TS_Time"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.TS_Time">[docs]</a>    <span class="k">def</span> <span class="nf">TS_Time</span><span class="p">(</span><span class="n">DF</span><span class="p">,</span> <span class="n">secPerSamp</span><span class="p">,</span> <span class="n">traceSlice</span><span class="p">,</span> <span class="n">resampleStr</span> <span class="o">=</span> <span class="s1">&#39;1 us&#39;</span><span class="p">,</span> <span class="n">csvDump</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="n">wdwPos</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fileName</span> <span class="o">=</span> <span class="s1">&#39;traces.csv&#39;</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Takes raw time series dataframe, allowing the slicing, resampling and</span>
 <span class="sd">        re-indexing. Output times are in seconds.</span>
@@ -664,8 +652,8 @@
 
         <span class="k">return</span> <span class="n">DF</span><span class="p">,</span> <span class="n">wdwTimes</span></div>
 
-<div class="viewcode-block" id="utilities.hdf_csv_dump"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.hdf_csv_dump">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">hdf_csv_dump</span><span class="p">(</span><span class="n">DB_fdl</span><span class="p">):</span>
+
+<div class="viewcode-block" id="utilities.hdf_csv_dump"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.hdf_csv_dump">[docs]</a>    <span class="k">def</span> <span class="nf">hdf_csv_dump</span><span class="p">(</span><span class="n">DB_fdl</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Dumps the processed databases to CC, PV, TShdrs to csv files. Note</span>
 <span class="sd">        this function should be run in the run folder, not the database folder</span>
 
@@ -705,8 +693,8 @@
 
         <span class="n">hdf_to_csv</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">CC_tbl_name</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="utilities.run_dataLoad"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.run_dataLoad">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">run_dataLoad</span><span class="p">(</span><span class="n">DB_fdl</span><span class="p">):</span>
+
+<div class="viewcode-block" id="utilities.run_dataLoad"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.run_dataLoad">[docs]</a>    <span class="k">def</span> <span class="nf">run_dataLoad</span><span class="p">(</span><span class="n">DB_fdl</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Loads a previous processing session into memory ready for analysis.</span>
 
 <span class="sd">        - Inputs -</span>
