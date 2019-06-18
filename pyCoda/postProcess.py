@@ -18,7 +18,7 @@ class post_utilities:
     ''' A collection of post processing utility functions
     '''
 
-    @staticmethod
+
     def detect_most_linear(x, y, m, smooth = False, wdw_wdth = 25, poly_ord=3 ):
         ''' Finds the most linear portion of a line via
         Inputs:
@@ -84,7 +84,7 @@ class post_utilities:
 
         return (L_end, x_fit.index[-1])
 
-    @staticmethod
+
     def _yield_search(DF):
         ''' Search for the yield point
         '''
@@ -109,7 +109,7 @@ class post_utilities:
             self.newParam['Yield_p'] = Yield_p
             self.newParam['idx'] = idx
 
-    @staticmethod
+
     def detect_peaks(x, mph=None, mpd=1, threshold=0, edge='rising',
                  kpsh=False, valley=False, show=False, ax=None):
 
@@ -275,7 +275,7 @@ class post_utilities:
 
         return ind
 
-    @staticmethod
+
     def MLTWA_calc(TS_DB, after_FB, Ewdth = None, wd_shift = 0,
                    ref_trace = 0,mph = None, mpd=None, threshold=0, R1_Sign=False,
                    grad_period=-50,
@@ -422,7 +422,7 @@ class post_utilities:
 
         return DB_MLTWA, dict_MLTWA, (ts_slider, hdl, hdl_break, hdl_thsh)
 
-    @staticmethod
+
     def PV_segmentation(PV_df, Segments, targets, indexName='index',
                         shiftCols = None, verbose=False):
         '''Apply a range of data parameterisation methods from segments of input
@@ -500,7 +500,7 @@ class post_utilities:
         df_out.reset_index(inplace=True)
         return df_out
 
-    @staticmethod
+
     def TS_FBP(TS_DB, noiseWD, threshold=1, threshold_shift=0, mpd=1, verbose=False):
         '''This function is intended to perform first break picking
 
@@ -561,7 +561,7 @@ class post_utilities:
         df_FBP.loc[:, 'FBP'] = idx_break
         return df_FBP, (ts_slider, hdl, hdl_break, hdl_thsh)
 
-    @staticmethod
+
     def TS_interactive(TS_DB, idx=None, threshold=False, noiseWD=False,
                        wdws=None):
         '''Interactive plot of time-series data with ability to plot detection
@@ -755,8 +755,6 @@ class post_utilities:
         return noisyCh, SNR, NoiseTraces
 
 
-
-    @staticmethod
     def smooth(x, window_len = 11, window = 'hanning'):
         """smooth the data using a window with requested size.
 
@@ -813,6 +811,40 @@ class post_utilities:
 
         y=np.convolve(w/w.sum(),s,mode='valid')
         return y[0:len(x)]
+
+    def PV_time_shift(PVdata, PV_time_col, PV_time_col_unit, PVstart_date_time):
+        '''Adjusts the Time Stamp column in the PVdata frame.
+
+        Parameters
+        ----------
+        PVdata : DataFrame
+            The dataframe on which operations are performed
+        PV_time_col : str
+            The name of the PV time column to be processed.
+        PV_time_col_unit : str
+            Unit of the time column ``PV_time_col``.
+        PVstart_date_time : str
+            The YYYY-MM-DD ..etc string defining the origin of the ``PV_time_col``.
+
+
+        Examples
+        --------
+        >>> # Determine the PV start date time from the PVdata
+        >>> PV_time_col = 'Time(Days)'
+        >>> shift = 71.3980 - PV_data['Time(Days)'][0]
+        >>> PV_time_origin = pd.Timestamp(pd.to_datetime(TS_data.columns.
+        >>>                               get_level_values('Time')[0]) -
+        >>>                               datetime.timedelta(days = shift))
+        >>>
+
+        '''
+
+        # Create new Time Stamp column in PVdata
+        PVdata['Time Stamp'] = pd.to_datetime(
+                PVdata[PV_time_col],
+                unit=PV_time_col_unit,
+                origin = PVstart_date_time)
+
 
 
 class postProcess:
