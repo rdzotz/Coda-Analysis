@@ -829,13 +829,12 @@ class post_utilities:
 
         Examples
         --------
-        >>> # Determine the PV start date time from the PVdata
-        >>> PV_time_col = 'Time(Days)'
-        >>> shift = 71.3980 - PV_data['Time(Days)'][0]
-        >>> PV_time_origin = pd.Timestamp(pd.to_datetime(TS_data.columns.
-        >>>                               get_level_values('Time')[0]) -
-        >>>                               datetime.timedelta(days = shift))
-        >>>
+        >>> # Determine the origin time of the PVdata
+        >>> origin = pd.to_datetime('20180212180703') - pd.Timedelta(43.6725, unit='D')
+        >>> # Shift the PVdata to the new origin
+        >>> pp.post_utilities.PV_time_shift(PVdata, 'Time(Days)', 'D', origin)
+        >>> # Save the new PVdata back to the HDF5 database
+        >>> dt.utilities.DB_pd_data_save('Ultrasonic_data_DB/Database.h5', 'PVdata', PVdata)
 
         '''
 
