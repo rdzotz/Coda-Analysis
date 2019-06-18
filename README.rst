@@ -4,7 +4,7 @@ Coda Analysis
 Introduction
 ------------
 
-Coda Analysis, is a collection of python code intended for the processing of the coda or diffuse portion recorded waveforms. The basic structure of the raw input data is a series of recorded Time-Series (TSdata), and the corresponding Perturbation Vectors (PVdata). 
+Coda Analysis, is a collection of python code intended for the processing of the coda or diffuse portion of recorded waveforms. The basic structure of the raw input data is a series of recorded Time-Series (TSdata), and the corresponding time-matched Perturbation Vectors (PVdata). The intended application of this package of code is for the monitoring of changes in material properties due to some perturbation.
 
 Author
 ------
