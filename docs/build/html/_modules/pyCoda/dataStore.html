@@ -1,0 +1,409 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyCoda.dataStore &#8212; CWI 0 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyCoda.dataStore</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Thu Mar 16 17:28:03 2017</span>
+
+<span class="sd">@author: rwilson</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">shelve</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="k">import</span> <span class="n">create_engine</span>
+
+<div class="viewcode-block" id="utilities"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dataStore.utilities">[docs]</a><span class="k">class</span> <span class="nc">utilities</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;A logical collection of functions for interacting with </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+<div class="viewcode-block" id="utilities.DB_pd_data_load"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dataStore.utilities.DB_pd_data_load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">DB_pd_data_load</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Loads in a pandas dataframe stored in group from the Database.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Database : str</span>
+<span class="sd">            Relative location of database</span>
+<span class="sd">        group : str</span>
+<span class="sd">            The expected group name</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        group_df : DataFrame</span>
+<span class="sd">            The PV data stored in the group ``PVdata`` as a pandas dataframe</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+    
+        <span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5file</span><span class="p">:</span>
+    
+            <span class="c1"># Check that the expected group name is found in the database</span>
+            <span class="n">group_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">h5file</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+            <span class="n">expected_group_name</span> <span class="o">=</span> <span class="n">group</span>
+            <span class="k">if</span> <span class="n">expected_group_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group_names</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;The </span><span class="si">%s</span><span class="s1"> group was not found within the </span><span class="si">%s</span><span class="s1"> database.&#39;</span> \
+                               <span class="o">%</span><span class="p">(</span><span class="n">expected_group_name</span><span class="p">,</span> <span class="n">Database</span><span class="p">))</span>
+            <span class="c1"># Load the database</span>
+            <span class="n">group_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">h5file</span><span class="p">,</span> <span class="n">expected_group_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">group_df</span></div>
+
+<div class="viewcode-block" id="utilities.hdf_csv_dump"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dataStore.utilities.hdf_csv_dump">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">hdf_csv_dump</span><span class="p">(</span><span class="n">DB_fdl</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Dumps the processed databases to CC, PV, TShdrs to csv files. Note</span>
+<span class="sd">        this function should be run in the run folder, not the database folder</span>
+
+<span class="sd">        ---inputs---</span>
+<span class="sd">        DB_fdl: relative or absolute location to the folder where all database</span>
+<span class="sd">        files are located</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">def</span> <span class="nf">hdf_to_csv</span><span class="p">(</span><span class="n">hdf_DB</span><span class="p">,</span> <span class="n">tbl_name</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39; Save hdf DB to csv</span>
+<span class="sd">            hdf_DB: HDF5  database rel of abs path and name</span>
+<span class="sd">            tbl_name: Name of table in database</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">hdf_DB</span><span class="p">,</span> <span class="n">tbl_name</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">DB_fdl</span><span class="o">+</span><span class="n">tbl_name</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Expected HDF5 table names</span>
+        <span class="n">CC_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;CC&#39;</span>
+        <span class="n">PV_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;PV_df&#39;</span>
+        <span class="n">PV_full_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;PV_df_full&#39;</span>
+        <span class="n">TShdrs_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;TShdrs&#39;</span>
+        <span class="n">TS_df_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;TS_df&#39;</span>
+
+         <span class="c1"># Expected HDF5 db names</span>
+        <span class="n">DB_tbl</span> <span class="o">=</span> <span class="n">DB_fdl</span><span class="o">+</span><span class="s1">&#39;DB_tbl_processed.h5&#39;</span>
+        <span class="n">TS_cut</span> <span class="o">=</span> <span class="n">DB_fdl</span><span class="o">+</span><span class="s1">&#39;TS_cut.h5&#39;</span>
+
+        <span class="c1"># Load expected param file</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">DB_fdl</span><span class="o">+</span><span class="s1">&#39;param.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+        <span class="c1"># Dump all expected DB tables to csv files</span>
+        <span class="n">hdf_to_csv</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">PV_tbl_name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;matched&#39;</span><span class="p">]:</span>
+            <span class="n">hdf_to_csv</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">PV_full_tbl_name</span><span class="p">)</span>
+        <span class="n">hdf_to_csv</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">TShdrs_tbl_name</span><span class="p">)</span>
+
+        <span class="n">hdf_to_csv</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">CC_tbl_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="utilities.run_dataLoad"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dataStore.utilities.run_dataLoad">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">run_dataLoad</span><span class="p">(</span><span class="n">DB_fdl</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Loads a previous processing session into memory ready for analysis.</span>
+
+<span class="sd">        - Inputs -</span>
+<span class="sd">        DB_fdl: input folder holding the expected databases in the form</span>
+<span class="sd">                &#39;DB_fld/&#39;</span>
+
+<span class="sd">        - Outputs -</span>
+<span class="sd">        PV_df:  Main database holding PV, and CC data</span>
+<span class="sd">        TS_DB:  Database of TS data</span>
+<span class="sd">        PV_df_full: Database including all PV data, empty if original PV and TS</span>
+<span class="sd">                    data was coincident already.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">def</span> <span class="nf">from_pkl</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39; Load pickel files</span>
+<span class="sd">            fname: file name rel or abs path</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+                <span class="n">obj_dict</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">obj_dict</span>
+            <span class="k">except</span> <span class="ne">EOFError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">def</span> <span class="nf">from_hdf5</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">tbl_name</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;Save expected df to hdf5 database</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">tbl_name</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">df</span>
+
+        <span class="c1"># ------------------ Setup ------------------ #</span>
+
+        <span class="c1"># Load the param file data</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">from_pkl</span><span class="p">(</span><span class="n">DB_fdl</span><span class="o">+</span><span class="s1">&#39;param.txt&#39;</span><span class="p">)</span>
+
+        <span class="c1"># The database names</span>
+        <span class="n">DB_tbl</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="n">DB_fdl</span><span class="o">+</span><span class="s1">&#39;DB_tbl_processed.h5&#39;</span><span class="p">)</span>
+        <span class="n">TS_cut</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="n">DB_fdl</span><span class="o">+</span><span class="s1">&#39;TS_cut.h5&#39;</span><span class="p">)</span>
+
+        <span class="c1"># tabel names</span>
+        <span class="n">PV_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;PV_df&#39;</span>
+        <span class="n">PV_full_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;PV_df_full&#39;</span>
+        <span class="n">TS_df_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;TS_df&#39;</span>
+
+        <span class="n">PV_df</span> <span class="o">=</span> <span class="n">from_hdf5</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">PV_tbl_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;TSmatched&#39;</span> <span class="ow">in</span> <span class="n">param</span> <span class="ow">and</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;TSmatched&#39;</span><span class="p">]:</span>
+            <span class="n">PV_df_full</span> <span class="o">=</span> <span class="n">from_hdf5</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">PV_full_tbl_name</span><span class="p">)</span>
+
+        <span class="c1"># TS_df = from_hdf5(TS_cut, TS_df_tbl_name)</span>
+        <span class="n">TS_DB</span> <span class="o">=</span> <span class="n">from_hdf5</span><span class="p">(</span><span class="n">TS_cut</span><span class="p">,</span> <span class="n">TS_df_tbl_name</span><span class="o">+</span><span class="s1">&#39;DB&#39;</span><span class="p">)</span>
+        <span class="c1"># TShdrs = from_hdf5(DB_tbl, TShdrs_tbl_name)</span>
+        <span class="c1"># CC = from_hdf5(DB_tbl, CC_tbl_name)</span>
+
+        <span class="c1"># Close the DB&#39;s</span>
+        <span class="n">DB_tbl</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">TS_cut</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">PV_df</span><span class="p">,</span> <span class="n">TS_DB</span><span class="p">,</span> <span class="n">PV_df_full</span><span class="p">,</span> <span class="n">param</span></div></div>
+
+
+<div class="viewcode-block" id="dataStore"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dataStore.dataStore">[docs]</a><span class="k">class</span> <span class="nc">dataStore</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;This class is intended to handel the storage of all data aquired and or</span>
+<span class="sd">    generated during the processing.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="p">{},</span> <span class="n">PV_df</span><span class="o">=</span><span class="p">[],</span> <span class="n">PV_df_full</span><span class="o">=</span><span class="p">[],</span> <span class="n">TS_df</span><span class="o">=</span><span class="p">[],</span>
+                 <span class="n">TS_DB</span><span class="o">=</span><span class="p">[],</span> <span class="n">TShdrs</span><span class="o">=</span><span class="p">[],</span> <span class="n">CC</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="n">param</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span> <span class="o">=</span> <span class="n">PV_df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PV_df_full</span> <span class="o">=</span><span class="n">PV_df_full</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TS_df</span> <span class="o">=</span> <span class="n">TS_df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TS_DB</span> <span class="o">=</span> <span class="n">TS_DB</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span> <span class="o">=</span> <span class="n">TShdrs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CC</span> <span class="o">=</span> <span class="n">CC</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CC_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;CC&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PV_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;PV_df&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PV_full_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;PV_df_full&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;TShdrs&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TS_df_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;TS_df&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">DB_fdl</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;TSloc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_DB/&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">DB_tbl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DB_fdl</span><span class="o">+</span><span class="s1">&#39;DB_tbl_processed.h5&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TS_cut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DB_fdl</span><span class="o">+</span><span class="s1">&#39;TS_cut.h5&#39;</span>
+
+<div class="viewcode-block" id="dataStore.pre_process"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dataStore.dataStore.pre_process">[docs]</a>    <span class="k">def</span> <span class="nf">pre_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; check inputs are in the correct or expected format, process if</span>
+<span class="sd">        required.</span>
+<span class="sd">        &#39;&#39;&#39;</span></div>
+
+<div class="viewcode-block" id="dataStore.post_process"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dataStore.dataStore.post_process">[docs]</a>    <span class="k">def</span> <span class="nf">post_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; check loaded DB is of the expected format, process if</span>
+<span class="sd">        required.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TS_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TS_df</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span></div>
+<span class="c1">#        self.PV_df.set_index(&#39;Date&#39;, drop=True, inplace=True)</span>
+<span class="c1">#        self.TS_df.drop(&#39;index&#39;, axis=1, inplace=True)</span>
+<span class="c1">#        self.TS_df = self.TS_df.as_matrix()</span>
+<span class="c1">#        self.TShdrs.set_index([&#39;level_0&#39;, &#39;level_1&#39;], inplace=True)</span>
+
+<div class="viewcode-block" id="dataStore.checkSetup"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dataStore.dataStore.checkSetup">[docs]</a>    <span class="k">def</span> <span class="nf">checkSetup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; This functions checks the setup file to determine if any param have</span>
+<span class="sd">        changed. If yes, the processing will be re-run, otherweise the saved</span>
+<span class="sd">        datebases will be loaded. return True if change is detected</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">def</span> <span class="nf">dict_compare</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">):</span>
+            <span class="n">d1_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">d1</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">d2_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">d2</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">intersect_keys</span> <span class="o">=</span> <span class="n">d1_keys</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">d2_keys</span><span class="p">)</span>
+            <span class="n">added</span> <span class="o">=</span> <span class="n">d1_keys</span> <span class="o">-</span> <span class="n">d2_keys</span>
+            <span class="n">removed</span> <span class="o">=</span> <span class="n">d2_keys</span> <span class="o">-</span> <span class="n">d1_keys</span>
+            <span class="n">modified</span> <span class="o">=</span> <span class="p">{</span><span class="n">o</span> <span class="p">:</span> <span class="p">(</span><span class="n">d1</span><span class="p">[</span><span class="n">o</span><span class="p">],</span> <span class="n">d2</span><span class="p">[</span><span class="n">o</span><span class="p">])</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">intersect_keys</span> <span class="k">if</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">d1</span><span class="p">[</span><span class="n">o</span><span class="p">]</span> <span class="o">!=</span> <span class="n">d2</span><span class="p">[</span><span class="n">o</span><span class="p">])}</span>
+            <span class="c1"># same = set(o for o in intersect_keys if np.all(d1[o] == d2[o]))</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">added</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;</span> <span class="nb">len</span><span class="p">(</span><span class="n">removed</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;</span> <span class="nb">len</span> <span class="p">(</span><span class="n">modified</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">check</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_pkl</span><span class="p">(</span><span class="s1">&#39;param.txt&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="n">dict_compare</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">,</span> <span class="n">check</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="dataStore.to_hdf5"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dataStore.dataStore.to_hdf5">[docs]</a>    <span class="k">def</span> <span class="nf">to_hdf5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">DB_tbl</span><span class="p">,</span><span class="n">df</span><span class="p">,</span><span class="n">tbl_name</span><span class="p">,</span><span class="n">form</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Save expected df to hdf5 database</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">tbl_name</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">form</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">tbl_name</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">form</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="dataStore.from_hdf5"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dataStore.dataStore.from_hdf5">[docs]</a>    <span class="k">def</span> <span class="nf">from_hdf5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">DB_tbl</span><span class="p">,</span><span class="n">tbl_name</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Save expected df to hdf5 database</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">tbl_name</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="dataStore.from_sql_DB"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dataStore.dataStore.from_sql_DB">[docs]</a>    <span class="k">def</span> <span class="nf">from_sql_DB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tbl_name</span><span class="p">,</span> <span class="n">DB_egn</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Load data from the sql_DB uponsd</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_table</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">,</span> <span class="n">DB_egn</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="dataStore.from_pkl"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dataStore.dataStore.from_pkl">[docs]</a>    <span class="k">def</span> <span class="nf">from_pkl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Load pickel files</span>
+<span class="sd">        fname: file name rel or abs path</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+            <span class="n">obj_dict</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">obj_dict</span>
+        <span class="k">except</span>  <span class="ne">EOFError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="dataStore.to_pkl"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dataStore.dataStore.to_pkl">[docs]</a>    <span class="k">def</span> <span class="nf">to_pkl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Save pickel files</span>
+<span class="sd">        data: data to pickel</span>
+<span class="sd">        fname: file name rel or abs path</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;w+b&#39;</span><span class="p">)</span>
+
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="dataStore.hdf_to_csv"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dataStore.dataStore.hdf_to_csv">[docs]</a>    <span class="k">def</span> <span class="nf">hdf_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hdf_DB</span><span class="p">,</span> <span class="n">tbl_name</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Save hdf DB to csv</span>
+<span class="sd">        hdf_DB: HDF5  database rel of abs path and name</span>
+<span class="sd">        tbl_name: Name of table in database</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_hdf5</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span><span class="n">tbl_name</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="dataStore.run_dataStore"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dataStore.dataStore.run_dataStore">[docs]</a>    <span class="k">def</span> <span class="nf">run_dataStore</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; run the expected data storage workflow</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># The database names</span>
+        <span class="n">DB_tbl</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DB_tbl</span><span class="p">)</span>
+        <span class="n">TS_cut</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TS_cut</span><span class="p">)</span>
+
+        <span class="c1"># Save to hdf5 databases</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_hdf5</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span><span class="p">,</span><span class="s1">&#39;PV_df&#39;</span><span class="p">,</span><span class="s1">&#39;t&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;TSmatched&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;TSmatched&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">to_hdf5</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PV_df_full</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PV_full_tbl_name</span><span class="p">,</span><span class="s1">&#39;t&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_hdf5</span><span class="p">(</span><span class="n">TS_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TS_df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TS_df_tbl_name</span><span class="p">,</span><span class="s1">&#39;f&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_hdf5</span><span class="p">(</span><span class="n">TS_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TS_DB</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TS_df_tbl_name</span><span class="o">+</span><span class="s1">&#39;DB&#39;</span><span class="p">,</span><span class="s1">&#39;f&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_hdf5</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs_tbl_name</span><span class="p">,</span><span class="s1">&#39;f&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_hdf5</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">CC</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">CC_tbl_name</span><span class="p">,</span><span class="s1">&#39;t&#39;</span><span class="p">)</span>
+
+        <span class="n">DB_tbl</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">TS_cut</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># Pickle the param file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_pkl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DB_fdl</span><span class="o">+</span><span class="s1">&#39;param.txt&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="dataStore.run_dataLoad"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dataStore.dataStore.run_dataLoad">[docs]</a>    <span class="k">def</span> <span class="nf">run_dataLoad</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; run the expected data loading workflow</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Pickle data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_pkl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DB_fdl</span><span class="o">+</span><span class="s1">&#39;param.txt&#39;</span><span class="p">)</span>
+
+        <span class="c1"># The database names</span>
+        <span class="n">DB_tbl</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DB_tbl</span><span class="p">)</span>
+        <span class="n">TS_cut</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TS_cut</span><span class="p">)</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_hdf5</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">PV_tbl_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;TSmatched&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;TSmatched&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PV_df_full</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_hdf5</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PV_full_tbl_name</span><span class="p">)</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">TS_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_hdf5</span><span class="p">(</span><span class="n">TS_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TS_df_tbl_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TS_DB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_hdf5</span><span class="p">(</span><span class="n">TS_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TS_df_tbl_name</span><span class="o">+</span><span class="s1">&#39;DB&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_hdf5</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs_tbl_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CC</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_hdf5</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">CC_tbl_name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_process</span><span class="p">()</span>
+
+        <span class="c1"># Close the DB&#39;s</span>
+        <span class="n">DB_tbl</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">TS_cut</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PV_df_full</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TS_df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TS_DB</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">CC</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Reuben Zotz-wilson.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>

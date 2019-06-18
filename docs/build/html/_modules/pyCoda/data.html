@@ -1,0 +1,1428 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyCoda.data &#8212; CWI 0 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyCoda.data</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Implements the global import of all data</span>
+
+<span class="sd">Created on Mon Dec 26 20:51:08 2016</span>
+<span class="sd">@author: rwilson</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">repeat</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">from</span> <span class="nn">dateutil.parser</span> <span class="k">import</span> <span class="n">parse</span>
+<span class="kn">import</span> <span class="nn">codecs</span>
+<span class="kn">from</span> <span class="nn">scipy.io</span> <span class="k">import</span> <span class="n">loadmat</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">signal</span>
+
+
+<span class="kn">import</span> <span class="nn">shelve</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="k">import</span> <span class="n">create_engine</span>
+
+<div class="viewcode-block" id="utilities"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities">[docs]</a><span class="k">class</span> <span class="nc">utilities</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;Collection of functions intended for data related processes.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="utilities.DB_group_names"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_group_names">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">DB_group_names</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="n">group_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Read in group names found within group. If group is not provided the</span>
+<span class="sd">        upper folder structure will be read from.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Database : str</span>
+<span class="sd">            Relative location of database</span>
+<span class="sd">        group_name : str</span>
+<span class="sd">            The expected attribute name/s</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        group_names : list</span>
+<span class="sd">            Group names found within the group</span>
+
+<span class="sd">        notes</span>
+<span class="sd">        -----</span>
+<span class="sd">            Add some additional error checks</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5file</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">group_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">group</span> <span class="o">=</span> <span class="n">h5file</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">group_name</span><span class="p">)</span>
+                <span class="n">group_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">group_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">h5file</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+
+        <span class="k">return</span> <span class="n">group_names</span></div>
+
+<div class="viewcode-block" id="utilities.DB_attrs_save"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_attrs_save">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">DB_attrs_save</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Save attribute to database head.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Database : str</span>
+<span class="sd">            Relative location of database</span>
+<span class="sd">        dictionary : dict</span>
+<span class="sd">            Dictionary of attributes</span>
+
+<span class="sd">        notes</span>
+<span class="sd">        -----</span>
+<span class="sd">            Add some additional error checks</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* The following </span><span class="si">%s</span><span class="s1"> attributes will be updated&#39;</span> <span class="o">%</span> <span class="n">Database</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5file</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">item</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dictionary</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Key:&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span><span class="s1">&#39;| item:&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+                    <span class="n">h5file</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span></div>
+
+<div class="viewcode-block" id="utilities.DB_attrs_load"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_attrs_load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">DB_attrs_load</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="n">attrs_names</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Read attribute from database head.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Database : str</span>
+<span class="sd">            Relative location of database</span>
+<span class="sd">        attrs_names : list(str)</span>
+<span class="sd">            The expected attribute name/s</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict_attri : dict</span>
+<span class="sd">            The returned dictionary of attribute/s from the database</span>
+
+<span class="sd">        notes</span>
+<span class="sd">        -----</span>
+<span class="sd">            Add some additional error checks</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">dict_attrs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5file</span><span class="p">:</span>
+
+            <span class="k">for</span> <span class="n">attrs_name</span> <span class="ow">in</span> <span class="n">attrs_names</span><span class="p">:</span>
+                <span class="c1"># Load the database</span>
+                <span class="n">attrs</span> <span class="o">=</span> <span class="n">h5file</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attrs_name</span><span class="p">]</span>
+                <span class="n">dict_attrs</span><span class="p">[</span><span class="n">attrs_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrs</span>
+
+        <span class="k">return</span> <span class="n">dict_attrs</span></div>
+
+<div class="viewcode-block" id="utilities.DB_pd_data_load"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_pd_data_load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">DB_pd_data_load</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">whereList</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Loads in a pandas dataframe stored in group from the Database.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Database : str</span>
+<span class="sd">            Relative location of database</span>
+<span class="sd">        group : str</span>
+<span class="sd">            The expected group name</span>
+<span class="sd">        cols : list(str) / list(int)</span>
+<span class="sd">            If not None, will limit the return columns, only applicable for ``table``</span>
+<span class="sd">            format database. For ``fixed`` format database only int accepted</span>
+<span class="sd">        whereList : list of Term (or convertable) objects or slice(from, to)</span>
+<span class="sd">             The conditional import of data, example [&#39;index&gt;11&#39;, &#39;index&lt;20&#39;],</span>
+<span class="sd">             only applicable for ``table`` format database. For ``fixed`` format</span>
+<span class="sd">             database only a slice object is applicable and will use the row index</span>
+<span class="sd">             numbers not the index values (i.e. df.iloc vs df.loc)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        group_df : DataFrame</span>
+<span class="sd">            The PV data stored in the group ``PVdata`` as a pandas dataframe</span>
+
+
+<span class="sd">        TSsurvey =  pd.read_hdf(h5file, &#39;survey20180312093545&#39;,</span>
+<span class="sd">                    columns=[(1,1), (1,2)], # Load specific columns</span>
+<span class="sd">                    where = [&#39;index&gt;11&#39;, &#39;index&lt;20&#39;]) # Load index 11 -&gt; 20</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5file</span><span class="p">:</span>
+
+            <span class="c1"># Check that the expected group name is found in the database</span>
+<span class="c1">#            group_names = [key for key in h5file.keys()]</span>
+<span class="c1">#            expected_group_name = &#39;/&#39;+group</span>
+<span class="c1">#            if expected_group_name not in group_names:</span>
+<span class="c1">#                raise KeyError(&#39;The %s group was not found within the %s database.&#39; \</span>
+<span class="c1">#                               %(expected_group_name, Database))</span>
+            <span class="c1"># Load the database</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">group_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">h5file</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="n">cols</span><span class="p">,</span> <span class="n">where</span> <span class="o">=</span> <span class="n">whereList</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5file</span><span class="p">:</span>
+                    <span class="n">group_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">h5file</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
+                <span class="n">group_df</span> <span class="o">=</span> <span class="n">group_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">whereList</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">group_df</span></div>
+
+<div class="viewcode-block" id="utilities.DB_pd_data_save"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_pd_data_save">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">DB_pd_data_save</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Saves in a pandas dataframe stored in group from the Database.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Database : str</span>
+<span class="sd">            Relative location of database</span>
+<span class="sd">        group : str</span>
+<span class="sd">            The expected group name</span>
+<span class="sd">        df : DateFrame</span>
+<span class="sd">            Pandas DataFrame to be stored in h5 file ``Database``</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="n">Database</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5file</span><span class="p">:</span>
+            <span class="c1"># Save the database</span>
+             <span class="n">df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">h5file</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="utilities.PV_TS_DB_merge"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.PV_TS_DB_merge">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">PV_TS_DB_merge</span><span class="p">(</span><span class="n">CC</span><span class="p">,</span> <span class="n">PVdata</span><span class="p">,</span> <span class="n">mergeOnIndex</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Merge/concatenate based on the time axis. The expected structures of</span>
+<span class="sd">        &#39;PVdata&#39; and &#39;CC&#39; DataFrames is a ``Time Stamp`` axis and a ``Time`` index</span>
+<span class="sd">        level on which the concatenation takes place.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        CC : DataFrame of list(DataFrame)</span>
+<span class="sd">            Expected to contain the processed data or a list of DataFrame with</span>
+<span class="sd">            processed data. The index must be a timestam.</span>
+<span class="sd">        PVdata : DataFrame</span>
+<span class="sd">            A single DataFrame containing the corresponding perturbation information</span>
+<span class="sd">            and must contain a column ``Time Stamp``, which will be used during the</span>
+<span class="sd">            concatentation/merge.</span>
+<span class="sd">        mergeOnIndex : Default False</span>
+<span class="sd">            Merge based on the index values. Currently only works when a single ``CC``</span>
+<span class="sd">            DataFrame is provided, and not for a list of DF.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PV_CC_df : DataFrame</span>
+<span class="sd">            Merged/concatenated dataframe of both PV and Coda processed data.</span>
+<span class="sd">        column_values : array</span>
+<span class="sd">            of tuples defining the multi-level indecies of the CC data.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Load the individual dataframes.</span>
+        <span class="c1"># CC = utilities.DB_pd_data_load(Database, &#39;CCprocessed&#39;)</span>
+        <span class="c1"># PVdata = utilities.DB_pd_data_load(Database, &#39;PVdata&#39;)</span>
+
+        <span class="c1"># Convert the Time to datetime</span>
+
+        <span class="c1"># Dealing with single CC dataframe</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">CC</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span> <span class="n">CC</span><span class="o">=</span> <span class="p">[</span><span class="n">CC</span><span class="p">]</span>
+
+        <span class="n">CC_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">col_tup</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">CC_df</span> <span class="ow">in</span> <span class="n">CC</span><span class="p">:</span>
+            <span class="n">CC_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">set_levels</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">CC_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">level</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span>
+                                           <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Pivot the otermost row indcies to columns</span>
+            <span class="n">CC_test</span> <span class="o">=</span> <span class="n">CC_df</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">CC_test</span> <span class="o">=</span> <span class="n">CC_test</span><span class="o">.</span><span class="n">reorder_levels</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s1">&#39;lag&#39;</span><span class="p">,</span> <span class="s1">&#39;window&#39;</span><span class="p">,</span> <span class="s1">&#39;srcNo&#39;</span><span class="p">,</span> <span class="s1">&#39;recNo&#39;</span><span class="p">,</span><span class="s1">&#39;Parameters&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">CC_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CC_test</span><span class="p">)</span>
+            <span class="n">col_tup</span> <span class="o">=</span> <span class="n">col_tup</span> <span class="o">+</span> <span class="n">CC_test</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="n">PVdata</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;Time Stamp&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">mergeOnIndex</span><span class="p">:</span>
+            <span class="n">PV_CC_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">PVdata</span><span class="p">,</span> <span class="n">CC_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">PV_CC_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">PVdata</span><span class="p">]</span> <span class="o">+</span> <span class="n">CC_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">interpCols</span> <span class="o">=</span> <span class="n">PVdata</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">PV_CC_df</span><span class="p">[</span><span class="n">interpCols</span><span class="p">]</span> <span class="o">=</span> <span class="n">PV_CC_df</span><span class="p">[</span><span class="n">interpCols</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">PV_CC_df</span><span class="p">,</span> <span class="n">col_tup</span></div>
+
+<div class="viewcode-block" id="utilities.DB_COL_stats"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.DB_COL_stats">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">DB_COL_stats</span><span class="p">(</span><span class="n">DF</span><span class="p">,</span> <span class="n">colList</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">stats</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">],</span> <span class="n">norm</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Extract stats from multiple columns with a ``CommonKey``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        DF : DataFrame</span>
+<span class="sd">            Dataframe from which statistics will be generated.</span>
+<span class="sd">        colList : str</span>
+<span class="sd">            a list of columns from which the stats will be made.</span>
+<span class="sd">        baseName : str</span>
+<span class="sd">            The base name of the new columns to which &#39;_[stats]&#39; will be appended.</span>
+<span class="sd">        stats : list</span>
+<span class="sd">            A list of strings containing the requested stats to be generated for</span>
+<span class="sd">            columns with ``CommonKey``.</span>
+<span class="sd">        norm : list</span>
+<span class="sd">            Perform a min-max norm of the added statistic between 0 and 1.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        DF : DataFrame</span>
+<span class="sd">            Original dataframe plus columns containing requested stats.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">stat</span> <span class="ow">in</span> <span class="n">stats</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">baseName</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="n">baseName_stat</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">baseName</span><span class="p">)</span>
+                <span class="n">baseName_stat</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">baseName_stat</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">stat</span>
+                <span class="n">baseName_stat</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">baseName_stat</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">baseName_stat</span> <span class="o">=</span> <span class="n">baseName</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">stat</span>
+
+            <span class="k">if</span> <span class="n">stat</span> <span class="ow">is</span> <span class="s1">&#39;mean&#39;</span><span class="p">:</span>
+                <span class="n">DF</span><span class="p">[</span><span class="n">baseName_stat</span><span class="p">]</span> <span class="o">=</span> <span class="n">DF</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">colList</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">stat</span> <span class="ow">is</span> <span class="s1">&#39;std&#39;</span><span class="p">:</span>
+                <span class="n">DF</span><span class="p">[</span><span class="n">baseName_stat</span><span class="p">]</span> <span class="o">=</span> <span class="n">DF</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">colList</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">norm</span><span class="p">:</span>
+                <span class="n">DF</span><span class="p">[</span><span class="n">baseName_stat</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">DF</span><span class="p">[</span><span class="n">baseName_stat</span><span class="p">]</span> <span class="o">-</span>
+                                     <span class="n">DF</span><span class="p">[</span><span class="n">baseName_stat</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">/</span> \
+                                    <span class="p">(</span><span class="n">DF</span><span class="p">[</span><span class="n">baseName_stat</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span>
+                                     <span class="n">DF</span><span class="p">[</span><span class="n">baseName_stat</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">DF</span></div>
+
+<div class="viewcode-block" id="utilities.CC_lag"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.CC_lag">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">CC_lag</span><span class="p">(</span><span class="n">CC_df</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;us&#39;</span><span class="p">,</span> <span class="n">relVel</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Convert CC lag or First Break Picked data from number of sample points</span>
+<span class="sd">        to time or relative velocity change based on:</span>
+<span class="sd">            .. math::</span>
+<span class="sd">                \dfrac{\delta v}{v} = \dfrac{\delta t}{t}</span>
+<span class="sd">        Expected column names should either contain &#39;lag&#39; in the last of a tuple,</span>
+<span class="sd">        eg. col[-1] in the case of lag correction, or &#39;FBP&#39; in the case of First</span>
+<span class="sd">        Break Picking correction. If a &#39;FBP&#39; correction is required, then the</span>
+<span class="sd">        correct input initial velocity should be given.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        CC_df : DataFrame</span>
+<span class="sd">            Dataframe from which statistics will be generated. A three level</span>
+<span class="sd">            dataframe is expected where the lowest level</span>
+<span class="sd">        period : float</span>
+<span class="sd">            Seconds per sample</span>
+<span class="sd">        units : str</span>
+<span class="sd">            unit of the arg (D,s,ms,us,ns) denote the unit, which is an integer</span>
+<span class="sd">            or float number.</span>
+<span class="sd">        relVel : bool</span>
+<span class="sd">            Output the lag in terms of the relative velocity change.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        DF : DataFrame</span>
+<span class="sd">            Original dataframe with the lag columns modified as specified.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">unit_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;us&#39;</span><span class="p">:</span> <span class="mf">10E6</span><span class="p">,</span> <span class="s1">&#39;ms&#39;</span><span class="p">:</span> <span class="mf">10E3</span><span class="p">,</span> <span class="s1">&#39;ns&#39;</span><span class="p">:</span> <span class="mf">10E9</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+
+        <span class="c1"># Find all the lag/FBP columns</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">CC_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;lag&#39;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span>
+                <span class="s1">&#39;FBP&#39;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">relVel</span> <span class="ow">and</span> <span class="s1">&#39;FBP&#39;</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="n">Vint</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">CC_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">period</span><span class="p">)</span>
+            <span class="n">deltaV</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">CC_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">*</span> <span class="n">period</span><span class="p">)</span> <span class="o">-</span> <span class="n">Vint</span>
+
+            <span class="n">CC_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">deltaV</span><span class="o">/</span><span class="n">Vint</span>
+            <span class="k">return</span> <span class="n">CC_df</span>
+
+        <span class="k">elif</span> <span class="n">relVel</span><span class="p">:</span>
+            <span class="c1"># Middle of each window</span>
+            <span class="n">t_prop</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([(</span><span class="nb">int</span><span class="p">(</span><span class="n">wdw</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span>
+                                <span class="nb">int</span><span class="p">(</span><span class="n">wdw</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]))</span><span class="o">/</span><span class="mi">2</span>
+                               <span class="k">for</span> <span class="n">wdw</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">])</span> <span class="o">*</span> <span class="n">unit_dict</span><span class="p">[</span><span class="n">units</span><span class="p">]</span> <span class="o">*</span> <span class="n">period</span>
+
+            <span class="n">CC_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">CC_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">*</span> \
+                                 <span class="n">period</span> <span class="o">*</span> <span class="n">unit_dict</span><span class="p">[</span><span class="n">units</span><span class="p">]</span> <span class="o">/</span> <span class="n">t_prop</span>
+            <span class="k">return</span> <span class="n">CC_df</span>
+
+        <span class="n">t_prop</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">CC_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">CC_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">*</span> \
+                                        <span class="n">period</span> <span class="o">*</span> <span class="n">unit_dict</span><span class="p">[</span><span class="n">units</span><span class="p">]</span> <span class="o">/</span> <span class="n">t_prop</span>
+
+        <span class="k">return</span> <span class="n">CC_df</span></div>
+
+<div class="viewcode-block" id="utilities.CC_integration"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.CC_integration">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">CC_integration</span><span class="p">(</span><span class="n">DF</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">intType</span><span class="o">=</span><span class="s1">&#39;trapz&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Performs the integration of multiple columns witin a dataframe which is</span>
+<span class="sd">        expected to contain row index levels &#39;srcNo&#39;, &#39;recNo&#39; and &#39;Time&#39;. Each</span>
+<span class="sd">        srcNo and recNo pair over time will be integrated and added back into the</span>
+<span class="sd">        DF.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        DF : DataFrame</span>
+<span class="sd">            Dataframe of the data to be integrated which must be row indexed by</span>
+<span class="sd">            ``datetime64[ns]``.</span>
+<span class="sd">        dx : str (Default &#39;index&#39;)</span>
+<span class="sd">            If set to &#39;index&#39; than integration is performed based on the time axis</span>
+<span class="sd">        intType : str (Default &#39;trapz&#39;)</span>
+<span class="sd">            The type of integration to use. trapz for trapezoid, cumsum for pure</span>
+<span class="sd">            cummulative summation.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        DF_int : DataFrame</span>
+<span class="sd">            THe same dimensions and row indicies as DF containing the cumtrapz</span>
+<span class="sd">            integration.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">integrate</span>
+        <span class="kn">import</span> <span class="nn">itertools</span>
+
+        <span class="c1"># Define empty integration dataframe</span>
+        <span class="n">col_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">DF</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span>
+        <span class="n">col_list_int</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">col_int</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">col_int</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;-int&#39;</span><span class="p">])</span>
+                            <span class="k">for</span> <span class="n">col_int</span> <span class="ow">in</span> <span class="n">col_list</span><span class="p">]</span>
+
+        <span class="n">colIndex</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span><span class="n">col_list_int</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">DF</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+        <span class="n">DF_int</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">colIndex</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">DF</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+        <span class="c1"># Extract each unique src-rec pair in the DF</span>
+        <span class="n">src_rec_pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">src</span><span class="p">,</span> <span class="n">rec</span><span class="p">)</span> <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">rec</span> <span class="ow">in</span>
+            <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span>
+                    <span class="n">DF</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;srcNo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="n">DF</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;recNo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">src_rec</span> <span class="ow">in</span> <span class="n">src_rec_pairs</span><span class="p">:</span>
+            <span class="c1"># Generate the index which will be integrated and convert to seconds</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">DF</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_rec</span><span class="o">+</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),)]</span>
+            <span class="k">if</span> <span class="n">dx</span><span class="o">==</span><span class="s1">&#39;index&#39;</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">/</span><span class="mi">10</span><span class="o">**</span><span class="mi">9</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dx</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="n">intType</span><span class="o">==</span><span class="s1">&#39;trapz&#39;</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+                <span class="n">y_int</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="c1"># Add data to dataframe</span>
+                <span class="n">DF_int</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_rec</span><span class="o">+</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),)]</span> <span class="o">=</span> <span class="n">y_int</span>
+
+            <span class="k">elif</span> <span class="n">intType</span><span class="o">==</span><span class="s1">&#39;cumsum&#39;</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">)</span>
+                <span class="n">DF_int</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_rec</span><span class="o">+</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),)]</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="k">return</span> <span class="n">DF_int</span></div>
+
+<div class="viewcode-block" id="utilities.CC_to_K"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.CC_to_K">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">CC_to_K</span><span class="p">(</span><span class="n">DF</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Convert all Cross-correlation coefficients to decorrelation by applying</span>
+<span class="sd">        the simple transform:</span>
+<span class="sd">            .. math::</span>
+<span class="sd">                K = 1- CC</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        DF : DataFrame</span>
+<span class="sd">            Dataframe with multi level columns where the cross-correlation</span>
+<span class="sd">            coefficients are expected to be named &#39;CC&#39;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        DF_int : DataFrame</span>
+<span class="sd">            The dataframe is returned with only the data of the columns modified.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">CC_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">DF</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s1">&#39;CC&#39;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">]</span>
+        <span class="n">DF</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">CC_cols</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">DF</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">CC_cols</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">DF</span></div>
+
+<div class="viewcode-block" id="utilities.Data_CSV_dump"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.Data_CSV_dump">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">Data_CSV_dump</span><span class="p">(</span><span class="n">DF</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">colNames</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">CCtoK</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                      <span class="n">shiftCols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nthRow</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Dumps data from pandas dataframe to csv, intended for tikz plotting.</span>
+<span class="sd">        Note, the following char will be removed from the column names ,\&#39;_\[\]%</span>
+<span class="sd">        and any row of the selected ``colNames`` containing atleast one NaN will</span>
+<span class="sd">        be filled with ``0``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        DF : DataFrame</span>
+<span class="sd">            DataFrame to be dumped</span>
+<span class="sd">        fileName : str</span>
+<span class="sd">            Name of the csv file saved to current working directory.</span>
+<span class="sd">        colNames : list</span>
+<span class="sd">            The columns to be dumped.</span>
+<span class="sd">        indices : slice</span>
+<span class="sd">            The slice object of indix values to be dumped.</span>
+<span class="sd">        CCtoK : bool (Default = False)</span>
+<span class="sd">            Convert all cross-correlation data to decorrelation. Expected column</span>
+<span class="sd">            names as tuples with the last entry equal to &#39;CC&#39; or &#39;CC_mean&#39;</span>
+<span class="sd">        shiftCols : list (Default = None)</span>
+<span class="sd">            List of columns to begin as zero (The first value will be subtracted</span>
+<span class="sd">            from all)</span>
+<span class="sd">        nthRow : list (Default = None)</span>
+<span class="sd">            List of columns to begin as zero (The first value will be subtracted</span>
+<span class="sd">            from all)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Remove NaN</span>
+        <span class="k">if</span> <span class="n">colNames</span><span class="p">:</span>
+            <span class="n">DF_out</span> <span class="o">=</span> <span class="n">DF</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">colNames</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">DF_out</span> <span class="o">=</span> <span class="n">DF</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Take every nth row</span>
+        <span class="k">if</span> <span class="n">nthRow</span><span class="p">:</span>
+            <span class="n">DF_out</span> <span class="o">=</span> <span class="n">DF_out</span><span class="o">.</span><span class="n">iloc</span><span class="p">[::</span><span class="n">nthRow</span><span class="p">]</span>
+
+        <span class="c1"># shift to zero all columns in shiftCols</span>
+        <span class="k">if</span> <span class="n">shiftCols</span><span class="p">:</span>
+            <span class="n">DF_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">shiftCols</span><span class="p">]</span> <span class="o">=</span> <span class="n">DF_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">shiftCols</span><span class="p">]</span> <span class="o">-</span> \
+                                        <span class="n">DF_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">shiftCols</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Convert all the &#39;CC&#39; columns from correlation to decorrelation</span>
+        <span class="k">if</span> <span class="n">CCtoK</span><span class="p">:</span>
+            <span class="n">col_tup</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">DF_out</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)]</span>
+            <span class="n">CCcols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">col_tup</span> <span class="k">if</span> <span class="n">col</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;CC&#39;</span> <span class="ow">or</span> <span class="n">col</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;CC_mean&#39;</span><span class="p">]</span>
+            <span class="n">DF_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">CCcols</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">DF_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">CCcols</span><span class="p">]</span>
+
+        <span class="c1"># Remove all non-compatiable columns from the database columns</span>
+        <span class="n">renameCheck</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;[</span><span class="se">\&#39;</span><span class="s1">_\[\]%,]&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">))</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="k">for</span>
+                          <span class="n">col</span> <span class="ow">in</span> <span class="n">DF_out</span><span class="o">.</span><span class="n">columns</span><span class="p">}</span>
+        <span class="n">DF_out</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="n">renameCheck</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">DF_out</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="n">index_label</span> <span class="o">=</span> <span class="s1">&#39;index&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="utilities.Data_atGT"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.Data_atGT">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">Data_atGT</span><span class="p">(</span><span class="n">DF</span><span class="p">,</span> <span class="n">targetCols</span><span class="p">,</span> <span class="n">outputCols</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">pointsCol</span><span class="p">,</span> <span class="n">shiftCols</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Extracts first datapoint greater than a defined column value</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        DF : DataFrame</span>
+<span class="sd">            DataFrame to be dumped</span>
+<span class="sd">        targetCols : list</span>
+<span class="sd">            list of all target columns in ``DF``</span>
+<span class="sd">        outputCols : list</span>
+<span class="sd">            list of output column names to use in output dataframe ``DF_out``. Must</span>
+<span class="sd">            be of equal length to targetCols.</span>
+<span class="sd">        points : list</span>
+<span class="sd">            list of points at which the first values &gt; should be extracted from</span>
+<span class="sd">            each entry in ``targetCols``.</span>
+<span class="sd">        pointsCol : str</span>
+<span class="sd">            list of output column names to use in output dataframe ``DF_out``. Must</span>
+<span class="sd">            be of equal length to targetCols.</span>
+<span class="sd">        shiftCols : list (Default = None)</span>
+<span class="sd">            List of columns to begin as zero (The first value will be subtracted</span>
+<span class="sd">            from all)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        df_trans : DataFrame</span>
+<span class="sd">            Output dataframe containing the requested points</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Output values at the transition</span>
+        <span class="c1"># trans = [2.6, 3.3, 4, 6.1, 7.1, 8.8, 10, 11, 11.9, 12.9]</span>
+
+        <span class="c1"># Make the dataframe for storage</span>
+        <span class="n">df_trans</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">outputCols</span><span class="p">)</span>
+
+        <span class="c1"># Remove NaN</span>
+        <span class="n">DF_out</span> <span class="o">=</span> <span class="n">DF</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># shift to zero all columns in shiftCols</span>
+        <span class="k">if</span> <span class="n">shiftCols</span><span class="p">:</span>
+            <span class="n">DF_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">shiftCols</span><span class="p">]</span> <span class="o">=</span> <span class="n">DF_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">shiftCols</span><span class="p">]</span> <span class="o">-</span> \
+                                        <span class="n">DF_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">shiftCols</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">df_trans</span><span class="p">,</span> <span class="n">pointsCol</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
+        <span class="c1">#df_trans.pointsCol = points</span>
+
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">DF_out</span><span class="p">[</span><span class="n">pointsCol</span><span class="p">]</span><span class="o">&gt;</span><span class="n">col</span>
+            <span class="n">temp_data</span> <span class="o">=</span> <span class="n">DF_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">outputCol</span><span class="p">,</span> <span class="n">targetCol</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">outputCols</span><span class="p">,</span><span class="n">targetCols</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">targetCol</span><span class="p">,</span><span class="nb">tuple</span><span class="p">):</span>
+                    <span class="n">df_trans</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">outputCol</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">targetCol</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">df_trans</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">outputCol</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">targetCol</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">df_trans</span></div>
+
+<div class="viewcode-block" id="utilities.TS_Time"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.TS_Time">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">TS_Time</span><span class="p">(</span><span class="n">DF</span><span class="p">,</span> <span class="n">secPerSamp</span><span class="p">,</span> <span class="n">traceSlice</span><span class="p">,</span> <span class="n">resampleStr</span> <span class="o">=</span> <span class="s1">&#39;1 us&#39;</span><span class="p">,</span> <span class="n">csvDump</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="n">wdwPos</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fileName</span> <span class="o">=</span> <span class="s1">&#39;traces.csv&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Takes raw time series dataframe, allowing the slicing, resampling and</span>
+<span class="sd">        re-indexing. Output times are in seconds.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        DF : DataFrame</span>
+<span class="sd">            DataFrame to be modified.</span>
+<span class="sd">        secPerSamp : float</span>
+<span class="sd">            The sampling period or seconds per sample required to generate a time</span>
+<span class="sd">            index for the dataframe.</span>
+<span class="sd">        traceSlice : slice</span>
+<span class="sd">            The slice object to extract from the DF.</span>
+<span class="sd">        resampleStr : str (default = &#39;1 us&#39;)</span>
+<span class="sd">            The resample string to reduce the size of each trace.</span>
+<span class="sd">        csvDump : bool (default = True)</span>
+<span class="sd">            Save data to ``traces.csv`` in pwd in the order, time [sec], trace1, trace2,....</span>
+<span class="sd">        wdwPos : list</span>
+<span class="sd">            List of [start, stop] window positions in no. of smaples</span>
+<span class="sd">        fileName : str (Default = &#39;traces.csv&#39;)</span>
+<span class="sd">            Name of output csv file.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        DF : DataFrame</span>
+<span class="sd">            Output dataframe.</span>
+<span class="sd">        wdwTimes : list</span>
+<span class="sd">            List of lists of the window positions in seconds</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Add time index</span>
+        <span class="n">TdeltaIdx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">timedelta_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">,</span>
+                                               <span class="n">freq</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.9f</span><span class="s1"> ms&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">secPerSamp</span><span class="o">*</span><span class="mi">1000</span><span class="p">),</span>
+                                               <span class="n">periods</span> <span class="o">=</span> <span class="n">DF</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">wdwPos</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">wdwPos</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">wdwPos</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span> <span class="c1"># Correct indexing</span>
+            <span class="n">wdwTimes</span> <span class="o">=</span> <span class="n">TdeltaIdx</span><span class="p">[</span><span class="n">wdwPos</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">*</span><span class="mf">1E-9</span>
+            <span class="n">wdwTimes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">wdw</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span> <span class="k">for</span> <span class="n">wdw</span> <span class="ow">in</span> <span class="n">wdwTimes</span><span class="p">]</span>
+
+        <span class="n">DF</span> <span class="o">=</span> <span class="n">DF</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span>
+                <span class="n">DF</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)[</span><span class="n">traceSlice</span><span class="p">])]</span>
+
+        <span class="n">DF</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TdeltaIdx</span>
+
+        <span class="n">DF</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">DF</span> <span class="o">=</span> <span class="n">DF</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">resampleStr</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">DF</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">DF</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DF</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">*</span><span class="mf">1E-9</span>
+
+        <span class="k">if</span> <span class="n">csvDump</span><span class="p">:</span>
+            <span class="n">DF</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">DF</span><span class="p">,</span> <span class="n">wdwTimes</span></div>
+
+<div class="viewcode-block" id="utilities.hdf_csv_dump"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.hdf_csv_dump">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">hdf_csv_dump</span><span class="p">(</span><span class="n">DB_fdl</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Dumps the processed databases to CC, PV, TShdrs to csv files. Note</span>
+<span class="sd">        this function should be run in the run folder, not the database folder</span>
+
+<span class="sd">        ---inputs---</span>
+<span class="sd">        DB_fdl: relative or absolute location to the folder where all database</span>
+<span class="sd">        files are located</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">def</span> <span class="nf">hdf_to_csv</span><span class="p">(</span><span class="n">hdf_DB</span><span class="p">,</span> <span class="n">tbl_name</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39; Save hdf DB to csv</span>
+<span class="sd">            hdf_DB: HDF5  database rel of abs path and name</span>
+<span class="sd">            tbl_name: Name of table in database</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">hdf_DB</span><span class="p">,</span> <span class="n">tbl_name</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">DB_fdl</span><span class="o">+</span><span class="n">tbl_name</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Expected HDF5 table names</span>
+        <span class="n">CC_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;CC&#39;</span>
+        <span class="n">PV_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;PV_df&#39;</span>
+        <span class="n">PV_full_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;PV_df_full&#39;</span>
+        <span class="n">TShdrs_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;TShdrs&#39;</span>
+        <span class="n">TS_df_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;TS_df&#39;</span>
+
+        <span class="c1"># Expected HDF5 db names</span>
+        <span class="n">DB_tbl</span> <span class="o">=</span> <span class="n">DB_fdl</span><span class="o">+</span><span class="s1">&#39;DB_tbl_processed.h5&#39;</span>
+        <span class="n">TS_cut</span> <span class="o">=</span> <span class="n">DB_fdl</span><span class="o">+</span><span class="s1">&#39;TS_cut.h5&#39;</span>
+
+        <span class="c1"># Load expected param file</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">DB_fdl</span><span class="o">+</span><span class="s1">&#39;param.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+        <span class="c1"># Dump all expected DB tables to csv files</span>
+        <span class="n">hdf_to_csv</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">PV_tbl_name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;matched&#39;</span><span class="p">]:</span>
+            <span class="n">hdf_to_csv</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">PV_full_tbl_name</span><span class="p">)</span>
+        <span class="n">hdf_to_csv</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">TShdrs_tbl_name</span><span class="p">)</span>
+
+        <span class="n">hdf_to_csv</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">CC_tbl_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="utilities.run_dataLoad"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.utilities.run_dataLoad">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">run_dataLoad</span><span class="p">(</span><span class="n">DB_fdl</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Loads a previous processing session into memory ready for analysis.</span>
+
+<span class="sd">        - Inputs -</span>
+<span class="sd">        DB_fdl: input folder holding the expected databases in the form</span>
+<span class="sd">                &#39;DB_fld/&#39;</span>
+
+<span class="sd">        - Outputs -</span>
+<span class="sd">        PV_df:  Main database holding PV, and CC data</span>
+<span class="sd">        TS_DB:  Database of TS data</span>
+<span class="sd">        PV_df_full: Database including all PV data, empty if original PV and TS</span>
+<span class="sd">                    data was coincident already.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">def</span> <span class="nf">from_pkl</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39; Load pickel files</span>
+<span class="sd">            fname: file name rel or abs path</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+                <span class="n">obj_dict</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">obj_dict</span>
+            <span class="k">except</span> <span class="ne">EOFError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">def</span> <span class="nf">from_hdf5</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">tbl_name</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;Save expected df to hdf5 database</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">tbl_name</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">df</span>
+
+        <span class="c1"># ------------------ Setup ------------------ #</span>
+
+        <span class="c1"># Load the param file data</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">from_pkl</span><span class="p">(</span><span class="n">DB_fdl</span><span class="o">+</span><span class="s1">&#39;param.txt&#39;</span><span class="p">)</span>
+
+        <span class="c1"># The database names</span>
+        <span class="n">DB_tbl</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="n">DB_fdl</span><span class="o">+</span><span class="s1">&#39;DB_tbl_processed.h5&#39;</span><span class="p">)</span>
+        <span class="n">TS_cut</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="n">DB_fdl</span><span class="o">+</span><span class="s1">&#39;TS_cut.h5&#39;</span><span class="p">)</span>
+
+        <span class="c1"># tabel names</span>
+        <span class="n">PV_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;PV_df&#39;</span>
+        <span class="n">PV_full_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;PV_df_full&#39;</span>
+        <span class="n">TS_df_tbl_name</span> <span class="o">=</span> <span class="s1">&#39;TS_df&#39;</span>
+
+        <span class="n">PV_df</span> <span class="o">=</span> <span class="n">from_hdf5</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">PV_tbl_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;TSmatched&#39;</span> <span class="ow">in</span> <span class="n">param</span> <span class="ow">and</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;TSmatched&#39;</span><span class="p">]:</span>
+            <span class="n">PV_df_full</span> <span class="o">=</span> <span class="n">from_hdf5</span><span class="p">(</span><span class="n">DB_tbl</span><span class="p">,</span> <span class="n">PV_full_tbl_name</span><span class="p">)</span>
+
+        <span class="c1"># TS_df = from_hdf5(TS_cut, TS_df_tbl_name)</span>
+        <span class="n">TS_DB</span> <span class="o">=</span> <span class="n">from_hdf5</span><span class="p">(</span><span class="n">TS_cut</span><span class="p">,</span> <span class="n">TS_df_tbl_name</span><span class="o">+</span><span class="s1">&#39;DB&#39;</span><span class="p">)</span>
+        <span class="c1"># TShdrs = from_hdf5(DB_tbl, TShdrs_tbl_name)</span>
+        <span class="c1"># CC = from_hdf5(DB_tbl, CC_tbl_name)</span>
+
+        <span class="c1"># Close the DB&#39;s</span>
+        <span class="n">DB_tbl</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">TS_cut</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">PV_df</span><span class="p">,</span> <span class="n">TS_DB</span><span class="p">,</span> <span class="n">PV_df_full</span><span class="p">,</span> <span class="n">param</span></div></div>
+
+<div class="viewcode-block" id="data_import"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.data_import">[docs]</a><span class="k">class</span> <span class="nc">data_import</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This class handels the import and basic processing of all</span>
+<span class="sd">    user imput data. The core data streams are the time series information</span>
+<span class="sd">    (TS) and the corresponding Perturbation Vectors (PV)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    TSfpath :  str</span>
+<span class="sd">        Defines the relative or absolute location of the TS data folder</span>
+<span class="sd">    TSlocL :  list (default = None)</span>
+<span class="sd">        List of the relative or absolute location of the TS data files</span>
+<span class="sd">    PVloc : str</span>
+<span class="sd">        Defines the relative or absolute location of the PV&#39;s</span>
+<span class="sd">    Database : str</span>
+<span class="sd">        Defines a common hdf5 database name ``Database.h5``</span>
+<span class="sd">    import_dtype: str</span>
+<span class="sd">        Defines several raw data types, &quot;bin_par&quot;: for data in a binary single</span>
+<span class="sd">        trace per file and header data in .par files, &quot;Shell_format&quot;: all data in a</span>
+<span class="sd">        single csv file (both PV and TS), &#39;NoTShdrer_format&#39;</span>
+<span class="sd">        &quot;NoTShdrer_format&quot;``.</span>
+<span class="sd">    notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The output of this class should be a single ``Database.h5`` database in the</span>
+<span class="sd">    run directory, containing all relevant data. All user defined parameters are</span>
+<span class="sd">    assigned to the attribues of the database head.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import h5py</span>
+<span class="sd">    &gt;&gt;&gt; # Reading the user defined parameters from the database attributes</span>
+<span class="sd">    &gt;&gt;&gt; with h5py.File(&#39;Database.h5&#39;, &#39;r&#39;) as h5file:</span>
+<span class="sd">    &gt;&gt;&gt;     print(dict(h5file.attrs.items()))</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TSfpath</span><span class="p">,</span> <span class="n">PVloc</span><span class="p">,</span> <span class="n">import_dtype</span><span class="p">,</span> <span class="n">param</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TSfpath</span> <span class="o">=</span> <span class="n">TSfpath</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TSlocL</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PVloc</span> <span class="o">=</span> <span class="n">PVloc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Database</span> <span class="o">=</span> <span class="s1">&#39;Database.h5&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">import_dtype</span> <span class="o">=</span> <span class="n">import_dtype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="n">param</span>
+
+    <span class="c1"># -------------------- Reading files in folders --------------------</span>
+<div class="viewcode-block" id="data_import.TSfiles"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.data_import.TSfiles">[docs]</a>    <span class="k">def</span> <span class="nf">TSfiles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;This function lists the files in the TSfpath folder location reading</span>
+<span class="sd">        all of the information contained within. The structure of this</span>
+<span class="sd">        data is checked and the appropriate sub-function initiated based on the</span>
+<span class="sd">        user defined parameter &#39;import_dtype&#39;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        headerDB : DataFrame</span>
+<span class="sd">            Database of header information</span>
+<span class="sd">        TSdataList : list</span>
+<span class="sd">            List of TS data file relative locations</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        headerDB : DataFrame or dict(DataFrames)</span>
+<span class="sd">            DataFrame of all header file information or dict of DataFrames. The</span>
+<span class="sd">            structure should be</span>
+<span class="sd">            index | srcNo | recNo | Time | &quot;other header info&quot;</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Assign list of TS data files to self.TSlocL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TSlocL</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_finfd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TSfpath</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_dtype</span> <span class="o">==</span> <span class="s1">&#39;CSIRO&#39;</span><span class="p">:</span>
+            <span class="n">headerDB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSfilesCSIRO</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* CSIRO survey TS data loaded&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">headerDB</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_dtype</span> <span class="o">==</span> <span class="s1">&#39;bin_par&#39;</span><span class="p">:</span>
+            <span class="n">headerDB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSfilesPar</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* TUDelft .Par and Binary TS data loaded&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">headerDB</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_dtype</span> <span class="o">==</span> <span class="s1">&#39;Shell_format&#39;</span><span class="p">:</span>
+            <span class="n">headerDB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSfilesPV_TS</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* Shell format TS data loaded&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">headerDB</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_dtype</span> <span class="o">==</span> <span class="s1">&#39;HDF5&#39;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">shutil</span> <span class="k">import</span> <span class="n">copyfile</span>
+
+            <span class="n">headerDB</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* HDF5 format expected &#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">copyfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TSfpath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+            <span class="k">return</span> <span class="n">headerDB</span></div>
+
+<div class="viewcode-block" id="data_import.read_finfd"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.data_import.read_finfd">[docs]</a>    <span class="k">def</span> <span class="nf">read_finfd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_loc</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Basic function to read files in folder and sort by numeric end digits</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_loc: str</span>
+<span class="sd">            Path to files.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1">#print(&#39;Location of the time series data file/s is:&#39;, file_loc)</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">file_loc</span> <span class="o">+</span> <span class="s1">&#39;*&#39;</span><span class="p">)</span>
+        <span class="n">files</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">var</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span>
+                        <span class="n">x</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="n">x</span>
+                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span>
+                        <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[^0-9]|[0-9]+&#39;</span><span class="p">,</span> <span class="n">var</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="n">files</span></div>
+
+<div class="viewcode-block" id="data_import.TSfilesPar"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.data_import.TSfilesPar">[docs]</a>    <span class="k">def</span> <span class="nf">TSfilesPar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;This function is intended to perform the TSfile function operations</span>
+<span class="sd">        for a folder containing .par headerfiles and associated binary files.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        List of all header .par and Binary files</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hdr_df  Database of all header file information, multiple</span>
+<span class="sd">                index file name. Must contain mandatory columns</span>
+<span class="sd">                    ``[&#39;srcNo&#39;, &#39;recNo&#39;, &#39;Time&#39;, &#39;Survey&#39;]``.</span>
+<span class="sd">        TSdataL List of data files including relative location.</span>
+
+<span class="sd">        TODO:</span>
+<span class="sd">        *  Add check for various header file types .txt ..etc</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Split .par and data files</span>
+        <span class="n">TSpar</span> <span class="o">=</span> <span class="p">[</span><span class="n">elem</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSlocL</span> <span class="k">if</span> <span class="s2">&quot;.par&quot;</span> <span class="ow">in</span> <span class="n">elem</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TSlocL</span> <span class="o">=</span> <span class="p">[</span><span class="n">elem</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSlocL</span> <span class="k">if</span> <span class="s2">&quot;.par&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">elem</span><span class="p">]</span>
+
+        <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">)</span>
+
+
+        <span class="c1"># Raise error if .par no != data file no</span>
+        <span class="n">fileNo_par</span> <span class="o">=</span> <span class="p">[</span><span class="n">regex</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">file</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">TSpar</span><span class="p">]</span>
+        <span class="n">fileNo_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">regex</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">file</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSlocL</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">par</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">fileNo_par</span><span class="p">,</span> <span class="n">fileNo_data</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">par</span> <span class="o">!=</span> <span class="n">data</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Warning</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="s1">&#39;.par not equal to data&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+        <span class="n">TSdata_modTime</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSlocL</span><span class="p">]</span>
+
+        <span class="c1"># Load header files into database</span>
+        <span class="n">fileNokeys</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">TSpar</span><span class="p">]</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;recNo&#39;</span><span class="p">,</span> <span class="s1">&#39;numSamp&#39;</span><span class="p">,</span> <span class="s1">&#39;sentv&#39;</span><span class="p">,</span> <span class="s1">&#39;sampFeq&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;n/a&#39;</span><span class="p">,</span> <span class="s1">&#39;offset&#39;</span><span class="p">,</span> <span class="s1">&#39;n/a&#39;</span><span class="p">,</span> <span class="s1">&#39;count[sec]&#39;</span><span class="p">]</span>
+
+        <span class="n">df_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">header</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">TSpar</span><span class="p">]</span>
+        <span class="n">hdr_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">df_list</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="n">fileNokeys</span><span class="p">)</span>
+        <span class="n">maxNorec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">hdr_df</span><span class="o">.</span><span class="n">recNo</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span><span class="n">hdr_df</span><span class="o">.</span><span class="n">recNo</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">hdr_df</span><span class="p">[</span><span class="s1">&#39;Survey&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">fileNo_data</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span>
+                            <span class="n">maxNorec</span><span class="p">]</span>
+
+        <span class="n">hdr_df</span><span class="o">.</span><span class="n">recNo</span> <span class="o">=</span> <span class="n">hdr_df</span><span class="o">.</span><span class="n">recNo</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+        <span class="n">hdr_df</span><span class="p">[</span><span class="s1">&#39;srcNo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">hdr_df</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">hdr_df</span><span class="p">[</span><span class="s1">&#39;count[sec]&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span>
+                          <span class="n">origin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;TSstart_date&#39;</span><span class="p">],</span> <span class="n">dayfirst</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Re-order list based on expected order of columns</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;srcNo&#39;</span><span class="p">)</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;Survey&#39;</span><span class="p">)</span>
+
+        <span class="n">hdr_df</span> <span class="o">=</span> <span class="n">hdr_df</span><span class="p">[</span><span class="n">header</span><span class="p">]</span>
+
+<span class="c1">#        # duplicate time create based on the noRec</span>
+<span class="c1">#        noRec = len(hdr_df.recNo.unique()) # No of receivers</span>
+<span class="c1">#        temp = [x for item in TSdata_modTime</span>
+<span class="c1">#                          for x in repeat(item,noRec)]</span>
+<span class="c1">#        hdr_df[&#39;fileMod&#39;] = temp</span>
+
+        <span class="k">return</span> <span class="n">hdr_df</span></div>
+
+<div class="viewcode-block" id="data_import.TSfilesPV_TS"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.data_import.TSfilesPV_TS">[docs]</a>    <span class="k">def</span> <span class="nf">TSfilesPV_TS</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Loads in impuse response header data from a single folder.</span>
+<span class="sd">        The expected format is the shell data structure.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        self.TSlocL : list</span>
+<span class="sd">            List of all files within given folder</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        df_hdr : DataFrame</span>
+<span class="sd">            Database of all header file information for each file. Must contain</span>
+<span class="sd">            mandatory columns ``[&#39;srcNo&#39;, &#39;recNo&#39;, &#39;Time&#39;, &#39;Survey&#39;]``.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">def</span> <span class="nf">getrows</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">rowNos</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;Outputs a list of the contents of each rwoNos</span>
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            filename : str</span>
+<span class="sd">                relative or absolute path to file</span>
+<span class="sd">            rowNos : list</span>
+<span class="sd">                list of int of increasing order defining the row numbers to read.</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;ISO-8859-1&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+              <span class="n">datareader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+              <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+              <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+              <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">datareader</span><span class="p">:</span>
+                  <span class="k">if</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">rowNos</span><span class="p">:</span>
+                      <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+                  <span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
+                  <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="n">rowNos</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                      <span class="k">return</span> <span class="n">rows</span>
+
+        <span class="c1"># Expected formate</span>
+        <span class="n">rowNos</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">]</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;srcNo&#39;</span><span class="p">,</span><span class="s1">&#39;recNo&#39;</span><span class="p">,</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;Survey&#39;</span><span class="p">,</span> <span class="s1">&#39;Averages&#39;</span><span class="p">,</span> <span class="s1">&#39;Exitation Freq&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Vertical gain&#39;</span><span class="p">,</span> <span class="s1">&#39;Delay&#39;</span><span class="p">,</span><span class="s1">&#39;Vertical Offset&#39;</span><span class="p">,</span><span class="s1">&#39;Sample interval&#39;</span><span class="p">]</span>
+
+        <span class="n">df_hdr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TSlocL</span><span class="p">):</span>
+
+            <span class="c1"># Read in the file header rows</span>
+            <span class="n">file_hdr</span> <span class="o">=</span> <span class="n">getrows</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">rowNos</span><span class="p">)</span>
+
+            <span class="c1"># Formate the rows</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># srcNo</span>
+                     <span class="mi">1</span><span class="p">,</span> <span class="c1"># recNo</span>
+                     <span class="n">file_hdr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="c1"># Time</span>
+                     <span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span> <span class="c1"># Survey</span>
+                     <span class="nb">int</span><span class="p">(</span><span class="n">file_hdr</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="c1"># Averages</span>
+                     <span class="nb">float</span><span class="p">(</span><span class="n">file_hdr</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">3</span><span class="p">]),</span> <span class="c1"># Exitation Freq</span>
+                     <span class="nb">float</span><span class="p">(</span><span class="n">file_hdr</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="c1"># Vertical gain</span>
+                     <span class="nb">float</span><span class="p">(</span><span class="n">file_hdr</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="c1"># Delay</span>
+                     <span class="nb">float</span><span class="p">(</span><span class="n">file_hdr</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="c1"># Vertical Offset</span>
+                     <span class="nb">float</span><span class="p">(</span><span class="n">file_hdr</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="mi">1</span><span class="p">])]</span> <span class="c1"># Sample interval</span>
+
+            <span class="c1"># Store within dataframe</span>
+            <span class="n">df_hdr</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">items</span>
+
+        <span class="k">return</span> <span class="n">df_hdr</span></div>
+
+<div class="viewcode-block" id="data_import.TSfilesCSIRO"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.data_import.TSfilesCSIRO">[docs]</a>    <span class="k">def</span> <span class="nf">TSfilesCSIRO</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Loads in impulse response header data from multiple subfolders throughout</span>
+<span class="sd">        a survey. Each subfolder should be of the format &quot;sometext&quot;YYYYMMDDHHMMSS.</span>
+<span class="sd">        Within each subfolder are files for each source receiver pair.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        self.TSlocL : list</span>
+<span class="sd">            List of all files within given</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        header_dict : dict</span>
+<span class="sd">            Database of all header file information, multiple</span>
+<span class="sd">                index file name</span>
+<span class="sd">        TdeltaIdx : timedelta64[ns]</span>
+<span class="sd">            Time delta index of length equal to trace length of TS data</span>
+<span class="sd">        self.TSlocL : list of lists</span>
+<span class="sd">            Updated list of lists of each survey folders contents.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># list for all surveys</span>
+        <span class="n">TSlocL_temp</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Define the columns of the dataframe</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;srcNo&#39;</span><span class="p">,</span><span class="s1">&#39;recNo&#39;</span><span class="p">,</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span><span class="s1">&#39;TracePoints&#39;</span><span class="p">,</span><span class="s1">&#39;TSamp&#39;</span><span class="p">,</span><span class="s1">&#39;TimeUnits&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;AmpToVolts&#39;</span><span class="p">,</span><span class="s1">&#39;TraceMaxVolts&#39;</span><span class="p">,</span><span class="s1">&#39;PTime&#39;</span><span class="p">,</span><span class="s1">&#39;STime&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Create the dataframe for all headers to be stored</span>
+        <span class="n">header_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">survey</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSlocL</span><span class="p">:</span>
+            <span class="n">survey_files</span> <span class="o">=</span> <span class="p">[</span> <span class="n">file</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_finfd</span><span class="p">(</span><span class="n">survey</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="s1">&#39;.atf&#39;</span> <span class="ow">in</span> <span class="n">file</span><span class="p">]</span>
+            <span class="n">TSlocL_temp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">survey_files</span><span class="p">)</span>
+
+            <span class="n">df1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">survey_files</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                  <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                  <span class="nb">next</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+                  <span class="n">header</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+                  <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+                <span class="n">header</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[\;]+&quot;</span><span class="p">,</span> <span class="n">header</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="c1"># split the header up</span>
+                <span class="n">header_split</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[\=]&#39;</span><span class="p">,</span> <span class="n">head</span><span class="p">)</span> <span class="k">for</span> <span class="n">head</span> <span class="ow">in</span> <span class="n">header</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># split the header up</span>
+                <span class="n">header_split</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="n">head</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">head</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">head</span> <span class="ow">in</span> <span class="n">header_split</span><span class="p">]</span> <span class="c1"># Remove white space</span>
+
+                <span class="c1"># Extract the values</span>
+                <span class="n">items</span> <span class="o">=</span> <span class="p">[</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">header_split</span><span class="p">]</span>
+
+                <span class="c1"># Combine date and time:</span>
+                <span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39; &#39;</span><span class="o">+</span><span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">items</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+                <span class="c1"># Convert datatypes</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span><span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">items</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="n">items</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">dayfirst</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># parse(item)</span>
+
+                <span class="c1"># Add srcNo and recNo to header info.</span>
+                <span class="n">srcNo</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[_.]&#39;</span><span class="p">,</span><span class="n">file</span><span class="p">)[</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+                <span class="n">recNo</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[_.]&#39;</span><span class="p">,</span><span class="n">file</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">recNo</span><span class="p">))</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">srcNo</span><span class="p">))</span>
+
+                <span class="n">df1</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">count</span><span class="p">]</span> <span class="o">=</span> <span class="n">items</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">header_dict</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[/]&#39;</span><span class="p">,</span><span class="n">survey</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">df1</span>
+
+        <span class="c1"># Create time delta array</span>
+        <span class="k">if</span> <span class="n">df1</span><span class="p">[</span><span class="s1">&#39;TimeUnits&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mf">1.00000e-006</span><span class="p">:</span>
+            <span class="n">freq</span> <span class="o">=</span> <span class="s1">&#39;us&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">freq</span> <span class="o">=</span> <span class="s1">&#39;ms&#39;</span>
+
+        <span class="n">TdeltaIdx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">timedelta_range</span><span class="p">(</span><span class="n">start</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
+                                       <span class="n">freq</span> <span class="o">=</span> <span class="n">freq</span><span class="p">,</span>
+                                       <span class="n">periods</span> <span class="o">=</span> <span class="n">df1</span><span class="p">[</span><span class="s1">&#39;TracePoints&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># Redefine the list of surveys to a list of lists of survey files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TSlocL</span> <span class="o">=</span> <span class="n">TSlocL_temp</span>
+        <span class="k">return</span> <span class="n">header_dict</span></div>
+
+    <span class="c1"># -------------------- Loading TS data into memory --------------------</span>
+
+<div class="viewcode-block" id="data_import.TSload"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.data_import.TSload">[docs]</a>    <span class="k">def</span> <span class="nf">TSload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TShdrs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Load the list of TS files ``TSflist`` found and output a</span>
+<span class="sd">        matrix storing TS data columnweise.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        TShdrs: DataFrame</span>
+<span class="sd">            A database of each file name containing the corresponding header. This</span>
+<span class="sd">            is output from the function ``TSfiles``.</span>
+<span class="sd">        TSflist: list</span>
+<span class="sd">            A list of the files within the ``TSfpath`` folder location. This</span>
+<span class="sd">            is output from the function ``TSfiles``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        TSdataMtx : numpy array or ``None``</span>
+<span class="sd">            A columnweise stored matrix of traces for a single receiver, or ``None``</span>
+<span class="sd">            if a multiple receiver survey is detected. In this case all TS data</span>
+<span class="sd">            will be saved into a hdf5 database &#39;TSdata.h5&#39;.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        All imported ts data will be have any linear trend removed before storage</span>
+<span class="sd">        to the raw database.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_dtype</span> <span class="o">==</span> <span class="s1">&#39;CSIRO&#39;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* TS data written to database.h5&#39;</span><span class="p">)</span>
+            <span class="n">TSdataMtx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSsurveys</span><span class="p">(</span><span class="n">TShdrs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">TSdataMtx</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_dtype</span> <span class="o">==</span> <span class="s1">&#39;bin_par&#39;</span><span class="p">:</span>
+            <span class="n">TSdataMtx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSloadBin</span><span class="p">(</span><span class="n">TShdrs</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* Binary data TS files loaded into matrix&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">TSdataMtx</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_dtype</span> <span class="o">==</span> <span class="s1">&#39;Shell_format&#39;</span><span class="p">:</span>
+            <span class="n">TSdataMtx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSloadPV_TS</span><span class="p">(</span><span class="n">TShdrs</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* Shell format TS csv files loaded&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">TSdataMtx</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_dtype</span> <span class="o">==</span> <span class="s1">&#39;HDF5&#39;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* No TS data found&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="data_import.TSsurveys"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.data_import.TSsurveys">[docs]</a>    <span class="k">def</span> <span class="nf">TSsurveys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hdr_df</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Load TS data from a folder with sub-folders for each survey. The sub-</span>
+<span class="sd">        folders should be named &#39;sometext&#39;(unique_number)&#39;</span>
+<span class="sd">        (e.g. &#39;survey20180312093545&#39;). The individual csv files must be</span>
+<span class="sd">        named &#39;sometext&#39;(unique_number)_(sourceNo)_(receverNo).(csv type formate)</span>
+<span class="sd">        (e.g. &#39;survey20180312093545_0001_01.csv&#39;). A hdf5 database will be saved</span>
+<span class="sd">        with the following group structure.</span>
+
+<span class="sd">            Database.h5</span>
+<span class="sd">            │</span>
+<span class="sd">            TSdata</span>
+<span class="sd">                │</span>
+<span class="sd">                └───survey20180312093545</span>
+<span class="sd">                │       Table</span>
+<span class="sd">                └───survey20180312093555</span>
+<span class="sd">                │       Table</span>
+<span class="sd">                :               :</span>
+
+<span class="sd">        Each table includes header data from the csv files imported from the second</span>
+<span class="sd">        line of the csv files as Date=12-03-2018; Time=09:35:45.833000;</span>
+<span class="sd">        TracePoints=4096; TSamp=0.10000; TimeUnits=1.00000e-006;</span>
+<span class="sd">        AmpToVolts=1.0000; TraceMaxVolts=5.0000; PTime=0.00000; STime=0.00000;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hdf_df : dict of DataFrames</span>
+<span class="sd">            A database of header information for each Time-series recorded. As a</span>
+<span class="sd">            minimum must contain the first three columns of &#39;srcNo&#39;, &#39;recNo&#39; and</span>
+<span class="sd">            &#39;time&#39;. The remaining header info can be any order.</span>
+<span class="sd">        self.TSlocL : list of lists</span>
+<span class="sd">            List of lists of the files within each survey</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _ : None</span>
+<span class="sd">            None indicating that data is stored in a HDF5 file.</span>
+
+<span class="sd">        notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        No longer is the TdeltaIdx added to each dataframe, thus I should figure</span>
+<span class="sd">        out how best to store this information into the h5 file.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">        &gt;&gt;&gt; import h5py</span>
+<span class="sd">        &gt;&gt;&gt; with h5py.File(&#39;Database.h5&#39;, &#39;a&#39;) as h5file:</span>
+<span class="sd">        &gt;&gt;&gt;     TSsurvey =  pd.read_hdf(h5file, &#39;survey20180312093545&#39;) # basic load</span>
+<span class="sd">        &gt;&gt;&gt;     # Load specific source-receiver pair for window between 11 and 500</span>
+<span class="sd">        &gt;&gt;&gt;     TSsurvey =  pd.read_hdf(h5file, &#39;survey20180312093545&#39;,</span>
+<span class="sd">                    columns=[(1,1), (1,2)], # Load specific columns</span>
+<span class="sd">                    where = [&#39;index&gt;11&#39;, &#39;index&lt;20&#39;]) # Load index 11 -&gt; 20</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Folder setup structure</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Database</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="s1">&#39;TSdata/&#39;</span>
+
+        <span class="c1"># Read header keys from the first file</span>
+        <span class="n">header_attributes</span> <span class="o">=</span>  <span class="nb">list</span><span class="p">(</span><span class="n">hdr_df</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">hdr_df</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+
+        <span class="c1"># Open link to hdf5 database</span>
+        <span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5file</span><span class="p">:</span> <span class="c1"># open the hdf data store link</span>
+
+            <span class="k">for</span> <span class="n">survey</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSlocL</span><span class="p">:</span>
+                <span class="n">TS_data_list</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">survey_no</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[/._]&#39;</span><span class="p">,</span><span class="n">survey</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+                <span class="c1"># For each file in survey</span>
+                <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">survey</span><span class="p">:</span>
+                    <span class="c1"># read source receiver numbers from file name</span>
+                    <span class="n">srcNo</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[_.]&#39;</span><span class="p">,</span><span class="n">file</span><span class="p">)[</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span>
+                    <span class="n">recNo</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[_.]&#39;</span><span class="p">,</span><span class="n">file</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+
+                    <span class="c1">#----- Read from dictionary the surveys headers -----#</span>
+                    <span class="n">head_df</span> <span class="o">=</span> <span class="n">hdr_df</span><span class="p">[</span><span class="n">survey_no</span><span class="p">]</span>
+                    <span class="n">head_df</span> <span class="o">=</span> <span class="n">head_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">head_df</span><span class="p">[</span><span class="s1">&#39;srcNo&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">srcNo</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">head_df</span><span class="p">[</span><span class="s1">&#39;recNo&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">recNo</span><span class="p">)]</span>
+
+                    <span class="c1">#----- Load in the trace -----#</span>
+                    <span class="n">temp1</span> <span class="o">=</span> <span class="p">[</span><span class="n">head_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">header_attributes</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]]</span>
+                    <span class="n">temp2</span> <span class="o">=</span> <span class="p">[</span><span class="n">head_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="n">header_attributes</span><span class="p">[</span><span class="mi">2</span><span class="p">]]]</span>
+                    <span class="n">temp3</span> <span class="o">=</span> <span class="p">[</span><span class="n">head_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">header_attributes</span><span class="p">[</span><span class="mi">3</span><span class="p">:]]</span>
+                    <span class="n">header_vals</span> <span class="o">=</span> <span class="n">temp1</span> <span class="o">+</span> <span class="n">temp2</span> <span class="o">+</span> <span class="n">temp3</span>
+                    <span class="n">TSsurvey</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="n">skiprows</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;temp&#39;</span><span class="p">])</span>
+                    <span class="c1"># Place header into the multiindex</span>
+                    <span class="n">TSsurvey</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span><span class="n">header_vals</span><span class="p">,</span>
+                                                           <span class="n">names</span> <span class="o">=</span> <span class="n">header_attributes</span><span class="p">)</span>
+                    <span class="n">TS_data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TSsurvey</span><span class="p">)</span>
+
+                <span class="c1">#----- Join all into the full survey -----#</span>
+                <span class="n">TSsurvey</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">TS_data_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">join_axes</span><span class="o">=</span><span class="p">[</span><span class="n">TSsurvey</span><span class="o">.</span><span class="n">index</span><span class="p">])</span>
+
+                <span class="c1"># Set index to timedelta and drop the default</span>
+                <span class="c1">#TSsurvey.set_index(TdeltaIdx, inplace=True, drop=True)</span>
+                <span class="c1">#TSsurvey[&#39;Time Stamp&#39;] = TdeltaIdx</span>
+
+                <span class="c1"># store into the database under name of survey and header data</span>
+                <span class="n">h5file</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">group</span> <span class="o">+</span> <span class="n">survey_no</span><span class="p">,</span> <span class="n">TSsurvey</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;table&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="data_import.TSloadBin"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.data_import.TSloadBin">[docs]</a>    <span class="k">def</span> <span class="nf">TSloadBin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TShdrs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Load in the binary file formate as expected from the</span>
+<span class="sd">        &#39;import_dtype&#39;= &#39;bin_par&#39;.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># Load TS data into matrix</span>
+        <span class="n">TS_len</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">TShdrs</span><span class="o">.</span><span class="n">recNo</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span><span class="o">*</span><span class="n">TShdrs</span><span class="o">.</span><span class="n">numSamp</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+        <span class="n">hdr_col</span> <span class="o">=</span> <span class="n">TShdrs</span><span class="o">.</span><span class="n">columns</span><span class="p">[:</span><span class="mi">7</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1">#recNo_list = TShdrs.recNo.unique().tolist()</span>
+
+
+        <span class="n">df_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSlocL</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fid</span><span class="p">:</span>
+                <span class="n">trace</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)[</span><span class="o">-</span><span class="n">TS_len</span><span class="p">:]</span> <span class="c1">#* v_sens</span>
+
+            <span class="c1"># For each header entry</span>
+            <span class="k">for</span> <span class="n">hdr</span> <span class="ow">in</span> <span class="n">TShdrs</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;.par&#39;</span><span class="p">,</span>
+                                   <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)),</span> <span class="p">:]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+
+                <span class="c1"># Create dataframe for storage with header info:</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="n">TShdrs</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">hdr</span><span class="p">,</span> <span class="n">col</span><span class="p">]]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">hdr_col</span><span class="p">]</span>
+                <span class="n">cols</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">names</span> <span class="o">=</span> <span class="n">hdr_col</span><span class="p">)</span>
+                <span class="n">recSlice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">hdr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">TShdrs</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">hdr</span><span class="p">,</span> <span class="s1">&#39;numSamp&#39;</span><span class="p">]),</span>
+                                 <span class="nb">int</span><span class="p">((</span><span class="n">hdr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">TShdrs</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">hdr</span><span class="p">,</span> <span class="s1">&#39;numSamp&#39;</span><span class="p">]))</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">trace</span><span class="p">[</span><span class="n">recSlice</span><span class="p">],</span> <span class="n">columns</span> <span class="o">=</span> <span class="n">cols</span><span class="p">)</span> <span class="o">*</span> <span class="n">TShdrs</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">hdr</span><span class="p">,</span><span class="s1">&#39;sentv&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">3200</span> <span class="c1"># Vsensitivty correction</span>
+                <span class="n">df_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+        <span class="n">TSdata</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">df_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">join_axes</span><span class="o">=</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">])</span>
+        <span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5file</span><span class="p">:</span>
+            <span class="n">TSdata</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">h5file</span><span class="p">,</span> <span class="s1">&#39;TSdata&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="data_import.TSloadPV_TS"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.data_import.TSloadPV_TS">[docs]</a>    <span class="k">def</span> <span class="nf">TSloadPV_TS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TShdrs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Read in time-series data and save to database</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">TS_data_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">survey</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TSlocL</span><span class="p">):</span>
+            <span class="n">hdr_values</span> <span class="o">=</span> <span class="p">[[</span><span class="n">item</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">TShdrs</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+
+            <span class="n">TSsurvey</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">survey</span><span class="p">,</span> <span class="n">skiprows</span> <span class="o">=</span> <span class="mi">11</span><span class="p">,</span> <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;temp&#39;</span><span class="p">])</span>
+            <span class="n">TSsurvey</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span> \
+                <span class="n">from_product</span><span class="p">(</span><span class="n">hdr_values</span><span class="p">,</span> <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">TShdrs</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+            <span class="n">TS_data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TSsurvey</span><span class="p">)</span>
+
+        <span class="n">TSsurvey</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">TS_data_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">join_axes</span><span class="o">=</span><span class="p">[</span><span class="n">TSsurvey</span><span class="o">.</span><span class="n">index</span><span class="p">])</span>
+        <span class="n">TSsurvey</span> <span class="o">=</span> <span class="n">TSsurvey</span> <span class="o">*</span> <span class="n">TShdrs</span><span class="p">[</span><span class="s1">&#39;Vertical gain&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="c1"># Correct for gain</span>
+        <span class="c1"># TSsurvey = TSsurvey - TShdrs[&#39;Delay&#39;].values TODO: confrim the correction for the delay time !!!!</span>
+        <span class="n">TSsurvey</span> <span class="o">=</span> <span class="n">TSsurvey</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">detrend</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># Remove linear trend from traces</span>
+
+        <span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5file</span><span class="p">:</span>
+            <span class="n">h5file</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;TSdata&#39;</span><span class="p">,</span> <span class="n">TSsurvey</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;fixed&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+    <span class="c1"># -------------------- Loading PV data into memory --------------------</span>
+<div class="viewcode-block" id="data_import.PVload"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.data_import.PVload">[docs]</a>    <span class="k">def</span> <span class="nf">PVload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Load Perturbation Vectors into a single database and store in</span>
+<span class="sd">        &#39;Database.h5&#39; within group &#39;PVdata&#39;.</span>
+
+<span class="sd">        Database.h5</span>
+<span class="sd">            │</span>
+<span class="sd">            PVdata</span>
+<span class="sd">                Table</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        self.PVloc : str</span>
+<span class="sd">            Path to PV data file/files</span>
+<span class="sd">        self.import_dtype : str</span>
+<span class="sd">            Indication of the data type, either ``[&#39;.xls&#39;, &#39;bin_par&#39;, &#39;CSIRO&#39;]``</span>
+<span class="sd">            or the &#39;Shell_format&#39;.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* Location of the perturbation data file/s is:&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVloc</span><span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="s1">&#39;.xls&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVloc</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVloc</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_dtype</span> <span class="o">==</span> <span class="s1">&#39;bin_par&#39;</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVloc</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_dtype</span> <span class="o">==</span> <span class="s1">&#39;CSIRO&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV_file_hdr_rows&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV_file_hdr_rows&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">]</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVloc</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV_file_hdr_rows&#39;</span><span class="p">],</span>
+                             <span class="n">skiprows</span><span class="o">=</span><span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">])</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">b</span> <span class="k">if</span> <span class="n">b</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                          <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_dtype</span> <span class="o">==</span> <span class="s1">&#39;Shell_format&#39;</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVloadPV_TS</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_dtype</span> <span class="o">==</span> <span class="s1">&#39;HDF5&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">group</span> <span class="o">=</span> <span class="s1">&#39;PVdata&#39;</span>
+        <span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5file</span><span class="p">:</span>
+            <span class="n">h5file</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;table&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="data_import.PVloadPV_TS"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.data_import.PVloadPV_TS">[docs]</a>    <span class="k">def</span> <span class="nf">PVloadPV_TS</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Loads in the PV data from the shell format csv files</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        self.TSfiles() : list of files of containing both PV and TS data</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">fileNokeys</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSlocL</span><span class="p">]</span>
+
+        <span class="n">df_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">,</span>
+                               <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;ISO-8859-1&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSlocL</span><span class="p">]</span>
+        <span class="n">df_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;index&lt;1&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df_list</span><span class="p">]</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">df_list</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="n">fileNokeys</span><span class="p">)</span>
+
+        <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;|</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">b</span> <span class="k">if</span> <span class="n">b</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                          <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+
+        <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="data_import.run_data_import"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.data.data_import.run_data_import">[docs]</a>    <span class="k">def</span> <span class="nf">run_data_import</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Runs the class functions for importing the raw data, and stores this all</span>
+<span class="sd">        within a database &#39;Database.h5&#39;</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Datebase setup</span>
+        <span class="n">db_folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSfpath</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_DB&#39;</span>  <span class="c1"># &#39;database&#39;</span>
+
+        <span class="c1"># add the relative path to the database</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Database</span> <span class="o">=</span> <span class="n">db_folder</span><span class="o">+</span><span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">Database</span>
+
+        <span class="c1"># Make path to database folder if it does not exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">db_folder</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">db_folder</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* No existing database folder found, new folder created&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* Existing </span><span class="si">%s</span><span class="s1"> database found&#39;</span> <span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span>
+                  <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> This database will now be overwritten&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Load raw data and save to hdf5 database</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* load from raw files&#39;</span><span class="p">)</span>
+        <span class="n">TShdrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSfiles</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TSload</span><span class="p">(</span><span class="n">TShdrs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PVload</span><span class="p">()</span>
+
+        <span class="c1"># Save paramter file to the database attribues</span>
+        <span class="c1"># TODO: check why param has an empty key and val</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5file</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">item</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Key:&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span><span class="s1">&#39;| item:&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+                <span class="n">h5file</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Database</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Reuben Zotz-wilson.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>

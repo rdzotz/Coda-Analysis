@@ -1,0 +1,1045 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyCoda.cross_correlation &#8212; CWI 0 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyCoda.cross_correlation</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Implements various cross-correlation operations</span>
+
+<span class="sd">Created on Tue Jan 17 11:40:08 2017</span>
+<span class="sd">@author: rwilson</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">data</span> <span class="k">as</span> <span class="nn">dt</span>
+
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">signal</span>
+
+<div class="viewcode-block" id="cross_correlation_survey"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.cross_correlation.cross_correlation_survey">[docs]</a><span class="k">class</span> <span class="nc">cross_correlation_survey</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;Perform the cross-correlation for a multi-source receiver survey</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Database : str</span>
+<span class="sd">        Relative or absolute location of the database.h5 file.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Database</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Database</span>  <span class="o">=</span> <span class="n">Database</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">DB_attrs_load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span>
+                                                 <span class="p">[</span><span class="s1">&#39;ww&#39;</span><span class="p">,</span><span class="s1">&#39;ww_ol&#39;</span><span class="p">,</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">,</span><span class="s1">&#39;CC_ref&#39;</span><span class="p">,</span>
+                                                  <span class="s1">&#39;CC_type&#39;</span><span class="p">,</span> <span class="s1">&#39;taper&#39;</span><span class="p">,</span><span class="s1">&#39;Eng_ref&#39;</span><span class="p">,</span>
+                                                  <span class="s1">&#39;sig&#39;</span><span class="p">,</span> <span class="s1">&#39;survey_type&#39;</span><span class="p">,</span>
+                                                  <span class="s1">&#39;CC_folder&#39;</span><span class="p">,</span>
+                                                  <span class="s1">&#39;STA_meas&#39;</span><span class="p">,</span> <span class="s1">&#39;END_meas&#39;</span><span class="p">,</span>
+                                                  <span class="s1">&#39;lagOverlap&#39;</span><span class="p">,</span> <span class="s1">&#39;taperAlpha&#39;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="cross_correlation_survey.CC_run"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.cross_correlation.cross_correlation_survey.CC_run">[docs]</a>    <span class="k">def</span> <span class="nf">CC_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Run the overhead tasks performing the cross-correlation, based on the</span>
+<span class="sd">        parameters found in the Database attributes. A final database containing</span>
+<span class="sd">        the CC for each source receiver pair is then stored within the Database.5</span>
+<span class="sd">        file.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Setup common parameters</span>
+        <span class="n">lags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_ref&#39;</span><span class="p">]</span>
+        <span class="c1"># Determine the total list of processing steps to be applied</span>
+        <span class="n">processing</span><span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CC&#39;</span><span class="p">,</span> <span class="s1">&#39;CC-lag&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;sig&#39;</span><span class="p">]:</span>
+                <span class="n">processing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;sig&#39;</span><span class="p">)</span>
+
+        <span class="c1"># ------------------------ Single src/rec pairs ------------------------</span>
+        <span class="k">if</span> <span class="s1">&#39;single&#39;</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;survey_type&#39;</span><span class="p">]:</span>
+            <span class="n">TS_groups</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;TSdata&#39;</span><span class="p">]</span>
+
+            <span class="c1"># Define energy reference windows to process if required</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;Eng_ref&#39;</span><span class="p">]:</span>
+                <span class="n">windows</span> <span class="o">=</span> <span class="p">[[</span><span class="n">wdwPos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">wdwPos</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">wdwPos</span>
+                              <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">]]</span>
+                <span class="c1"># dictionary of dataframes ref for all windows</span>
+                <span class="n">Eng_ref</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">dt</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span>
+                           <span class="n">DB_pd_data_load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span><span class="s1">&#39;TSdata/&#39;</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;Eng_ref&#39;</span><span class="p">],</span>
+                                           <span class="n">whereList</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">window</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="k">for</span>
+                                           <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span> <span class="ow">in</span>
+                                           <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">])}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Eng_ref</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="c1"># Default parameters</span>
+            <span class="n">CC_all_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c1"># Load all Time-Series data</span>
+            <span class="n">TSdata</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">DB_pd_data_load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span> <span class="s1">&#39;TSdata&#39;</span><span class="p">)</span>
+            <span class="n">sta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;STA_meas&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;STA_meas&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;END_meas&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;END_meas&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">TSdata</span> <span class="o">=</span> <span class="n">TSdata</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">sta</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+            <span class="n">surveysU</span> <span class="o">=</span> <span class="n">TSdata</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;Survey&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">surveys</span> <span class="o">=</span> <span class="n">TSdata</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;Survey&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+            <span class="c1">#surveyPrev = surveysU[0]</span>
+            <span class="c1"># For each col, lag, windowpos</span>
+            <span class="k">for</span> <span class="n">survey</span><span class="p">,</span> <span class="n">lag</span><span class="p">,</span> <span class="n">wdwPos</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">surveysU</span><span class="p">,</span>
+                                                        <span class="n">lags</span><span class="p">,</span>
+                                                        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">]):</span>
+
+                <span class="k">if</span> <span class="n">survey</span> <span class="o">-</span> <span class="n">lag</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span> <span class="k">continue</span>
+                <span class="c1">#if not self.param[&#39;lagOverlap&#39;] and survey &lt; surveyPrev+lag: continue</span>
+
+                <span class="c1">#surveyPrev = survey</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* For survey </span><span class="si">%s</span><span class="s1"> ...&#39;</span> <span class="o">%</span><span class="n">survey</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* For lag </span><span class="si">%s</span><span class="s1"> ...&#39;</span> <span class="o">%</span><span class="n">lag</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* For window </span><span class="si">%s</span><span class="s1"> ...&#39;</span> <span class="o">%</span><span class="p">[</span><span class="s1">&#39;index&gt;</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span><span class="n">wdwPos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                              <span class="s1">&#39;index&lt;</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span><span class="n">wdwPos</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+                <span class="n">window</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">wdwPos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">wdwPos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+                <span class="k">if</span> <span class="n">Eng_ref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="n">eng_wdw</span> <span class="o">=</span> <span class="n">Eng_ref</span><span class="p">[</span><span class="n">wdwPos</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="k">else</span><span class="p">:</span> <span class="n">eng_wdw</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="c1"># Refernece</span>
+                <span class="k">if</span> <span class="s1">&#39;rolling&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_type&#39;</span><span class="p">]:</span>
+                    <span class="n">ref</span> <span class="o">=</span> <span class="n">survey</span><span class="o">-</span><span class="n">lag</span>
+                <span class="k">elif</span> <span class="s1">&#39;fixed&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_type&#39;</span><span class="p">]:</span>
+                    <span class="n">ref</span> <span class="o">=</span> <span class="n">lag</span><span class="o">-</span><span class="mi">1</span>
+
+                <span class="c1"># Extract time series</span>
+                <span class="n">TSref</span> <span class="o">=</span> <span class="n">TSdata</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">window</span><span class="p">,</span> <span class="n">surveys</span><span class="o">==</span><span class="n">ref</span><span class="p">]</span>
+
+                <span class="c1"># Current</span>
+                <span class="n">TScurrent</span> <span class="o">=</span> <span class="n">TSdata</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">window</span><span class="p">,</span> <span class="n">surveys</span><span class="o">==</span><span class="n">survey</span><span class="p">]</span>
+
+                <span class="c1"># ---------- The cross-correlation ----------</span>
+                <span class="n">CC</span><span class="p">,</span> <span class="n">processingTmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">CC_dataframes</span><span class="p">(</span><span class="n">TSref</span><span class="p">,</span> <span class="n">TScurrent</span><span class="p">,</span> <span class="n">processing</span><span class="p">,</span>
+                                                       <span class="n">lag</span><span class="p">,</span> <span class="n">eng_wdw</span><span class="p">,</span>
+                                                       <span class="n">wdwPos</span><span class="p">)</span>
+                <span class="n">CC_all_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CC</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">CC_all_list</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># For the same survey number concatenate columns</span>
+                    <span class="k">if</span> <span class="n">CC</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;Survey&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> \
+                        <span class="n">CC_all_list</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;Survey&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+                            <span class="n">CC_all_list</span> <span class="o">=</span> <span class="n">CC_all_list</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">CC_all_list</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+
+            <span class="n">CC</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">CC_all_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">CC</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">CC</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">droplevel</span><span class="p">([</span><span class="n">level</span> <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">CC</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">nlevels</span><span class="p">)])</span>
+
+        <span class="c1"># -------------- Multiple src/rec paris survyes in subgroups--------------</span>
+        <span class="k">elif</span> <span class="s1">&#39;multiple&#39;</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;survey_type&#39;</span><span class="p">]:</span>
+            <span class="c1"># Import TS groups from database</span>
+            <span class="n">TS_groups</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">DB_group_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span> <span class="n">group_name</span> <span class="o">=</span> <span class="s1">&#39;TSdata&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;STA_meas&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;END_meas&#39;</span><span class="p">]:</span>
+                <span class="n">surveyTimes</span> <span class="o">=</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;survey&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span>
+                               <span class="n">TS_groups</span><span class="p">]</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="p">[(</span><span class="n">group</span> <span class="o">&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;STA_meas&#39;</span><span class="p">]))</span> <span class="ow">and</span>
+                        <span class="p">(</span><span class="n">group</span> <span class="o">&lt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;END_meas&#39;</span><span class="p">]))</span> <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span>
+                        <span class="n">surveyTimes</span><span class="p">]</span>
+
+                <span class="n">TS_groups</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">TS_groups</span><span class="p">,</span> <span class="n">mask</span><span class="p">))</span>
+
+            <span class="c1"># Define energy reference windows to process if required</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;Eng_ref&#39;</span><span class="p">]:</span>
+                <span class="n">windows</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;index&gt;</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span><span class="n">wdwPos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;index&lt;</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span><span class="n">wdwPos</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">wdwPos</span>
+                              <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">]]</span>
+
+                <span class="c1"># dictionary of dataframes ref for all windows</span>
+                <span class="n">Eng_ref</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">dt</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span>
+                           <span class="n">DB_pd_data_load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span><span class="s1">&#39;TSdata/&#39;</span><span class="o">+</span>  \
+                                           <span class="n">TS_groups</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;Eng_ref&#39;</span><span class="p">]],</span>
+                                           <span class="n">whereList</span> <span class="o">=</span> <span class="n">window</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span>
+                                           <span class="n">window</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">windows</span><span class="p">,</span> <span class="n">windows</span><span class="p">)}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Eng_ref</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="n">CC_all_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">gp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">TS_groups</span><span class="p">)):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* For group </span><span class="si">%s</span><span class="s1"> ...&#39;</span> <span class="o">%</span><span class="n">gp</span><span class="p">)</span>
+                <span class="n">CC_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+                <span class="c1"># For each lag, windowpos</span>
+                <span class="k">for</span> <span class="n">lag</span><span class="p">,</span> <span class="n">wdwPos</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">lags</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">gp</span> <span class="o">-</span> <span class="n">lag</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* For lag </span><span class="si">%s</span><span class="s1"> ...&#39;</span> <span class="o">%</span><span class="n">lag</span><span class="p">)</span>
+                    <span class="n">window</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;index&gt;</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span><span class="n">wdwPos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;index&lt;</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span><span class="n">wdwPos</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* For window </span><span class="si">%s</span><span class="s1"> ...&#39;</span> <span class="o">%</span><span class="n">window</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">Eng_ref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="n">eng_wdw</span> <span class="o">=</span> <span class="n">Eng_ref</span><span class="p">[</span><span class="s1">&#39;index&gt;</span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span> <span class="n">wdwPos</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                    <span class="k">else</span><span class="p">:</span> <span class="n">eng_wdw</span> <span class="o">=</span> <span class="kc">None</span>
+
+                    <span class="c1"># Might be better to load all data once and then slice it</span>
+                    <span class="c1"># Refernece</span>
+                    <span class="k">if</span> <span class="s1">&#39;rolling&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_type&#39;</span><span class="p">]:</span>
+                        <span class="n">ref</span> <span class="o">=</span> <span class="n">gp</span><span class="o">-</span><span class="n">lag</span>
+                    <span class="k">elif</span> <span class="s1">&#39;fixed&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_type&#39;</span><span class="p">]:</span>
+                        <span class="n">ref</span> <span class="o">=</span> <span class="n">lag</span>
+
+                    <span class="c1"># Extract time series</span>
+                    <span class="n">TSref</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">DB_pd_data_load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span>
+                                                       <span class="s1">&#39;TSdata/&#39;</span><span class="o">+</span> <span class="n">TS_groups</span><span class="p">[</span><span class="n">ref</span><span class="p">],</span>
+                                                       <span class="n">whereList</span> <span class="o">=</span> <span class="n">window</span><span class="p">)</span>
+                    <span class="c1"># Current</span>
+                    <span class="n">TScurrent</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">DB_pd_data_load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span>
+                                                       <span class="s1">&#39;TSdata/&#39;</span><span class="o">+</span> <span class="n">TS_groups</span><span class="p">[</span><span class="n">gp</span><span class="p">],</span>
+                                                       <span class="n">whereList</span> <span class="o">=</span> <span class="n">window</span><span class="p">)</span>
+
+                    <span class="c1">#---------- The cross-correlation ----------</span>
+                    <span class="n">CC</span><span class="p">,</span> <span class="n">processingTmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">CC_dataframes</span><span class="p">(</span><span class="n">TSref</span><span class="p">,</span> <span class="n">TScurrent</span><span class="p">,</span> <span class="n">processing</span><span class="p">,</span>
+                                                           <span class="n">lag</span><span class="p">,</span> <span class="n">eng_wdw</span><span class="p">,</span>
+                                                           <span class="n">wdwPos</span><span class="p">)</span>
+
+                    <span class="n">CC</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">CC</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">droplevel</span><span class="p">([</span><span class="n">level</span> <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span>
+                                                         <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">CC</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">nlevels</span><span class="p">)])</span>
+                    <span class="n">CC_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CC</span><span class="p">)</span>
+
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">CC_list</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># Merge all common windows and lags together</span>
+                    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span><span class="n">df</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">CC_list</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                        <span class="n">CC_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span>  <span class="n">CC_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">CC_list</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span>
+                                                  <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="c1"># Append Df from each group</span>
+                    <span class="n">CC_all_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CC_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">elif</span> <span class="n">CC_list</span><span class="p">:</span> <span class="c1"># If list is not empty</span>
+                    <span class="c1"># Append Df from each group</span>
+                    <span class="n">CC_all_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CC_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">CC</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">CC_all_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Save processed data to database</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">DB_pd_data_save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_folder&#39;</span><span class="p">],</span> <span class="n">CC</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cross_correlation_survey.CC_dataframes"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.cross_correlation.cross_correlation_survey.CC_dataframes">[docs]</a>    <span class="k">def</span> <span class="nf">CC_dataframes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TSdata1</span><span class="p">,</span> <span class="n">TSdata2</span><span class="p">,</span> <span class="n">processing</span><span class="p">,</span> <span class="n">lag</span><span class="p">,</span> <span class="n">eng_wdw</span><span class="p">,</span> <span class="n">wdwPos</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Cross-correlation between two dataframes for multiple lags, along with</span>
+<span class="sd">        the optional calculation of the relative amplitude changes between traces</span>
+<span class="sd">        or the spectral significance of the correlation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        TSdata1, TSdata1 : DataFrame</span>
+<span class="sd">            The time-series dataframes, stored in columns, with multi-level index</span>
+<span class="sd">            names ``srcNo`` and ``recNo``. Only equivelent src/rec pairs will be</span>
+<span class="sd">            compared.</span>
+<span class="sd">        processing : list(str)</span>
+<span class="sd">            A list of strings containing additional processing types if requested.</span>
+<span class="sd">            The defualt is [&#39;CC&#39;, &#39;CC-lag&#39;]. If &#39;sig&#39; is found in the list then the</span>
+<span class="sd">            spectral significance of the correlation will also be calculated.</span>
+<span class="sd">        lag : int</span>
+<span class="sd">                lag between ``TSdata1`` and ``TSdata2`` in terms of repeat measurements.</span>
+
+<span class="sd">        eng_wdw : series</span>
+<span class="sd">                The window within the time-series corresponding to the user selected</span>
+<span class="sd">                reference time-series.</span>
+
+<span class="sd">        wdwPos : list</span>
+<span class="sd">                The start and stop window positions within a trace</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        CC : DataFrame(len(TSdata1.shape[1]), len(processing))</span>
+<span class="sd">        processing : list(str)</span>
+<span class="sd">            a list of strings pertaining to the column values of ``CC``</span>
+
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">            Might be much faster if I write my own multiple 1D cross-correlation</span>
+<span class="sd">            function.</span>
+<span class="sd">            Add taper to the correlation calculation</span>
+<span class="sd">            This function currently handels the situation that some src/rec pairs</span>
+<span class="sd">            are missing from one of the dataframes,</span>
+
+<span class="sd">        C = [np.correlate(TSdata1[:,TS],TSdata2[:,TS], mode=&#39;full&#39;).max() for</span>
+<span class="sd">        S in range(0, TSdata1.shape[1])]</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># No of traces based on min</span>
+        <span class="n">min_cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">((</span><span class="n">TSdata1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">TSdata2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="c1">#        max_cols = np.argmax((TSdata1.shape[1], TSdata2.shape[1]))</span>
+<span class="c1">#        no_traces = max(TSdata1.shape[1], TSdata2.shape[1])</span>
+        <span class="n">trace_length</span> <span class="o">=</span> <span class="n">TSdata2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Apply the taper to matrix</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;taper&#39;</span><span class="p">]:</span>
+            <span class="n">taper</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">tukey</span><span class="p">(</span><span class="n">trace_length</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;taperAlpha&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">taper</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="c1"># Only calculate Relative amplitude for the min lag</span>
+        <span class="k">if</span> <span class="n">lag</span> <span class="o">==</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_ref&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="n">eng_wdw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">processingTmp</span> <span class="o">=</span> <span class="n">processing</span><span class="p">[:]</span>
+            <span class="n">processingTmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;RelAmp&#39;</span><span class="p">)</span>
+            <span class="n">eng_wdw</span> <span class="o">=</span> <span class="p">(</span><span class="n">eng_wdw</span> <span class="o">-</span> <span class="n">eng_wdw</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">/</span> \
+                      <span class="p">(</span><span class="n">eng_wdw</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">*</span> <span class="n">eng_wdw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">processingTmp</span> <span class="o">=</span> <span class="n">processing</span>
+
+        <span class="c1"># Normalise the entire matrix</span>
+        <span class="n">TSdata1</span> <span class="o">=</span> <span class="p">(</span><span class="n">TSdata1</span> <span class="o">-</span> <span class="n">TSdata1</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">TSdata1</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">*</span> <span class="n">TSdata1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">TSdata2</span> <span class="o">=</span> <span class="p">(</span><span class="n">TSdata2</span> <span class="o">-</span> <span class="n">TSdata2</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">/</span> <span class="n">TSdata2</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+
+
+
+        <span class="c1"># Empty dataframe for storage row no. == to max number of cols</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span>\
+                           <span class="n">from_product</span><span class="p">([[</span><span class="n">lag</span><span class="p">],[</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">-</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">wdwPos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">wdwPos</span><span class="p">[</span><span class="mi">1</span><span class="p">])],</span>
+                                         <span class="n">processingTmp</span><span class="p">],</span>
+                                         <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;lag&#39;</span><span class="p">,</span> <span class="s1">&#39;window&#39;</span><span class="p">,</span><span class="s1">&#39;Parameters&#39;</span><span class="p">])</span>
+        <span class="n">CC</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">TSdata2</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="n">cols</span><span class="p">)</span>
+<span class="c1">#        CC = np.empty([no_traces, len(processingTmp)], dtype=np.float64)</span>
+
+        <span class="c1"># List of src_rec combinations for dataset with min number of combinations</span>
+        <span class="c1"># This assumes that the other Df has all expected source receiver pairs</span>
+        <span class="n">src_rec_pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">src</span><span class="p">,</span> <span class="n">rec</span><span class="p">)</span> <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">rec</span> <span class="ow">in</span>
+                   <span class="nb">zip</span><span class="p">([</span><span class="n">TSdata1</span><span class="p">,</span> <span class="n">TSdata2</span><span class="p">][</span><span class="n">min_cols</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;srcNo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                       <span class="p">[</span><span class="n">TSdata1</span><span class="p">,</span> <span class="n">TSdata2</span><span class="p">][</span><span class="n">min_cols</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;recNo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">src_rec</span> <span class="ow">in</span> <span class="n">src_rec_pairs</span><span class="p">:</span>
+
+            <span class="n">ref</span> <span class="o">=</span> <span class="n">TSdata1</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="n">src_rec</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">level</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;srcNo&#39;</span><span class="p">,</span> <span class="s1">&#39;recNo&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">comp</span> <span class="o">=</span> <span class="n">TSdata2</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="n">src_rec</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">level</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;srcNo&#39;</span><span class="p">,</span> <span class="s1">&#39;recNo&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">CCs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">correlate</span><span class="p">(</span><span class="n">ref</span><span class="o">*</span> <span class="n">taper</span><span class="p">,</span> <span class="n">comp</span> <span class="o">*</span> <span class="n">taper</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;full&#39;</span><span class="p">)</span>
+            <span class="n">CC</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_rec</span><span class="p">,</span> <span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="n">processingTmp</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">=</span> <span class="n">CCs</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">CC</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_rec</span><span class="p">,</span> <span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="n">processingTmp</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">=</span> <span class="n">CCs</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">CCs</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span>
+            <span class="k">if</span> <span class="n">CC</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="mi">2</span><span class="p">:</span> <span class="k">continue</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">eng_ref</span> <span class="o">=</span> <span class="n">eng_wdw</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="n">src_rec</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">level</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;srcNo&#39;</span><span class="p">,</span> <span class="s1">&#39;recNo&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">values</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">eng_ref</span> <span class="o">=</span> <span class="n">eng_wdw</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">CC</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_rec</span><span class="p">,</span> <span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="n">processingTmp</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relative_amplitude</span><span class="p">(</span><span class="n">eng_ref</span><span class="o">*</span><span class="n">taper</span><span class="p">,</span> <span class="n">comp</span><span class="o">*</span><span class="n">taper</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">CC</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="mi">3</span><span class="p">:</span> <span class="k">continue</span>
+            <span class="n">CC</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_rec</span><span class="p">,</span> <span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="n">processingTmp</span><span class="p">[</span><span class="mi">3</span><span class="p">])]</span> <span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec_corr_significance</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">comp</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">CC</span><span class="p">,</span> <span class="n">processingTmp</span></div>
+
+<div class="viewcode-block" id="cross_correlation_survey.relative_amplitude"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.cross_correlation.cross_correlation_survey.relative_amplitude">[docs]</a>    <span class="k">def</span> <span class="nf">relative_amplitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39; Determine the relative amplitude difference between two traces.</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            a : int or float</span>
+<span class="sd">                Reference time-series of length ``N``.</span>
+
+<span class="sd">            b : int or float</span>
+<span class="sd">                Comparison time-series of length ``N``.</span>
+
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            Relative amplitude : float</span>
+<span class="sd">                The rejection</span>
+<span class="sd">            Notes</span>
+<span class="sd">            -----</span>
+<span class="sd">            To calculate the confidence associated with the Z-score use</span>
+<span class="sd">                ``scipy.stats.norm.ppf(sig)``</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="cross_correlation_survey.spec_corr_significance"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.cross_correlation.cross_correlation_survey.spec_corr_significance">[docs]</a>    <span class="k">def</span> <span class="nf">spec_corr_significance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">C_xy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tot</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">confidence</span> <span class="o">=</span> <span class="mf">0.99</span><span class="p">,</span>
+                                   <span class="n">maxlag</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39; Applies a spectral perturbation of phase to assess the</span>
+<span class="sd">            significance of a correlation. This is similar to the work by Ebisuzaki 1997</span>
+<span class="sd">            The basic output is the acceptance rate of the alternative to</span>
+<span class="sd">            the Null Hypothesis H0 that there is no correlation between two time series</span>
+<span class="sd">            based on the CC for the.</span>
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            a : int or float</span>
+<span class="sd">                Reference time-series of length ``N``.</span>
+
+<span class="sd">            b : int or float</span>
+<span class="sd">                Comparison time-series of length ``N``.</span>
+
+<span class="sd">            C_xy : int or float</span>
+<span class="sd">                The normalised cross-correlation coefficient of length corresponding</span>
+<span class="sd">                to ``maxlag``.</span>
+
+<span class="sd">            tot : int</span>
+<span class="sd">                Total number of random perturbations to check the correlation</span>
+<span class="sd">                (Default is 2000).</span>
+
+<span class="sd">            confidence : float</span>
+<span class="sd">                The confidence at which the acceptance rate ``H1_AR`` is tested,</span>
+<span class="sd">                (Default is 0.95).</span>
+
+<span class="sd">            maxlag : int</span>
+<span class="sd">                The maximum sample lags applied in the cross-correlations,</span>
+<span class="sd">                (Default is 64).</span>
+
+<span class="sd">            verbose : bool</span>
+<span class="sd">                If ``True`` an output of the distribution of the random phase test</span>
+<span class="sd">                cross-correlations will be made with that of the ``C_xy``</span>
+<span class="sd">                (Default is 64).</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            H1_AR : float</span>
+<span class="sd">                The rejection rate of the null hypoth ``a``</span>
+<span class="sd">                and ``b``.</span>
+
+<span class="sd">            sigma : float</span>
+<span class="sd">                The variance of the distribution of random phase perturbed time-series.</span>
+
+<span class="sd">            mean : float</span>
+<span class="sd">                The mean of the distribution of random phase perturbed time-series.</span>
+
+<span class="sd">            Z_dist : float</span>
+<span class="sd">                The distribution of the random phase z-scores.</span>
+
+<span class="sd">            Z : float</span>
+<span class="sd">                The distribution of the C_xy z-scores.</span>
+
+<span class="sd">            Notes</span>
+<span class="sd">            -----</span>
+<span class="sd">            To calculate the confidence associated with the Z-score use</span>
+<span class="sd">                ``scipy.stats.norm.ppf(sig)``</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+
+            <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+            <span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">st</span>
+
+            <span class="c1"># Setup</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span>
+            <span class="k">if</span> <span class="n">maxlag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">maxlag</span> <span class="o">=</span> <span class="n">N</span><span class="o">-</span><span class="mi">1</span>
+
+            <span class="c1"># Normalize the correlation for testing the FPR</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+
+            <span class="c1"># Compute the decay rate</span>
+            <span class="n">tau</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decay_rate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+            <span class="c1"># Compute the fft of time series a</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+            <span class="c1"># Correlate with series b</span>
+            <span class="k">if</span> <span class="n">C_xy</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">C_xy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">correlate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">)</span>
+
+            <span class="n">lag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">C_xy</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span><span class="o">-</span><span class="n">N</span><span class="p">)</span>
+            <span class="n">maxlag</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">maxlag</span><span class="o">/</span><span class="n">tau</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">lag</span>
+            <span class="n">C_xy</span> <span class="o">=</span> <span class="n">C_xy</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="n">maxlag</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">N</span><span class="o">+</span><span class="n">maxlag</span><span class="p">]</span>
+
+            <span class="n">C_xy_dist</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">tot</span><span class="p">):</span>
+                <span class="c1"># Perterb the positive frequency components</span>
+                <span class="n">A_pert</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">*</span><span class="mf">1.0</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">N</span><span class="o">//</span><span class="mi">2</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+                <span class="c1"># Setting the nyquist</span>
+                <span class="n">A_pert</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">N</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">*</span><span class="mf">1.0</span><span class="n">j</span><span class="p">))</span>
+                <span class="c1"># Remove DC component</span>
+                <span class="n">A_pert</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">a_pert</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">A_pert</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+                <span class="n">a_pert</span> <span class="o">=</span> <span class="p">(</span><span class="n">a_pert</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">a_pert</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">a_pert</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+                <span class="n">C_xy_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">correlate</span><span class="p">(</span><span class="n">a_pert</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">)[</span><span class="n">N</span><span class="o">-</span><span class="n">maxlag</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">N</span><span class="o">+</span><span class="n">maxlag</span><span class="p">]</span>
+                <span class="n">C_xy_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span> <span class="p">(</span><span class="n">C_xy_dist</span><span class="p">,</span> <span class="n">C_xy_test</span><span class="p">)</span> <span class="p">)</span>
+
+            <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">C_xy_dist</span><span class="p">)</span>
+            <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">C_xy_dist</span><span class="p">)</span>
+            <span class="n">Z_dist</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">mstats</span><span class="o">.</span><span class="n">zscore</span><span class="p">(</span><span class="n">C_xy_dist</span><span class="p">)</span>
+            <span class="n">Z</span> <span class="o">=</span> <span class="p">(</span><span class="n">C_xy</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">sigma</span>
+
+            <span class="c1"># Prob. of rejecting the H0 null hypothesis &quot;No correlation present&quot;</span>
+            <span class="c1"># and accepting the H1 hypothesis, a correlation is present</span>
+            <span class="n">P_H1</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">confidence</span><span class="p">)</span>
+            <span class="n">H1_AR</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Z</span><span class="p">[</span><span class="n">Z</span><span class="o">&gt;</span><span class="n">P_H1</span><span class="p">])</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span> <span class="c1"># The H1 acceptance rate</span>
+
+            <span class="n">dist_dic</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sigma&#39;</span><span class="p">:</span> <span class="n">sigma</span><span class="p">,</span>
+                        <span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">mean</span><span class="p">,</span>
+                        <span class="s1">&#39;Z_dist&#39;</span><span class="p">:</span> <span class="n">Z_dist</span><span class="p">,</span>
+                        <span class="s1">&#39;Z&#39;</span><span class="p">:</span> <span class="n">Z</span><span class="p">}</span>
+
+            <span class="k">if</span> <span class="n">verbose</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+                <span class="n">ax0</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+                <span class="n">ax0</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">Z_dist</span><span class="p">,</span> <span class="n">bins</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Z_dist&#39;</span><span class="p">)</span>
+                <span class="n">ax0</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">bins</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Z of Correlation&#39;</span><span class="p">)</span>
+                <span class="n">ax0</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Z-score&#39;</span><span class="p">)</span>
+                <span class="n">ax0</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Density&#39;</span><span class="p">)</span>
+                <span class="n">ax0</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+            <span class="k">return</span> <span class="n">H1_AR</span><span class="p">,</span> <span class="n">dist_dic</span></div>
+
+<div class="viewcode-block" id="cross_correlation_survey.decay_rate"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.cross_correlation.cross_correlation_survey.decay_rate">[docs]</a>    <span class="k">def</span> <span class="nf">decay_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Calculates the correlation decay rate of two time series.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        a : int or float</span>
+<span class="sd">            Reference time-series of length ``N``.</span>
+
+<span class="sd">        b : int or float</span>
+<span class="sd">            Comparison time-series of length ``N``.</span>
+
+<span class="sd">        verbose : bool</span>
+<span class="sd">            If ``True`` a plot of the decay fitting will be provided</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tau : float</span>
+<span class="sd">            The decay rate of the correlation between ``a`` and ``b``.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+        <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">curve_fit</span>
+        <span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="k">import</span> <span class="n">hilbert</span>
+        <span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">special</span>
+
+        <span class="c1"># Setup variables</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">lags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">fitRange</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">tau_max</span><span class="o">=</span><span class="mi">0</span>
+
+        <span class="c1"># Perform the Autocorrelation of both variables</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+        <span class="c1"># Calculation of CC for x and y</span>
+        <span class="n">C_xy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">correlate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">)[</span><span class="n">N</span><span class="p">:]</span>
+
+        <span class="c1"># Calculate the effective</span>
+        <span class="n">C_xy_Hilb</span> <span class="o">=</span> <span class="n">hilbert</span><span class="p">(</span><span class="n">C_xy</span><span class="p">)</span>
+        <span class="n">C_xy_env</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">C_xy_Hilb</span><span class="p">)</span>
+
+
+        <span class="c1"># Fit exponential function to the envelope of the decay</span>
+        <span class="k">def</span> <span class="nf">_func_exp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">a</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">b</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">CC</span> <span class="ow">in</span> <span class="p">[</span><span class="n">C_xy_env</span><span class="p">]:</span>
+            <span class="c1"># Calculate the fit and store the max decauy rate tau</span>
+            <span class="n">p_opt</span><span class="p">,</span> <span class="n">p_cov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">_func_exp</span><span class="p">,</span> <span class="n">lags</span><span class="p">[</span><span class="n">fitRange</span><span class="p">],</span> <span class="n">CC</span><span class="p">[</span><span class="n">fitRange</span><span class="p">],</span>
+                                     <span class="n">bounds</span><span class="o">=</span><span class="p">([</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">]))</span>
+
+            <span class="n">tau</span> <span class="o">=</span> <span class="n">p_opt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">tau</span> <span class="o">&gt;</span> <span class="n">tau_max</span><span class="p">:</span>
+                <span class="n">tau_max</span> <span class="o">=</span> <span class="n">tau</span>
+                <span class="n">CC_max</span> <span class="o">=</span> <span class="n">CC</span>
+                <span class="n">x_fit</span> <span class="o">=</span> <span class="n">_func_exp</span><span class="p">(</span><span class="n">lags</span><span class="p">[</span><span class="n">fitRange</span><span class="p">],</span> <span class="o">*</span><span class="n">p_opt</span><span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="c1"># Plot Comparisons</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+            <span class="n">ax0</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+            <span class="n">ax0</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lags</span><span class="p">,</span> <span class="n">C_xy</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;CC of xy&#39;</span><span class="p">)</span>
+            <span class="n">ax0</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lags</span><span class="p">,</span> <span class="n">C_xy_env</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Envelope of xy&#39;</span><span class="p">)</span>
+            <span class="n">ax0</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lags</span><span class="p">[</span><span class="n">fitRange</span><span class="p">],</span> <span class="n">x_fit</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;fit_exp_of max AC tau&#39;</span><span class="p">)</span>
+            <span class="n">ax0</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">tau_max</span></div></div>
+<div class="viewcode-block" id="cross_correlation"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.cross_correlation.cross_correlation">[docs]</a><span class="k">class</span> <span class="nc">cross_correlation</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This class performed the cross-correlation of a matrix of time series</span>
+<span class="sd">    based on various user defined input parameters</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    TSdata:  Time series data columnweise</span>
+<span class="sd">    param:   Dictornay of user defined parameters</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Opencv should be used in speed becomes an issue in correlations</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TSdata</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TSdata</span> <span class="o">=</span> <span class="n">TSdata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="n">param</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wdwPos</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="cross_correlation.CC_wdw"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.cross_correlation.cross_correlation.CC_wdw">[docs]</a>    <span class="k">def</span> <span class="nf">CC_wdw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines the number of windows of a certain lenght which fit within</span>
+<span class="sd">        the TS, and outputs a list of start positions in terms of sample points</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Setup param</span>
+        <span class="n">TS_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TSdata</span><span class="p">)</span>
+        <span class="n">ERROR_MESSAGE</span> <span class="o">=</span> <span class="s1">&#39;The length of a TS is&#39;</span><span class="p">,</span> <span class="n">TS_len</span><span class="p">,</span> <span class="s1">&#39;Which is &lt; end of the last window&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wdwPos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Error checks</span>
+            <span class="k">if</span> <span class="n">TS_len</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;ww&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">Warning</span><span class="p">(</span><span class="n">ERROR_MESSAGE</span><span class="p">)</span>
+
+            <span class="n">wdwStep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;ww&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span>
+                               <span class="p">(</span><span class="mi">100</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;ww_ol&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Length fo TSdata&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TSdata</span><span class="p">))</span>
+            <span class="n">max_wdwPos</span> <span class="o">=</span> <span class="n">TS_len</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;ww&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">wdwStarts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_wdwPos</span><span class="p">,</span> <span class="n">wdwStep</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;wdwStep&#39;</span><span class="p">,</span><span class="n">wdwStep</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;max_wdwPos&#39;</span><span class="p">,</span><span class="n">max_wdwPos</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;wdwStarts&#39;</span><span class="p">,</span><span class="n">wdwStarts</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wdwPos</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="n">wdw_start</span><span class="p">,</span> <span class="n">wdw_start</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;ww&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="k">for</span>
+                           <span class="n">wdw_start</span> <span class="ow">in</span> <span class="n">wdwStarts</span> <span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wdwPos</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="n">wdw_start</span><span class="p">,</span> <span class="n">wdw_start</span> <span class="o">+</span> <span class="n">ww</span><span class="p">]</span> <span class="k">for</span> <span class="n">wdw_start</span><span class="p">,</span><span class="n">ww</span> <span class="ow">in</span>
+                           <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wdwPos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;ww&#39;</span><span class="p">])]</span>
+        <span class="c1"># Update param dictionary</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wdwPos</span></div>
+
+<div class="viewcode-block" id="cross_correlation.CC_run"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.cross_correlation.cross_correlation.CC_run">[docs]</a>    <span class="k">def</span> <span class="nf">CC_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Handels the cross-correlation coefficient of all TS input for each</span>
+<span class="sd">        correlation window position defined.</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">        ------</span>
+<span class="sd">        R_t Either a dataframe or panel of dataframes with index of start of</span>
+<span class="sd">            window positions</span>
+<span class="sd">        TODO:</span>
+<span class="sd">            Need to expand capability to allow for multiple lag values. Might</span>
+<span class="sd">            be best to build a 2D matrix for this purpose.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">import</span> <span class="nn">time</span>
+
+        <span class="c1"># ------------------------ setup -------------------------</span>
+        <span class="c1"># Determine the number of windows</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;---------Begin Cross-correlation---------&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CC_wdw</span><span class="p">()</span>
+
+        <span class="c1"># For each rolling lag value</span>
+        <span class="n">lags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_ref&#39;</span><span class="p">]</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">rowIndex</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Meas&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span>
+                    <span class="nb">range</span><span class="p">(</span><span class="n">lags</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSdata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+        <span class="n">R_t_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="c1"># function for column list generation</span>
+        <span class="k">def</span> <span class="nf">intersperse</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+
+            <span class="n">repeat</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">5</span><span class="p">)</span>
+                                                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">))</span>
+            <span class="n">minus</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">repeat</span><span class="p">)):</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">==</span><span class="kc">False</span><span class="p">:</span>
+                    <span class="n">repeat</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">minus</span><span class="p">]</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">repeat</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="k">elif</span> <span class="n">i</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+                    <span class="n">minus</span> <span class="o">+=</span><span class="mi">5</span>
+            <span class="k">return</span> <span class="n">repeat</span>
+
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">intersperse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wdwPos</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;CC_lag_&#39;</span><span class="p">,</span> <span class="s1">&#39;RelAmp_&#39;</span><span class="p">,</span><span class="s1">&#39;FreqBand_&#39;</span><span class="p">,</span> <span class="s1">&#39;sig_&#39;</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">lag</span> <span class="ow">in</span> <span class="n">lags</span><span class="p">:</span>
+            <span class="c1"># Define storage frame</span>
+            <span class="n">R_t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">rowIndex</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span> <span class="n">columns</span><span class="p">)</span>
+            <span class="n">R_t</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;MeasNo&#39;</span>
+            <span class="n">multiCols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">([</span><span class="n">lag</span><span class="p">],</span>
+                                            <span class="n">columns</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="s1">&#39;rolling&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_type&#39;</span><span class="p">]:</span>
+
+                <span class="c1"># Define amplitude reference trace:</span>
+                <span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSdata</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+                <span class="c1"># For each window position</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lag</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSdata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                    <span class="c1"># elem:elem + self.param[&#39;ww&#39;]</span>
+                    <span class="n">CC</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_CC</span><span class="p">(</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">TSdata</span><span class="p">[</span><span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">elem</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">col</span><span class="o">-</span><span class="n">lag</span><span class="p">],</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">TSdata</span><span class="p">[</span><span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">elem</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">col</span><span class="p">],</span>
+                         <span class="n">ref</span><span class="p">[</span><span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">elem</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">lag</span><span class="p">)</span>
+                          <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">wdwPos</span><span class="p">]</span>
+
+                    <span class="c1"># Flatten list of tuples</span>
+                    <span class="n">CC_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">CC</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">l</span><span class="p">]</span>
+                    <span class="n">R_t</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">R_t</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="n">rowIndex</span><span class="p">[</span><span class="n">col</span><span class="o">-</span><span class="n">lags</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">CC_list</span>
+            <span class="k">elif</span> <span class="s1">&#39;fixed&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_type&#39;</span><span class="p">]:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSdata</span><span class="p">[:,</span><span class="n">lag</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSdata</span><span class="p">[:,</span><span class="n">lag</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+
+                    <span class="n">CC</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_CC</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">elem</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+                                       <span class="n">col</span><span class="p">[</span><span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">elem</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">lag</span><span class="p">)</span>
+                          <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">wdwPos</span><span class="p">]</span>
+                    <span class="c1"># Flatten list of tuples</span>
+                    <span class="n">CC_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">CC</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">l</span><span class="p">]</span>
+                    <span class="n">R_t</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">R_t</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="n">rowIndex</span><span class="p">[</span><span class="n">lag</span><span class="o">-</span><span class="n">lag</span><span class="o">+</span><span class="n">i</span><span class="p">],</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">CC_list</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">R_t_temp</span> <span class="o">=</span> <span class="n">R_t</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">R_t_temp</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span><span class="n">multiCols</span><span class="p">)</span>
+            <span class="n">R_t_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">R_t_all</span><span class="p">,</span> <span class="n">R_t_temp</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">R_t_all</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The total cross-correlation time for all &#39;</span><span class="p">,</span>
+              <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wdwPos</span><span class="p">),</span> <span class="s1">&#39; window positions and &#39;</span><span class="p">,</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">TSdata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+              <span class="s1">&#39;time series&#39;</span><span class="p">,</span> <span class="s1">&#39;and&#39;</span><span class="p">,</span> <span class="n">lag</span><span class="p">,</span> <span class="s1">&#39;rolling lag runs was&#39;</span><span class="p">,</span>
+              <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="s1">&#39;sec&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;---------Cross-correlation Finished---------&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">R_t_all</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="cross_correlation.norm_CC"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.cross_correlation.cross_correlation.norm_CC">[docs]</a>    <span class="k">def</span> <span class="nf">norm_CC</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">eng_ref</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">lag</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ww</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Performs the cross-correlation of two 1D input TS, outputting the</span>
+<span class="sd">        normalised versions. Additional parameters are calculated and output as</span>
+<span class="sd">        described below.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        a : int or float</span>
+<span class="sd">            Reference time-series of length ``N``.</span>
+
+<span class="sd">        b : int or float</span>
+<span class="sd">            Comparison time-series of length ``N``.</span>
+
+<span class="sd">        eng_ref : int or float</span>
+<span class="sd">            The time-series to be taken as the reference for relative</span>
+<span class="sd">            integrated energy changes. Default is ``None``.</span>
+
+<span class="sd">        lag : int</span>
+<span class="sd">            The lag value of the given ``b`` time-series. Default is ``None``</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        CC : float</span>
+<span class="sd">            The max Cross-correlation Coefficient for all lag values.</span>
+
+<span class="sd">        Lag : int</span>
+<span class="sd">            The lag at which max cross-correlation was found in sample points.</span>
+
+<span class="sd">        Eng_comp : float</span>
+<span class="sd">            Relative energy comparison.</span>
+
+<span class="sd">        freqBandW : float</span>
+<span class="sd">            Frequency band width in Hertz.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Setup parameters:</span>
+        <span class="n">ww</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+        <span class="c1"># Create the filter taper</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;taper&#39;</span><span class="p">]:</span>
+            <span class="n">taper</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">hann</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">taper</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="c1"># Calculate the freqBand width of the smallest lag value.</span>
+        <span class="k">if</span> <span class="n">lag</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_ref&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">Fs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;SampFreq&#39;</span><span class="p">]</span>
+            <span class="n">T</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">Fs</span>
+            <span class="n">yf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">detrend</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+            <span class="n">xf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="o">/</span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">T</span><span class="p">),</span> <span class="n">length</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="n">yf_amp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">yf</span><span class="p">[:</span><span class="n">length</span><span class="o">//</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">freq_dom_amp</span> <span class="o">=</span> <span class="n">yf_amp</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">pec_noiseThd</span> <span class="o">=</span> <span class="mf">0.30</span>
+            <span class="n">xf_flt</span> <span class="o">=</span> <span class="n">xf</span><span class="p">[</span><span class="n">yf_amp</span> <span class="o">&gt;</span> <span class="n">pec_noiseThd</span> <span class="o">*</span> <span class="n">freq_dom_amp</span><span class="p">]</span>
+
+            <span class="n">freqBandW</span> <span class="o">=</span> <span class="p">(</span><span class="n">xf_flt</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">xf_flt</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">xf</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">xf</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="c1"># freq_dom_index = np.abs(yf[:length//2]).argmax()</span>
+            <span class="c1"># freq_dom = xf[freq_dom_index]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">freqBandW</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;NaN&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Convert the type to float 32 and taper</span>
+        <span class="n">a_tp</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">*</span><span class="n">taper</span>
+        <span class="n">b_tp</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">*</span><span class="n">taper</span>
+
+        <span class="c1"># Set condition based on user imput and document this in the manual !!!</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;Eng_ref&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">eng_ref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">lag</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_ref&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">eng_ref</span> <span class="o">=</span> <span class="n">eng_ref</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">*</span><span class="n">taper</span>
+            <span class="n">Eng_comp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">eng_ref</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">lag</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_ref&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">Eng_comp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Eng_comp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;NaN&#39;</span><span class="p">)</span>
+
+
+        <span class="n">a_tp</span> <span class="o">=</span> <span class="p">(</span><span class="n">a_tp</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">a_tp</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">a_tp</span><span class="p">)</span> <span class="o">*</span> <span class="n">length</span><span class="p">)</span>
+        <span class="n">b_tp</span> <span class="o">=</span> <span class="p">(</span><span class="n">b_tp</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">b_tp</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">b_tp</span><span class="p">)</span>
+
+        <span class="c1"># Calculation of CC</span>
+        <span class="n">Rt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">correlate</span><span class="p">(</span><span class="n">a_tp</span><span class="p">,</span> <span class="n">b_tp</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;sig&#39;</span><span class="p">]:</span>
+            <span class="n">sig</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec_corr_significance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sig</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;NaN&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">Rt</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">Rt</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span> <span class="o">-</span> <span class="n">ww</span><span class="p">,</span> <span class="n">Eng_comp</span><span class="p">,</span> <span class="n">freqBandW</span><span class="p">,</span> <span class="n">sig</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="cross_correlation.spec_corr_significance"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.cross_correlation.cross_correlation.spec_corr_significance">[docs]</a>    <span class="k">def</span> <span class="nf">spec_corr_significance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">C_xy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tot</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">confidence</span> <span class="o">=</span> <span class="mf">0.99</span><span class="p">,</span>
+                               <span class="n">maxlag</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Applies a spectral perturbation of phase to assess the</span>
+<span class="sd">        significance of a correlation. This is similar to the work by Ebisuzaki 1997</span>
+<span class="sd">        The basic output is the acceptance rate of the alternative to</span>
+<span class="sd">        the Null Hypothesis H0 that there is no correlation between two time series</span>
+<span class="sd">        based on the CC for the.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        a : int or float</span>
+<span class="sd">            Reference time-series of length ``N``.</span>
+
+<span class="sd">        b : int or float</span>
+<span class="sd">            Comparison time-series of length ``N``.</span>
+
+<span class="sd">        C_xy : int or float</span>
+<span class="sd">            The normalised cross-correlation coefficient of length corresponding</span>
+<span class="sd">            to ``maxlag``.</span>
+
+<span class="sd">        tot : int</span>
+<span class="sd">            Total number of random perturbations to check the correlation</span>
+<span class="sd">            (Default is 2000).</span>
+
+<span class="sd">        confidence : float</span>
+<span class="sd">            The confidence at which the acceptance rate ``H1_AR`` is tested,</span>
+<span class="sd">            (Default is 0.95).</span>
+
+<span class="sd">        maxlag : int</span>
+<span class="sd">            The maximum sample lags applied in the cross-correlations,</span>
+<span class="sd">            (Default is 64).</span>
+
+<span class="sd">        verbose : bool</span>
+<span class="sd">            If ``True`` an output of the distribution of the random phase test</span>
+<span class="sd">            cross-correlations will be made with that of the ``C_xy``</span>
+<span class="sd">            (Default is 64).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        H1_AR : float</span>
+<span class="sd">            The rejection rate of the null hypoth ``a``</span>
+<span class="sd">            and ``b``.</span>
+
+<span class="sd">        sigma : float</span>
+<span class="sd">            The variance of the distribution of random phase perturbed time-series.</span>
+
+<span class="sd">        mean : float</span>
+<span class="sd">            The mean of the distribution of random phase perturbed time-series.</span>
+
+<span class="sd">        Z_dist : float</span>
+<span class="sd">            The distribution of the random phase z-scores.</span>
+
+<span class="sd">        Z : float</span>
+<span class="sd">            The distribution of the C_xy z-scores.</span>
+
+<span class="sd">        .. note:: To calculate the confidence associated with the Z-score use</span>
+<span class="sd">            ``scipy.stats.norm.ppf(sig)``</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+        <span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">st</span>
+
+        <span class="c1"># Setup</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span>
+        <span class="k">if</span> <span class="n">maxlag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">maxlag</span> <span class="o">=</span> <span class="n">N</span><span class="o">-</span><span class="mi">1</span>
+
+        <span class="c1"># Normalize the correlation for testing the FPR</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+
+        <span class="c1"># Compute the decay rate</span>
+        <span class="n">tau</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decay_rate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="c1"># Compute the fft of time series a</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+        <span class="c1"># Correlate with series b</span>
+        <span class="k">if</span> <span class="n">C_xy</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">C_xy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">correlate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">)</span>
+
+        <span class="n">lag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">C_xy</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span><span class="o">-</span><span class="n">N</span><span class="p">)</span>
+        <span class="n">maxlag</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">maxlag</span><span class="o">/</span><span class="n">tau</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">lag</span>
+        <span class="n">C_xy</span> <span class="o">=</span> <span class="n">C_xy</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="n">maxlag</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">N</span><span class="o">+</span><span class="n">maxlag</span><span class="p">]</span>
+
+        <span class="n">FP</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">C_xy_dist</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">tot</span><span class="p">):</span>
+            <span class="n">A_pert</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">*</span><span class="mf">1.0</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">N</span><span class="o">//</span><span class="mi">2</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="c1"># Perterb the positive frequency components</span>
+            <span class="n">A_pert</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">N</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">*</span><span class="mf">1.0</span><span class="n">j</span><span class="p">))</span> <span class="c1"># Setting the nyquist</span>
+            <span class="n">A_pert</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># Remove DC component</span>
+            <span class="n">a_pert</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">A_pert</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+            <span class="n">a_pert</span> <span class="o">=</span> <span class="p">(</span><span class="n">a_pert</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">a_pert</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">a_pert</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+            <span class="n">C_xy_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">correlate</span><span class="p">(</span><span class="n">a_pert</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">)[</span><span class="n">N</span><span class="o">-</span><span class="n">maxlag</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">N</span><span class="o">+</span><span class="n">maxlag</span><span class="p">]</span>
+            <span class="n">C_xy_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span> <span class="p">(</span><span class="n">C_xy_dist</span><span class="p">,</span> <span class="n">C_xy_test</span><span class="p">)</span> <span class="p">)</span>
+
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">C_xy_dist</span><span class="p">)</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">C_xy_dist</span><span class="p">)</span>
+        <span class="n">Z_dist</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">mstats</span><span class="o">.</span><span class="n">zscore</span><span class="p">(</span><span class="n">C_xy_dist</span><span class="p">)</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="p">(</span><span class="n">C_xy</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">sigma</span>
+
+        <span class="c1"># Prob. of rejecting the H0 null hypothesis &quot;No correlation present&quot;</span>
+        <span class="c1"># and accepting the H1 hypothesis, a correlation is present</span>
+        <span class="n">P_H1</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">confidence</span><span class="p">)</span>
+        <span class="n">H1_AR</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Z</span><span class="p">[</span><span class="n">Z</span><span class="o">&gt;</span><span class="n">P_H1</span><span class="p">])</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span> <span class="c1"># The H1 acceptance rate</span>
+
+        <span class="n">dist_dic</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sigma&#39;</span><span class="p">:</span> <span class="n">sigma</span><span class="p">,</span>
+                    <span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">mean</span><span class="p">,</span>
+                    <span class="s1">&#39;Z_dist&#39;</span><span class="p">:</span> <span class="n">Z_dist</span><span class="p">,</span>
+                    <span class="s1">&#39;Z&#39;</span><span class="p">:</span> <span class="n">Z</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">verbose</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+            <span class="n">ax0</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+            <span class="n">ax0</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">Z_dist</span><span class="p">,</span> <span class="n">bins</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Z_dist&#39;</span><span class="p">)</span>
+            <span class="n">ax0</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">bins</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Z of Correlation&#39;</span><span class="p">)</span>
+            <span class="n">ax0</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Z-score&#39;</span><span class="p">)</span>
+            <span class="n">ax0</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Density&#39;</span><span class="p">)</span>
+            <span class="n">ax0</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">H1_AR</span><span class="p">,</span> <span class="n">dist_dic</span></div>
+
+<div class="viewcode-block" id="cross_correlation.decay_rate"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.cross_correlation.cross_correlation.decay_rate">[docs]</a>    <span class="k">def</span> <span class="nf">decay_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Calculates the correlation decay rate of two time series.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        a : int or float</span>
+<span class="sd">            Reference time-series of length ``N``.</span>
+
+<span class="sd">        b : int or float</span>
+<span class="sd">            Comparison time-series of length ``N``.</span>
+
+<span class="sd">        verbose : bool</span>
+<span class="sd">            If ``True`` a plot of the decay fitting will be provided</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tau : float</span>
+<span class="sd">            The decay rate of the correlation between ``a`` and ``b``.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+        <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">curve_fit</span>
+        <span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="k">import</span> <span class="n">hilbert</span>
+        <span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">special</span>
+
+        <span class="c1"># Setup variables</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">lags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">fitRange</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">tau_max</span><span class="o">=</span><span class="mi">0</span>
+
+        <span class="c1"># Perform the Autocorrelation of both variables</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+        <span class="c1"># Calculation of CC for x and y</span>
+        <span class="n">C_xy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">correlate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">)[</span><span class="n">N</span><span class="p">:]</span>
+
+        <span class="c1"># Calculate the effective</span>
+        <span class="n">C_xy_Hilb</span> <span class="o">=</span> <span class="n">hilbert</span><span class="p">(</span><span class="n">C_xy</span><span class="p">)</span>
+        <span class="n">C_xy_env</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">C_xy_Hilb</span><span class="p">)</span>
+
+
+        <span class="c1"># Fit exponential function to the envelope of the decay</span>
+        <span class="k">def</span> <span class="nf">_func_exp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">a</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">b</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">CC</span> <span class="ow">in</span> <span class="p">[</span><span class="n">C_xy_env</span><span class="p">]:</span>
+            <span class="c1"># Calculate the fit and store the max decauy rate tau</span>
+            <span class="n">p_opt</span><span class="p">,</span> <span class="n">p_cov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">_func_exp</span><span class="p">,</span> <span class="n">lags</span><span class="p">[</span><span class="n">fitRange</span><span class="p">],</span> <span class="n">CC</span><span class="p">[</span><span class="n">fitRange</span><span class="p">],</span>
+                                     <span class="n">bounds</span><span class="o">=</span><span class="p">([</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">]))</span>
+
+            <span class="n">tau</span> <span class="o">=</span> <span class="n">p_opt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">tau</span> <span class="o">&gt;</span> <span class="n">tau_max</span><span class="p">:</span>
+                <span class="n">tau_max</span> <span class="o">=</span> <span class="n">tau</span>
+                <span class="n">CC_max</span> <span class="o">=</span> <span class="n">CC</span>
+                <span class="n">x_fit</span> <span class="o">=</span> <span class="n">_func_exp</span><span class="p">(</span><span class="n">lags</span><span class="p">[</span><span class="n">fitRange</span><span class="p">],</span> <span class="o">*</span><span class="n">p_opt</span><span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="c1"># Plot Comparisons</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+            <span class="n">ax0</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+            <span class="n">ax0</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lags</span><span class="p">,</span> <span class="n">C_xy</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;CC of xy&#39;</span><span class="p">)</span>
+            <span class="n">ax0</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lags</span><span class="p">,</span> <span class="n">C_xy_env</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Envelope of xy&#39;</span><span class="p">)</span>
+            <span class="n">ax0</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lags</span><span class="p">[</span><span class="n">fitRange</span><span class="p">],</span> <span class="n">x_fit</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;fit_exp_of max AC tau&#39;</span><span class="p">)</span>
+            <span class="n">ax0</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">tau_max</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Reuben Zotz-wilson.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>

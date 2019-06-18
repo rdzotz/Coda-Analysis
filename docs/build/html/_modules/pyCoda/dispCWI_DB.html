@@ -1,0 +1,335 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyCoda.dispCWI_DB &#8212; CWI 0 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyCoda.dispCWI_DB</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.patches</span> <span class="k">as</span> <span class="nn">patches</span>
+<span class="kn">from</span> <span class="nn">matplotlib.dates</span> <span class="k">import</span> <span class="n">date2num</span>
+<span class="kn">from</span> <span class="nn">matplotlib.widgets</span> <span class="k">import</span> <span class="n">Slider</span>
+<span class="kn">import</span> <span class="nn">matplotlib.gridspec</span> <span class="k">as</span> <span class="nn">gridspec</span>
+<span class="kn">from</span> <span class="nn">matplotlib.widgets</span> <span class="k">import</span> <span class="n">CheckButtons</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+
+
+<div class="viewcode-block" id="dispCWI_DB"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dispCWI_DB.dispCWI_DB">[docs]</a><span class="k">class</span> <span class="nc">dispCWI_DB</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39; This class handels the interactive ploting of CC data stored within</span>
+<span class="sd">    a single database.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">DB</span><span class="p">,</span> <span class="n">TS_DB</span><span class="p">,</span> <span class="n">PV_full</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="n">param</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">DB</span> <span class="o">=</span> <span class="n">DB</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TS_DB</span> <span class="o">=</span> <span class="n">TS_DB</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PV_full</span> <span class="o">=</span> <span class="n">PV_full</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lag_lbl</span> <span class="o">=</span> <span class="p">[]</span>     <span class="c1"># list of lag labels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hdl_cc</span> <span class="o">=</span> <span class="p">[]</span>      <span class="c1"># list of handels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wdw_dic</span> <span class="o">=</span> <span class="p">{}</span>     <span class="c1"># dic of window visibility status</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wdw_pos</span> <span class="o">=</span> <span class="p">[]</span>     <span class="c1"># list of window positions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hdl_TSwdws</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># list of window patch positions</span>
+
+
+<div class="viewcode-block" id="dispCWI_DB.wdw_lag_col"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dispCWI_DB.dispCWI_DB.wdw_lag_col">[docs]</a>    <span class="k">def</span> <span class="nf">wdw_lag_col</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Extracts the wdw pos from DB column names</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Get list of tuples (lag, self.self.wdw_pos)</span>
+        <span class="n">tuples</span> <span class="o">=</span> <span class="p">[</span><span class="n">tup</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">DB</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span>
+                  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tup</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">tuples</span></div>
+
+<div class="viewcode-block" id="dispCWI_DB.CC_labels"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dispCWI_DB.dispCWI_DB.CC_labels">[docs]</a>    <span class="k">def</span> <span class="nf">CC_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tuples</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Handels the assignment of figure titles and axis labels. Basic</span>
+<span class="sd">        functionality, checks if variables is assigned in param, if not a</span>
+<span class="sd">        a default is assigned.</span>
+<span class="sd">        tuples: tuples of (lag, self.self.wdw_pos)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="s1">&#39;PV1_lb&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">:</span>
+            <span class="n">PV1_lb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV1_lb&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="s1">&#39;PV1&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">:</span>
+            <span class="n">PV1_lb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV1&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="s1">&#39;PV2&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">:</span>
+            <span class="n">PV1_lb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV2&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">PV1_lb</span> <span class="o">=</span> <span class="s1">&#39;Measurement No.&#39;</span>
+
+        <span class="k">if</span> <span class="s1">&#39;PV2_lb&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">:</span>
+            <span class="n">PV2_lb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV2_lb&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="s1">&#39;PV2&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">:</span>
+            <span class="n">PV2_lb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV2&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">PV2_lb</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="s1">&#39;genTitle&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">:</span>
+            <span class="n">genTitle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;genTitle&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">genTitle</span> <span class="o">=</span> <span class="s1">&#39;No Title&#39;</span>
+
+        <span class="n">myLeg</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tuples</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">PV1_lb</span><span class="p">,</span> <span class="n">PV2_lb</span><span class="p">,</span> <span class="n">genTitle</span><span class="p">,</span> <span class="n">myLeg</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_TS_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">x_TS</span><span class="p">,</span> <span class="n">TS</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; This private function handels the general plotting of TS info,</span>
+<span class="sd">        taking as input a dataframe with index takes as the time vector</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="p">[</span><span class="n">hdl</span><span class="p">]</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_TS</span><span class="p">,</span> <span class="n">TS</span><span class="p">)</span>
+        <span class="n">hdl</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+
+        <span class="c1"># Check for the approriate label</span>
+        <span class="k">if</span> <span class="s1">&#39;TS_units&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;TS_units&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;msec&#39;</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time [msec]&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">hdl</span>
+
+<div class="viewcode-block" id="dispCWI_DB.num_in_str"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dispCWI_DB.dispCWI_DB.num_in_str">[docs]</a>    <span class="k">def</span> <span class="nf">num_in_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Match an exact numnber in a string based on a pattern</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">pat</span> <span class="o">=</span> <span class="n">pattern</span> <span class="o">%</span> <span class="n">num</span>
+        <span class="c1"># print(pat)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pat</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="dispCWI_DB.TS_plot_wdw"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dispCWI_DB.dispCWI_DB.TS_plot_wdw">[docs]</a>    <span class="k">def</span> <span class="nf">TS_plot_wdw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">wd_pos</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; This private function handels the general plotting of the</span>
+<span class="sd">        correlation window considered. for each window in wd_pos</span>
+<span class="sd">        Inputs:</span>
+<span class="sd">        ------</span>
+<span class="sd">        wd_pos: sample number of beginning of window</span>
+<span class="sd">        TODO:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Set hight and width of window</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">*</span><span class="mi">2</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;ww&#39;</span><span class="p">]]</span>
+
+        <span class="c1"># print(&#39;hieght&#39;, height)</span>
+        <span class="c1"># print(&#39;width&#39;, width)</span>
+
+        <span class="c1"># Set coords of bottom corner</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">height</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">wd_pos</span><span class="p">]</span>
+
+        <span class="c1"># Draw each rectangle on ax</span>
+        <span class="n">hdls</span> <span class="o">=</span> <span class="p">[</span><span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">patches</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">x_pos</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">x_pos</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+        <span class="p">[</span><span class="n">hdls</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">wd_pos</span><span class="p">[</span><span class="n">n</span><span class="p">])</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wd_pos</span><span class="p">))]</span>
+
+        <span class="k">return</span> <span class="n">hdls</span></div>
+
+<div class="viewcode-block" id="dispCWI_DB.plot_DB"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.dispCWI_DB.dispCWI_DB.plot_DB">[docs]</a>    <span class="k">def</span> <span class="nf">plot_DB</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Generate Interactive plot of DB</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># ---------------------  Define the input data   ----------------------</span>
+        <span class="n">tuples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wdw_lag_col</span><span class="p">()</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DB</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DB</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">tuples</span><span class="p">]</span>
+        <span class="n">y2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DB</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV2&#39;</span><span class="p">]]</span>
+
+        <span class="c1"># ---------------------        Setup Figure      ----------------------</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;bmh&#39;</span><span class="p">)</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                            <span class="n">right</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                            <span class="n">wspace</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+        <span class="n">gs</span> <span class="o">=</span> <span class="n">gridspec</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="n">markersize</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">marker</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">cycle</span><span class="p">((</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;P&#39;</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;^&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;8&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">))</span>
+        <span class="n">PV1_lb</span><span class="p">,</span> <span class="n">PV2_lb</span><span class="p">,</span> <span class="n">genTitle</span><span class="p">,</span> <span class="n">legn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">CC_labels</span><span class="p">(</span><span class="n">tuples</span><span class="p">)</span>
+
+         <span class="c1"># -------------------   Plot the CC &amp; PV data   ----------------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hdl_cc</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">plot_date</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span>
+                               <span class="n">markersize</span><span class="o">=</span><span class="n">markersize</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">autofmt_xdate</span><span class="p">()</span>
+
+        <span class="c1"># Add second axis PV data if available</span>
+        <span class="k">if</span> <span class="n">y2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PV_full</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+                <span class="n">x_full</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PV_full</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV1&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_full</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="s1">&#39;k-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="s1">&#39;k-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">PV2_lb</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+
+        <span class="c1"># -------------------    Add tiles/label..etcc  ----------------------</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">genTitle</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">PV1_lb</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;CC&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hdl_cc</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">legn</span><span class="p">[</span><span class="n">n</span><span class="p">])</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">legn</span><span class="p">))]</span>
+        <span class="n">legn_hdl</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">legn_hdl</span><span class="o">.</span><span class="n">get_frame</span><span class="p">()</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mf">0.4</span><span class="p">)</span>
+
+        <span class="c1"># -----------------   Checkboxes for Lags plotted   -------------------</span>
+        <span class="n">rax_lag</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.07</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">])</span>
+        <span class="n">lag_lbl</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;lag of &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">lags</span><span class="p">)</span> <span class="k">for</span> <span class="n">lags</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_ref&#39;</span><span class="p">]]</span>
+        <span class="n">lag_dft_pos</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span><span class="p">,)</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_ref&#39;</span><span class="p">])</span>
+        <span class="n">lag_dic</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">lag_lbl</span><span class="p">,</span> <span class="n">lag_dft_pos</span><span class="p">))</span>
+        <span class="n">check_lag</span> <span class="o">=</span> <span class="n">CheckButtons</span><span class="p">(</span><span class="n">rax_lag</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">lag_lbl</span><span class="p">),</span> <span class="n">lag_dft_pos</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">check_lag</span><span class="o">.</span><span class="n">rectangles</span><span class="p">:</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">set_edgecolor</span><span class="p">(</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">lag_update</span><span class="p">(</span><span class="n">label</span><span class="p">):</span>
+            <span class="c1"># should only work for the wdw which are true</span>
+            <span class="k">for</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="n">lag_lbl</span><span class="p">:</span>
+                <span class="n">num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lbl</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># lag to match</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="n">lbl</span><span class="p">:</span>
+                    <span class="p">[(</span><span class="n">hdl</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="ow">not</span> <span class="n">hdl</span><span class="o">.</span><span class="n">get_visible</span><span class="p">()),</span>
+                      <span class="n">lag_dic</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;lag of &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">):</span> <span class="n">hdl</span><span class="o">.</span><span class="n">get_visible</span><span class="p">()}))</span>
+                     <span class="k">for</span> <span class="n">hdl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdl_cc</span>
+                     <span class="k">if</span> <span class="n">num</span> <span class="o">==</span> <span class="nb">eval</span><span class="p">(</span><span class="n">hdl</span><span class="o">.</span><span class="n">get_label</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+                     <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">wdw_dic</span><span class="p">[</span><span class="nb">eval</span><span class="p">(</span><span class="n">hdl</span><span class="o">.</span><span class="n">get_label</span><span class="p">())[</span><span class="mi">1</span><span class="p">]]]</span>
+                <span class="c1"># print(&#39;wdw status&#39;, self.wdw_dic)</span>
+                <span class="c1"># print(&#39;lag status&#39;, lag_dic)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+
+        <span class="n">check_lag</span><span class="o">.</span><span class="n">on_clicked</span><span class="p">(</span><span class="n">lag_update</span><span class="p">)</span>
+
+        <span class="c1"># ---------------   Checkboxes for windows plotted   ------------------</span>
+        <span class="n">rax_wd</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.07</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wdw_pos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">([</span><span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">tuples</span><span class="p">]))</span>
+        <span class="n">wdw_dft_pos</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span><span class="p">,)</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wdw_pos</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wdw_dic</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wdw_pos</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">wdw_dft_pos</span><span class="p">)))</span>
+        <span class="n">check_wd</span> <span class="o">=</span> <span class="n">CheckButtons</span><span class="p">(</span><span class="n">rax_wd</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wdw_pos</span><span class="p">),</span> <span class="n">wdw_dft_pos</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">check_wd</span><span class="o">.</span><span class="n">rectangles</span><span class="p">:</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">set_edgecolor</span><span class="p">(</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">wdw_update</span><span class="p">(</span><span class="n">label</span><span class="p">):</span>
+            <span class="c1"># should only work for the lags which are true</span>
+            <span class="k">for</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">wdw_pos</span><span class="p">:</span> <span class="c1"># For each wdw position</span>
+                <span class="n">num</span> <span class="o">=</span> <span class="n">lbl</span> <span class="c1"># lag to match</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">lbl</span><span class="p">):</span> <span class="c1">#  if the self.wdw_pos is the same as the clicked wdwpos</span>
+                    <span class="p">[(</span><span class="n">hdl</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="ow">not</span> <span class="n">hdl</span><span class="o">.</span><span class="n">get_visible</span><span class="p">()),</span> <span class="c1">#  switch visibility line</span>
+                      <span class="n">hdl_patch</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="ow">not</span> <span class="n">hdl_patch</span><span class="o">.</span><span class="n">get_visible</span><span class="p">()),</span>  <span class="c1"># switch visibility window</span>
+                      <span class="bp">self</span><span class="o">.</span><span class="n">wdw_dic</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">num</span><span class="p">:</span> <span class="n">hdl</span><span class="o">.</span><span class="n">get_visible</span><span class="p">()}))</span>  <span class="c1">#  save visibility in dic</span>
+                     <span class="k">for</span> <span class="n">hdl</span><span class="p">,</span> <span class="n">hdl_patch</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdl_cc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdl_TSwdws</span><span class="p">)</span>  <span class="c1">#  for all lines</span>
+                     <span class="k">if</span> <span class="n">num</span><span class="o">==</span><span class="nb">eval</span><span class="p">(</span><span class="n">hdl</span><span class="o">.</span><span class="n">get_label</span><span class="p">())[</span><span class="mi">1</span><span class="p">]</span> <span class="c1">#  if the wdw pos matches the handel label (lags, wdwpos)</span>
+                     <span class="ow">and</span> <span class="n">lag_dic</span><span class="p">[</span><span class="s1">&#39;lag of &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="n">hdl</span><span class="o">.</span><span class="n">get_label</span><span class="p">())[</span><span class="mi">0</span><span class="p">])]]</span> <span class="c1"># and the lag dic is not off</span>
+                <span class="c1"># print(&#39;wdw status&#39;, self.self.wdw_dic)</span>
+                <span class="c1"># print(&#39;lag status&#39;, lag_dic)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+
+        <span class="n">check_wd</span><span class="o">.</span><span class="n">on_clicked</span><span class="p">(</span><span class="n">wdw_update</span><span class="p">)</span>
+
+        <span class="c1"># -------------------   Add TS data Below plot   ----------------------</span>
+        <span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="n">init_ts_pos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">hdl_TS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_TS_plot</span><span class="p">(</span><span class="n">ax3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">init_ts_pos</span><span class="p">])</span>
+
+        <span class="c1"># --------------------     Add CC window to TS   ----------------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hdl_TSwdws</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TS_plot_wdw</span><span class="p">(</span><span class="n">ax3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wdw_pos</span><span class="p">)</span>
+
+        <span class="c1"># Show plot</span>
+        <span class="c1"># plt.tight_layout()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">check_wd</span><span class="p">,</span> <span class="n">check_lag</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Reuben Zotz-wilson.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>

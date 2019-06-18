@@ -1,0 +1,783 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyCoda.pre_process &#8212; CWI 0 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyCoda.pre_process</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Wed Jan 11 13:06:31 2017</span>
+
+<span class="sd">@author: rwilson</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Implements the global import of all data</span>
+
+<span class="sd">Created on Mon Dec 26 20:51:08 2016</span>
+<span class="sd">@author: rwilson</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">data</span> <span class="k">as</span> <span class="nn">dt</span>
+
+
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="k">import</span> <span class="n">butter</span><span class="p">,</span> <span class="n">lfilter</span><span class="p">,</span> <span class="n">filtfilt</span><span class="p">,</span> <span class="n">freqz</span>
+<span class="kn">from</span> <span class="nn">scipy.fftpack</span> <span class="k">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftfreq</span><span class="p">,</span> <span class="n">rfft</span><span class="p">,</span> <span class="n">irfft</span>
+<span class="kn">from</span> <span class="nn">matplotlib.widgets</span> <span class="k">import</span> <span class="n">Slider</span>
+
+<div class="viewcode-block" id="frequency"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.pre_process.frequency">[docs]</a><span class="k">class</span> <span class="nc">frequency</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39; A collection of functions for the inspection and processing of the</span>
+<span class="sd">    frequency data. Written to take in a database of TSdata formate and filter in</span>
+<span class="sd">    terms of frequency.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    TSdata : DataFrame</span>
+<span class="sd">         A dataframe containing all time series data for frequency filtering.</span>
+<span class="sd">    fs</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TSdata</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TSdata</span> <span class="o">=</span> <span class="n">TSdata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TSfft</span> <span class="o">=</span> <span class="n">TSdata</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rfft</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TSfft</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Set zero freq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TSfft</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">fftfreq</span><span class="p">(</span><span class="n">TSdata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">)[</span><span class="nb">range</span><span class="p">(</span><span class="n">TSdata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fs</span> <span class="o">=</span> <span class="n">fs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+
+<div class="viewcode-block" id="frequency.TS_DB_filter"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.pre_process.frequency.TS_DB_filter">[docs]</a>    <span class="k">def</span> <span class="nf">TS_DB_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">lowcut</span><span class="p">,</span> <span class="n">highcut</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Perform the frequency filtering of the entire dataframe</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">TSdata</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSdata</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">butter_bandpass_filter</span><span class="p">(</span>
+                                              <span class="n">x</span><span class="p">,</span> <span class="n">lowcut</span><span class="p">,</span> <span class="n">highcut</span><span class="p">,</span> <span class="n">order</span><span class="p">),</span>
+                                              <span class="n">axis</span><span class="o">=</span><span class="mi">0</span> <span class="p">)</span></div>
+<span class="c1">#        self.TSdata = self.TSfft.apply(irfft)</span>
+
+<div class="viewcode-block" id="frequency.butter_bandpass"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.pre_process.frequency.butter_bandpass">[docs]</a>    <span class="k">def</span> <span class="nf">butter_bandpass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lowcut</span><span class="p">,</span> <span class="n">highcut</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Define the butterworth frequency filter window</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lowcut : float (Default None)</span>
+<span class="sd">            Low cut Filter defining the lower cutoff frequency</span>
+<span class="sd">        highcut : float (Default None)</span>
+<span class="sd">            High cut Filter defining the upper cutoff frequency</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        b, a: ndarray</span>
+<span class="sd">            Numerator (b) and denominator (a) polynomials of the IIR filter.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">nyq</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fs</span>
+        <span class="n">low</span> <span class="o">=</span> <span class="n">lowcut</span> <span class="o">/</span> <span class="n">nyq</span>
+        <span class="n">high</span> <span class="o">=</span> <span class="n">highcut</span> <span class="o">/</span> <span class="n">nyq</span>
+        <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="p">[</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">],</span> <span class="n">btype</span><span class="o">=</span><span class="s1">&#39;band&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span></div>
+
+<div class="viewcode-block" id="frequency.butter_bandpass_filter"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.pre_process.frequency.butter_bandpass_filter">[docs]</a>    <span class="k">def</span> <span class="nf">butter_bandpass_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">lowcut</span><span class="p">,</span> <span class="n">highcut</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Apply the butter bandpass filter to the data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ------</span>
+<span class="sd">        data : array</span>
+<span class="sd">        lowcut : float (Default None)</span>
+<span class="sd">            Low cut Filter defining the lower cutoff frequency</span>
+<span class="sd">        highcut : float (Default None)</span>
+<span class="sd">            High cut Filter defining the upper cutoff frequency</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        b, a: ndarray</span>
+<span class="sd">            Numerator (b) and denominator (a) polynomials of the IIR filter.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">butter_bandpass</span><span class="p">(</span><span class="n">lowcut</span><span class="p">,</span> <span class="n">highcut</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">)</span>
+        <span class="c1">#y = lfilter(b, a, data)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">filtfilt</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">y</span></div>
+
+<div class="viewcode-block" id="frequency.freq_filter_insp"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.pre_process.frequency.freq_filter_insp">[docs]</a>    <span class="k">def</span> <span class="nf">freq_filter_insp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lowcut</span><span class="p">,</span> <span class="n">highcut</span><span class="p">,</span> <span class="n">Worder</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Inspect the frequency filter taper before application</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        ------</span>
+<span class="sd">        lowcut : float (Default None)</span>
+<span class="sd">            Low cut Filter defining the lower cutoff frequency</span>
+<span class="sd">        highcut : float (Default None)</span>
+<span class="sd">            High cut Filter defining the upper cutoff frequency</span>
+<span class="sd">        Worder : int (Default 6)</span>
+<span class="sd">            The order of the butterworth filter</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Plot the frequency response for a few different orders.</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">orde</span> <span class="ow">in</span> <span class="p">[</span><span class="n">Worder</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="n">Worder</span><span class="o">+</span><span class="mi">2</span><span class="p">]:</span>
+            <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">butter_bandpass</span><span class="p">(</span><span class="n">lowcut</span><span class="p">,</span> <span class="n">highcut</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">orde</span><span class="p">)</span>
+            <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">freqz</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">worN</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">fs</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">w</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">h</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;order = </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">orde</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fs</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)],</span>
+                 <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;sqrt(0.5)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Gain&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="frequency.TS_FS_interactive"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.pre_process.frequency.TS_FS_interactive">[docs]</a>    <span class="k">def</span> <span class="nf">TS_FS_interactive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Interactive plot of time-series data in the frequency spectrum.</span>
+<span class="sd">                &#39;&#39;&#39;</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+
+        <span class="c1"># Add TSfreq data pannel below main plot</span>
+        <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+        <span class="n">init_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSfft</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span>
+        <span class="n">hdl</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TSfft</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">init_pos</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">TSfft</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">init_pos</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">())</span>
+
+        <span class="c1"># --------------------- Add TS slider -----------------------</span>
+        <span class="n">slider_color</span> <span class="o">=</span> <span class="s1">&#39;lightgoldenrodyellow&#39;</span>
+        <span class="n">ts_slider_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span>
+                                    <span class="n">facecolor</span><span class="o">=</span><span class="n">slider_color</span><span class="p">)</span>
+        <span class="n">ts_slider</span> <span class="o">=</span> <span class="n">Slider</span><span class="p">(</span><span class="n">ts_slider_ax</span><span class="p">,</span> <span class="s1">&#39;Time Series FFT&#39;</span><span class="p">,</span>
+                           <span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TSfft</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+                           <span class="n">valfmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span>
+                           <span class="n">valinit</span><span class="o">=</span><span class="n">init_pos</span><span class="p">)</span>
+
+        <span class="c1"># Define the slider</span>
+        <span class="k">def</span> <span class="nf">slider_ts_pos_on_change</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+            <span class="n">trace_no</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ts_slider</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+
+            <span class="n">hdl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ydata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TSfft</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">trace_no</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">())</span>
+
+            <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+
+        <span class="n">ts_slider</span><span class="o">.</span><span class="n">on_changed</span><span class="p">(</span><span class="n">slider_ts_pos_on_change</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ts_slider</span><span class="p">,</span> <span class="n">hdl</span><span class="p">,</span></div></div>
+
+<div class="viewcode-block" id="preProcess"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.pre_process.preProcess">[docs]</a><span class="k">class</span> <span class="nc">preProcess</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This class performs various pre-processing operations on imported Time</span>
+<span class="sd">    Series and Perturbation Vector information. The PVdata is loaded into memory</span>
+<span class="sd">    with any modifications stored to the database at the end of processing.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    self.Database : str</span>
+<span class="sd">        Defines a common hdf5 database name ``Database.h5`` including relative path</span>
+<span class="sd">    self.newParam : dict</span>
+<span class="sd">        A dictionary of the most recent user input parameters</span>
+<span class="sd">    self.verbose : bool</span>
+<span class="sd">        If ``True`` additional print to screen will occure</span>
+<span class="sd">    self.PVdata : DataFrame</span>
+<span class="sd">        Database of the PVdata found in self.Database</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Database</span><span class="p">,</span> <span class="n">newParam</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Database</span> <span class="o">=</span> <span class="n">Database</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span> <span class="o">=</span> <span class="n">newParam</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">DB_pd_data_load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span> <span class="s1">&#39;PVdata&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="preProcess.TSslice"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.pre_process.preProcess.TSslice">[docs]</a>    <span class="k">def</span> <span class="nf">TSslice</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;DEPRECIATED</span>
+<span class="sd">        The slicing is intended to truncate all TS information before FB</span>
+<span class="sd">        and after the coda is noise dominated. Additionally, the removal of TS</span>
+<span class="sd">        at the beginning and end of the experiment is possible thr STA_meas and</span>
+<span class="sd">        END_meas. The PV dataframe is also sliced accordingly.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Frome user defined param DataFrame</span>
+
+<span class="sd">        TODO:</span>
+<span class="sd">            * write time matching def</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># If recNo exists in input data, then slice TS and TShdrs</span>
+        <span class="k">if</span> <span class="s1">&#39;recNo&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">:</span>
+            <span class="n">recNo_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="o">.</span><span class="n">recNo</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+            <span class="n">recIdx</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">recNo_list</span><span class="p">)</span>
+                       <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;recNo&#39;</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">row_sta</span> <span class="o">=</span> <span class="n">recIdx</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;sampNo&#39;</span><span class="p">]</span>
+            <span class="n">row_end</span> <span class="o">=</span> <span class="p">(</span><span class="n">recIdx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;sampNo&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">TSmtx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSmtx</span><span class="p">[</span><span class="n">row_sta</span><span class="p">:</span><span class="n">row_end</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+                          <span class="s1">&#39;recNo ==&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;recNo&#39;</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="p">[</span><span class="o">~</span><span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span>
+                                      <span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">)]</span>
+
+        <span class="c1"># Time match PV and TS not same length</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSmtx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">TS_PV_match</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="s1">&#39;PV_STA&#39;</span> <span class="ow">and</span> <span class="s1">&#39;PV_END&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">PVdata_full</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata_full</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;PV_STA&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                                                  <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;PV_END&#39;</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;matched&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+
+
+        <span class="c1"># Redfine PV_df sliced</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;STA_meas&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;END_meas&#39;</span><span class="p">]]</span>
+
+    <span class="c1"># Can remove this Once PV_df contains all equal dimensional data</span>
+    <span class="c1">#####################################################</span>
+        <span class="c1"># If TS header data exists, then slice</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSmtx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;STA_meas&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;END_meas&#39;</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No TS header data found&#39;</span><span class="p">)</span>
+    <span class="c1">#####################################################</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">TSmtx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSmtx</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;FB_cut&#39;</span><span class="p">]:</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;END_cut&#39;</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TSmtx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSmtx</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;STA_meas&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;END_meas&#39;</span><span class="p">]]</span>
+
+        <span class="c1"># Normalise all TS between -1 and 1</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TSmtx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="preProcess.TSgain"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.pre_process.preProcess.TSgain">[docs]</a>    <span class="k">def</span> <span class="nf">TSgain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;DEPRECIATED: Correct the input TS data for any acquisition gain. It is expected that</span>
+<span class="sd">        a dataframe TShdrs is available which contains a column &quot;Vertical gain&quot;,</span>
+<span class="sd">        the contents of which will be multiplied with each time series sample point.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        self.TSmtx: corrected for vertical gain applied during aqcuisiton.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">TSmtx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSmtx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="p">[</span><span class="s1">&#39;Vertical gain&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Column: </span><span class="se">\&quot;</span><span class="s1">Vertical gain</span><span class="se">\&quot;</span><span class="s1"> not found in TShdrs Dataframe, </span><span class="se">\</span>
+<span class="s1">                  no correlation applied&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="preProcess.TS_t"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.pre_process.preProcess.TS_t">[docs]</a>    <span class="k">def</span> <span class="nf">TS_t</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;REDUNDENT: This should be generated as the index of the TS data.</span>
+<span class="sd">        Generates the corresponding time vector based on information found</span>
+<span class="sd">        in the TS headers. If no data is found, then the time vector is tagged</span>
+<span class="sd">        as representing measurement numbers</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        t:   Time vector in seconds</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;SampFreq&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSmtx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;SampFreq&#39;</span><span class="p">]</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TSmtx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">t_axis</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;t_axis&#39;</span><span class="p">:</span> <span class="n">t</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t_axis</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="preProcess.PV_time_corr"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.pre_process.preProcess.PV_time_corr">[docs]</a>    <span class="k">def</span> <span class="nf">PV_time_corr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Takes either an existing column in the PV database and creates a new</span>
+<span class="sd">        column ``Time Stamp`` containing the absolute timestamp for each datapoint,</span>
+<span class="sd">        in sync with the absolute timestamp data stored within the TS data headers.</span>
+<span class="sd">        Attributes are read in from the database.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        self.PVdata : DataFrame</span>
+<span class="sd">            Database containing the PV data.</span>
+
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        It is expected that within the self.Database file the following attributes</span>
+<span class="sd">        will be found.</span>
+<span class="sd">            DB.attrs[&#39;PVstart_date_time&#39;] : str</span>
+<span class="sd">                String of the absolute time of the first PV datapoint in sync</span>
+<span class="sd">                with TS time.</span>
+<span class="sd">            DB.attrs[&#39;PV_time_col&#39;] : str</span>
+<span class="sd">                Name of time column to match in PV data.</span>
+<span class="sd">            DB.attrs[&#39;PV_time_col_unit&#39;] : str</span>
+<span class="sd">                The time unit (Default = &#39;D&#39;), see pd.to_datetime</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Determine the PV start date time from the PVdata</span>
+<span class="sd">        &gt;&gt;&gt; PV_time_col = &#39;Time(Days)&#39;</span>
+<span class="sd">        &gt;&gt;&gt; shift = 71.3980 - PV_data[&#39;Time(Days)&#39;][0]</span>
+<span class="sd">        &gt;&gt;&gt; PV_time_origin = pd.Timestamp(pd.to_datetime(TS_data.columns.</span>
+<span class="sd">        &gt;&gt;&gt;                               get_level_values(&#39;Time&#39;)[0]) -</span>
+<span class="sd">        &gt;&gt;&gt;                               datetime.timedelta(days = shift))</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Update function to deal with no-correction required</span>
+
+
+        <span class="c1"># Read in attributes from database</span>
+<span class="c1">#        dict_attrs = dt.utilities.DB_attrs_load(self.Database, [&#39;PVstart_date_time&#39;,</span>
+<span class="c1">#                                                   &#39;PV_time_col&#39;,</span>
+<span class="c1">#                                                   &#39;PV_time_col_unit&#39;])</span>
+
+        <span class="c1"># Create new Time Stamp column in PVdata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Time Stamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;PV_time_col&#39;</span><span class="p">]],</span>
+                <span class="n">unit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;PV_time_col_unit&#39;</span><span class="p">],</span>
+                <span class="n">origin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;PVstart_date_time&#39;</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="preProcess.TS_PV_match"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.pre_process.preProcess.TS_PV_match">[docs]</a>    <span class="k">def</span> <span class="nf">TS_PV_match</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;DEPRECIATED: The time matching between TS and PV data for specific</span>
+<span class="sd">        Olympus data</span>
+<span class="sd">        type.</span>
+
+<span class="sd">        TODO</span>
+<span class="sd">        ----</span>
+<span class="sd">        * Update to be more general, allowing matching for generic input data</span>
+<span class="sd">        * Also allow the passing on the non-matched PV for plotting/storage</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">datetime</span>
+        <span class="kn">import</span> <span class="nn">dateutil.parser</span> <span class="k">as</span> <span class="nn">datePar</span>
+        <span class="kn">import</span> <span class="nn">time</span>
+        <span class="c1">#import matched</span>
+
+        <span class="c1"># Nested functions</span>
+        <span class="k">def</span> <span class="nf">nearest</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">pivot</span><span class="p">):</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">items</span> <span class="o">-</span> <span class="n">pivot</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">match</span>  <span class="c1"># min(items, key=lambda x: abs(x-pivot))</span>
+
+        <span class="k">def</span> <span class="nf">getnearpos</span><span class="p">(</span><span class="n">array</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">array</span><span class="o">-</span><span class="n">value</span><span class="p">))</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">idx</span>
+
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;--------- Time Matching PV and TS data ---------&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Store original PV_df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span>
+        <span class="c1"># Load setup information</span>
+        <span class="n">acqDate</span> <span class="o">=</span> <span class="n">datePar</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;acqDate&#39;</span><span class="p">],</span> <span class="n">dayfirst</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># If user defined TS_samp_dt then match based on this</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;TS_samp_dt&#39;</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Define the TS sampling frequency</span>
+            <span class="c1"># TS_samp_dt = 15 # sec</span>
+
+            <span class="c1"># The regular expression to match</span>
+            <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Read the file names from the index columns of the header DF</span>
+            <span class="n">TS_d_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+            <span class="c1"># calculate the count time based on file no.</span>
+            <span class="n">count_time</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">regex</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">file</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;TS_samp_dt&#39;</span><span class="p">]</span>
+                          <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">TS_d_list</span><span class="p">]</span>
+
+            <span class="c1"># Add offset as the count of the first file in the list</span>
+            <span class="n">tot_time</span> <span class="o">=</span> <span class="n">count_time</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="p">[</span><span class="s1">&#39;count[sec]&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;match_timeshift&#39;</span><span class="p">]</span>
+            <span class="c1"># Convert sec to datetime formate</span>
+            <span class="n">TS_d_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">sec</span><span class="p">)</span> <span class="o">+</span> <span class="n">acqDate</span> <span class="k">for</span>
+                         <span class="n">sec</span> <span class="ow">in</span> <span class="n">tot_time</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;TS_file_tmatch&#39;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time match based on time file saved&#39;</span><span class="p">)</span>
+            <span class="n">TS_d_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="p">[</span><span class="s1">&#39;fileMod&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="p">[</span><span class="s1">&#39;Date_rel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TS_d_list</span>
+            <span class="n">TS_d_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">TS_d_list</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Match based on the .par file count vector</span>
+            <span class="c1"># Convert expected TS hrs format into relDate/time format</span>
+            <span class="n">TS_d_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">sec</span><span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;match_timeshift&#39;</span><span class="p">])</span>  <span class="o">+</span> <span class="n">acqDate</span> <span class="k">for</span>
+                     <span class="n">sec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="p">[</span><span class="s1">&#39;count[sec]&#39;</span><span class="p">]]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="p">[</span><span class="s1">&#39;Date_rel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TS_d_list</span>
+
+        <span class="c1"># Convert Perturbation time data into relDate/time format</span>
+        <span class="n">PV_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1899</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+        <span class="n">PV_d_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">dates</span><span class="p">)</span><span class="o">+</span><span class="n">st</span> <span class="k">for</span> <span class="n">dates</span> <span class="ow">in</span> <span class="n">PV_time</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Date_rel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PV_d_list</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># Match the two reldate/Time formats</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="p">[</span><span class="n">getnearpos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Date_rel&#39;</span><span class="p">],</span> <span class="n">time</span><span class="p">)</span> <span class="k">for</span>
+                   <span class="n">time</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">TShdrs</span><span class="p">[</span><span class="s1">&#39;Date_rel&#39;</span><span class="p">]]</span>
+
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="n">PV_df_filt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">match</span><span class="p">]</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Data time matched&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;TSmatched&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;matched&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span> <span class="o">=</span> <span class="n">PV_df_filt</span>
+
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The total matching time for all was&#39;</span><span class="p">,</span>
+               <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="s1">&#39;sec&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_stress_strainP</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Perform stress strain calculation based on user defined inputs.</span>
+<span class="sd">        Either stress_strain_confined is True for Confined loading or stress_strain</span>
+<span class="sd">        is True for UCS tests.</span>
+
+<span class="sd">        TODO:</span>
+<span class="sd">            Read in the attributes from the database as below</span>
+
+<span class="sd">            dict_attrs = dt.utilities.DB_attrs_load(self.Database, [&#39;PVstart_date_time&#39;,</span>
+<span class="sd">                                                   &#39;PV_time_col&#39;,</span>
+<span class="sd">                                                   &#39;PV_time_col_unit&#39;])</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;stress_strain_confined&#39;</span><span class="p">]:</span>
+
+            <span class="c1"># Deal with different expected names</span>
+            <span class="n">rename_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="s1">&#39;Sax| bar&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">rename_dict</span><span class="p">[</span><span class="s1">&#39;Sax| bar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;S ax| bar&#39;</span>
+            <span class="k">if</span> <span class="s1">&#39;Ea| um&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">rename_dict</span><span class="p">[</span><span class="s1">&#39;Ea| um&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Ea_avg| um&#39;</span>
+            <span class="k">if</span> <span class="s1">&#39;Et| um&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">rename_dict</span><span class="p">[</span><span class="s1">&#39;Et| um&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Et_avg| um&#39;</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">rename_dict</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Default processing param</span>
+            <span class="k">if</span> <span class="s1">&#39;Ax_Press_corr_ADT&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;Ax_Press_corr_ADT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.0564</span>
+            <span class="k">if</span> <span class="s1">&#39;Rad_press_corr_ADT&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;Rad_press_corr_ADT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0479</span>
+            <span class="k">if</span> <span class="s1">&#39;avg_Press_corr_RDT&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;avg_Press_corr_RDT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.0012</span>
+            <span class="k">if</span> <span class="s1">&#39;Pax_friction&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;Pax_friction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+            <span class="k">if</span> <span class="s1">&#39;Temp_corr&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;Temp_corr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="c1"># Handel non-consistant channel names</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;TempCell| °C&#39;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;TempCell| °C&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">20</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Ea_avg| um&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[[</span><span class="s1">&#39;Ea1| um&#39;</span><span class="p">,</span> <span class="s1">&#39;Ea2| um&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;AvgPorePres| bar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[[</span><span class="s1">&#39;Ppore in| bar&#39;</span><span class="p">,</span> <span class="s1">&#39;Ppore out| bar&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;ADT comp| um&#39;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;ADT comp| um&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;RDT comp.| um&#39;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;RDT comp.| um&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="c1"># Perform the calculations</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Pax_fric_corr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;S ax| bar&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;Pax_friction&#39;</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;ADT_corr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;ADT comp| um&#39;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Pax_fric_corr&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;Ax_Press_corr_ADT&#39;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Srad| bar&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;Rad_press_corr_ADT&#39;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;TempCell| °C&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;TempCell| °C&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;Temp_corr&#39;</span><span class="p">])</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;RDT_corr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;RDT comp.| um&#39;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;avg_Press_corr_RDT&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Srad| bar&#39;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;Temp_corr&#39;</span><span class="p">]</span>
+            <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;TempCell| °C&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;TempCell| °C&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;samp_length| mm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;L&#39;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;ADT_corr&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;ADT_corr&#39;</span><span class="p">])</span><span class="o">/</span><span class="mi">1000</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;samp_dia| mm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;D&#39;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;RDT_corr&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;RDT_corr&#39;</span><span class="p">])</span><span class="o">/</span><span class="mi">1000</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Strain Ax. [%]&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;ADT_corr&#39;</span><span class="p">]</span>
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;ADT_corr&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;samp_length| mm&#39;</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Radial Ax. [%]&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;RDT_corr&#39;</span><span class="p">]</span>
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;RDT_corr&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;samp_dia| mm&#39;</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Bulk_Vol. [%]&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Strain Ax. [%]&#39;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Radial Ax. [%]&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Stress ef ax| [MPa]&#39;</span><span class="p">]</span> <span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Pax_fric_corr&#39;</span><span class="p">]</span>
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;AvgPorePres| bar&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="mi">10</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Stress ef radial| [MPa]&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Srad| bar&#39;</span><span class="p">]</span>
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;AvgPorePres| bar&#39;</span><span class="p">])</span><span class="o">/</span> <span class="mi">10</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Stress ax total| [MPa]&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Pax_fric_corr&#39;</span><span class="p">]</span><span class="o">/</span> <span class="mi">10</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Stress radial total| [MPa]&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Srad| bar&#39;</span><span class="p">]</span><span class="o">/</span> <span class="mi">10</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Stress mean total| [MPa]&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Pax_fric_corr&#39;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Srad| bar&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">30</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Stress mean eff| [MPa]&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Stress ef radial| [MPa]&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Stress ef ax| [MPa]&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="mi">3</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Stress deviatoric| [MPa]&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Stress ef ax| [MPa]&#39;</span><span class="p">]</span>
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Stress ef radial| [MPa]&#39;</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Pore pressure| [MPa]&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;AvgPorePres| bar&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">10</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;stress_strain&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;LVDT_ave&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[[</span><span class="s1">&#39;LVDT1&#39;</span><span class="p">,</span> <span class="s1">&#39;LVDT2&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;LVDT_ave&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;LVDT_ave&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;LVDT_zidx&#39;</span><span class="p">],</span> <span class="s1">&#39;LVDT_ave&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># Zero column</span>
+            <span class="n">area</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;D&#39;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">)</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;L&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Stress [MPa]&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Force(kN)&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">area</span> <span class="o">*</span> <span class="mi">1000</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Strain Ax. [%]&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;LVDT_ave&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">length</span> <span class="o">*</span> <span class="mi">100</span>
+
+    <span class="k">def</span> <span class="nf">_DatetimeIndex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; REDUNDENT: Check if the word Date is provided in the user input</span>
+<span class="sd">        file PV1. If so perform processing to provide pd.DatetimeIndex</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="s1">&#39;Date&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;PV1&#39;</span><span class="p">]:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># rename columne with Date in it to just Date</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;PV1&#39;</span><span class="p">]])</span>
+
+                <span class="c1"># Move current index into DF</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;level_0&#39;</span><span class="p">:</span> <span class="s1">&#39;Input_files&#39;</span><span class="p">},</span>
+                                  <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="c1"># Create datetimeIndex</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]),</span>
+                                     <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;PV1&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;PV1&#39;</span><span class="p">:</span> <span class="s1">&#39;Date&#39;</span><span class="p">})</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Date found in PV1 PV data, but it was not possible to&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;convert this to datetime format.&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_Rename_col</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Rename requested columns of the input PV features based on</span>
+<span class="sd">        the user defined input dictionary rename_dic</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">dict_attrs</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">DB_attrs_load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;rename_dic&#39;</span><span class="p">])</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">dict_attrs</span><span class="p">[</span><span class="s1">&#39;rename_dic&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* No columns renamed&#39;</span><span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="preProcess.CC_wdw"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.pre_process.preProcess.CC_wdw">[docs]</a>    <span class="k">def</span> <span class="nf">CC_wdw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines the number of windows of a certain lenght which fit within</span>
+<span class="sd">        the TS, and outputs a list of start positions in terms of sample points</span>
+
+<span class="sd">        The length of the TS data is read from the database.</span>
+<span class="sd">        The ``wdwPos`` updated as saved to the attributes of the database.</span>
+
+<span class="sd">        TODO:</span>
+<span class="sd">            It would be better to read the attribues of the table, there is no need</span>
+<span class="sd">            to read in the entire database.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Setup param</span>
+        <span class="n">loc</span> <span class="o">=</span> <span class="s1">&#39;TSdata&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;single&#39;</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;survey_type&#39;</span><span class="p">]:</span>
+            <span class="n">TS_len</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">DB_pd_data_load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span> <span class="n">loc</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="s1">&#39;multiple&#39;</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;survey_type&#39;</span><span class="p">]:</span>
+            <span class="n">TS_group</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">DB_group_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span> <span class="n">group_name</span> <span class="o">=</span> <span class="n">loc</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">TS_len</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">DB_pd_data_load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span> <span class="n">loc</span><span class="o">+</span><span class="s1">&#39;/&#39;</span><span class="o">+</span><span class="n">TS_group</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span>
+
+        <span class="c1"># Assign TS processing length to end_wdws if given</span>
+        <span class="k">if</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;end_wdws&#39;</span><span class="p">]:</span>
+            <span class="n">TS_sig_len</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;end_wdws&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">TS_sig_len</span> <span class="o">=</span> <span class="n">TS_len</span>
+
+        <span class="n">ERROR_MESSAGE</span> <span class="o">=</span> <span class="s1">&#39;The length of a TS signal to be processed is&#39;</span><span class="p">,</span> <span class="n">TS_sig_len</span><span class="p">,</span> \
+        <span class="s1">&#39;which is &lt; end of the last window&#39;</span>
+
+        <span class="c1"># Calculate wdwPos for overlapping windows of ww_ol if wdwPos is False</span>
+        <span class="k">if</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="c1"># Error checks</span>
+            <span class="k">if</span> <span class="n">TS_sig_len</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;ww&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">Warning</span><span class="p">(</span><span class="n">ERROR_MESSAGE</span><span class="p">)</span>
+
+            <span class="n">wdwStep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;ww&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span>
+                               <span class="p">(</span><span class="mi">100</span> <span class="o">-</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;ww_ol&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* Length fo TSdata&#39;</span><span class="p">,</span> <span class="n">TS_len</span><span class="p">)</span>
+
+            <span class="n">max_wdwPos</span> <span class="o">=</span> <span class="n">TS_sig_len</span> <span class="o">-</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;ww&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">wdwStarts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span> <span class="o">+</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;sta_wdws&#39;</span><span class="p">],</span> <span class="n">max_wdwPos</span><span class="p">,</span> <span class="n">wdwStep</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* The step in window potions is </span><span class="si">%s</span><span class="s1"> sample points&#39;</span> <span class="o">%</span> <span class="n">wdwStep</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* The max window postions is </span><span class="si">%s</span><span class="s1"> sample points&#39;</span><span class="o">%</span> <span class="n">max_wdwPos</span><span class="p">)</span>
+
+            <span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="n">wdw_start</span><span class="p">,</span> <span class="n">wdw_start</span> <span class="o">+</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;ww&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="k">for</span>
+                           <span class="n">wdw_start</span> <span class="ow">in</span> <span class="n">wdwStarts</span> <span class="p">]</span>
+
+        <span class="c1"># Only update wdwPos structure if not already done so</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">():</span>
+            <span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="n">wdw_start</span><span class="p">,</span> <span class="n">wdw_start</span> <span class="o">+</span> <span class="n">ww</span><span class="p">]</span> <span class="k">for</span> <span class="n">wdw_start</span><span class="p">,</span><span class="n">ww</span> <span class="ow">in</span>
+                           <span class="nb">zip</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">],</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;ww&#39;</span><span class="p">])]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">]</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_paramUpdate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update the database attributes with new user requested processing</span>
+<span class="sd">        parameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Update the database attributes accordingly.</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">DB_attrs_save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">)</span>
+
+<div class="viewcode-block" id="preProcess.run_PP"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.pre_process.preProcess.run_PP">[docs]</a>    <span class="k">def</span> <span class="nf">run_PP</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Performs Pre-processing as requested by the user, as defined in the</span>
+<span class="sd">        attributes of the database.h5.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;--------- Begin Pre-Processing ---------&#39;</span><span class="p">)</span>
+
+        <span class="c1"># check if date time plotting is requested</span>
+<span class="c1">#        self._DatetimeIndex()</span>
+
+        <span class="c1"># Correct the windows to be processed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CC_wdw</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">PV_time_corr</span><span class="p">()</span>
+
+        <span class="c1"># Check if column renaming is required</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Rename_col</span><span class="p">()</span>
+
+        <span class="c1"># check if stress_strain calculation is requested</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stress_strainP</span><span class="p">()</span>
+
+        <span class="c1"># Update the attributes of the database reflecting any user changes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paramUpdate</span><span class="p">()</span>
+
+
+
+
+
+        <span class="c1"># Gain correlation</span>
+<span class="c1">#        self.TSgain()</span>
+
+        <span class="c1"># check if the yield point search is required</span>
+<span class="c1">#        self._yield_search()</span>
+
+        <span class="c1"># Generate a time vector based on sample numbers and samp. freq.</span>
+<span class="c1">#        self.TS_t() # This time-vector should not be created</span>
+
+        <span class="c1"># Store PVdata to Database</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">DB_pd_data_save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span> <span class="s1">&#39;PVdata&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">)</span></div></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Reuben Zotz-wilson.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>

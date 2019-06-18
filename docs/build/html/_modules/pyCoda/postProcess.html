@@ -1,0 +1,961 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyCoda.postProcess &#8212; CWI 0 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyCoda.postProcess</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Mon Apr 24 16:17:07 2017</span>
+
+<span class="sd">@author: rwilson</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="nn">matplotlib.widgets</span> <span class="k">import</span> <span class="n">Slider</span>
+<span class="kn">import</span> <span class="nn">matplotlib.patches</span> <span class="k">as</span> <span class="nn">patches</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+
+<div class="viewcode-block" id="post_utilities"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities">[docs]</a><span class="k">class</span> <span class="nc">post_utilities</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39; A collection of post processing utility functions</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="post_utilities.detect_most_linear"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.detect_most_linear">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">detect_most_linear</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">smooth</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">wdw_wdth</span> <span class="o">=</span> <span class="mi">25</span><span class="p">,</span> <span class="n">poly_ord</span><span class="o">=</span><span class="mi">3</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Finds the most linear portion of a line via</span>
+<span class="sd">        Inputs:</span>
+<span class="sd">        ------</span>
+<span class="sd">        x : Series</span>
+<span class="sd">            y-axis array of values</span>
+<span class="sd">        y : Serues</span>
+<span class="sd">            y-axis array of values</span>
+<span class="sd">        m : Length of most linear portion of line (x,y)</span>
+<span class="sd">        smooth : bool</span>
+<span class="sd">            Smooth the curve before search</span>
+
+<span class="sd">        Outputs:</span>
+<span class="sd">        --------</span>
+<span class="sd">        L_end: (x_end, y_end) values at the end of the line</span>
+<span class="sd">        idx: Indices of the most linear portion of the line</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="kn">import</span> <span class="nn">operator</span>
+        <span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="k">import</span> <span class="n">savgol_filter</span>
+
+        <span class="c1"># Pre-smooth the curve</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">savgol_filter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">wdw_wdth</span><span class="p">,</span> <span class="n">poly_ord</span><span class="p">))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">savgol_filter</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">wdw_wdth</span><span class="p">,</span> <span class="n">poly_ord</span><span class="p">))</span>
+
+        <span class="c1"># Filter out data above max stress</span>
+        <span class="n">yMaxIdx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">yMaxIdx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">yMaxIdx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Plot initial data</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="c1"># find the best linear section of length m</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.98</span>
+        <span class="n">slope</span> <span class="o">=</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">-</span><span class="n">m</span><span class="p">):</span>
+            <span class="n">x_slice</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">m</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">y_slice</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">m</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="n">slopei</span><span class="p">,</span> <span class="n">intercepti</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">x_slice</span><span class="p">,</span> <span class="n">y_slice</span><span class="p">,</span> <span class="n">deg</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">end_yi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">([</span><span class="n">slopei</span><span class="p">,</span> <span class="n">intercepti</span><span class="p">],</span> <span class="n">x_slice</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="n">Per_sim</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="nb">abs</span><span class="p">(</span><span class="n">end_yi</span> <span class="o">-</span> <span class="n">y_slice</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">end_yi</span><span class="p">,</span> <span class="n">y_slice</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+
+            <span class="k">if</span> <span class="n">Per_sim</span><span class="o">&gt;</span><span class="n">threshold</span> <span class="ow">and</span> <span class="n">slopei</span><span class="o">&gt;</span><span class="n">slope</span><span class="p">:</span>
+                <span class="n">slope</span> <span class="o">=</span> <span class="n">slopei</span>
+                <span class="n">intercept</span> <span class="o">=</span> <span class="n">intercepti</span>
+                <span class="n">x_fit</span> <span class="o">=</span> <span class="n">x_slice</span>
+                <span class="n">end_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">([</span><span class="n">slopei</span><span class="p">,</span> <span class="n">intercepti</span><span class="p">],</span> <span class="n">x_slice</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">y_fit</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">([</span><span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span><span class="p">],</span> <span class="n">x_fit</span><span class="p">))</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_fit</span><span class="p">,</span> <span class="n">y_fit</span><span class="p">)</span>
+
+        <span class="n">L_end</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_fit</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">end_y</span><span class="p">)</span>
+
+        <span class="c1">#fit_DF = pd.concat([y_fit, x_fit.reset_index()])</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">L_end</span><span class="p">,</span> <span class="n">x_fit</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_yield_search</span><span class="p">(</span><span class="n">DF</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Search for the yield point</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="k">import</span> <span class="n">savgol_filter</span>
+
+        <span class="n">wdw_wdth</span> <span class="o">=</span> <span class="mi">25</span>
+        <span class="n">poly_ord</span> <span class="o">=</span> <span class="mi">3</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;LLLength&#39;</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Strain Ax. [%]&#39;</span><span class="p">]</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Stress [MPa]&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span><span class="p">[</span><span class="s1">&#39;Strain Ax. [%]&#39;</span><span class="p">]</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span><span class="p">[</span><span class="s1">&#39;Stress [MPa]&#39;</span><span class="p">]</span>
+
+            <span class="c1"># Pre-smooth the curve</span>
+            <span class="c1">#x = savgol_filter(x, wdw_wdth, poly_ord)</span>
+            <span class="c1">#y = savgol_filter(y, wdw_wdth, poly_ord)</span>
+            <span class="n">Yield_p</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">pre_utilities</span><span class="o">.</span><span class="n">detect_most_linear</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;LLLength&#39;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;Yield_p&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Yield_p</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span>
+
+<div class="viewcode-block" id="post_utilities.detect_peaks"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.detect_peaks">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">detect_peaks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mph</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mpd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="s1">&#39;rising&#39;</span><span class="p">,</span>
+                 <span class="n">kpsh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">valley</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Detect peaks in data based on their amplitude and other features.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : 1D array_like</span>
+<span class="sd">            data.</span>
+<span class="sd">        mph : {None, number}, optional (default = None)</span>
+<span class="sd">            detect peaks that are greater than minimum peak height.</span>
+<span class="sd">        mpd : positive integer, optional (default = 1)</span>
+<span class="sd">            detect peaks that are at least separated by minimum peak distance (in</span>
+<span class="sd">            number of data).</span>
+<span class="sd">        threshold : positive number, optional (default = 0)</span>
+<span class="sd">            detect peaks (valleys) that are greater (smaller) than `threshold`</span>
+<span class="sd">            in relation to their immediate neighbors.</span>
+<span class="sd">        edge : {None, &#39;rising&#39;, &#39;falling&#39;, &#39;both&#39;}, optional (default = &#39;rising&#39;)</span>
+<span class="sd">            for a flat peak, keep only the rising edge (&#39;rising&#39;), only the</span>
+<span class="sd">            falling edge (&#39;falling&#39;), both edges (&#39;both&#39;), or don&#39;t detect a</span>
+<span class="sd">            flat peak (None).</span>
+<span class="sd">        kpsh : bool, optional (default = False)</span>
+<span class="sd">            keep peaks with same height even if they are closer than `mpd`.</span>
+<span class="sd">        valley : bool, optional (default = False)</span>
+<span class="sd">            if True (1), detect valleys (local minima) instead of peaks.</span>
+<span class="sd">        show : bool, optional (default = False)</span>
+<span class="sd">            if True (1), plot data in matplotlib figure.</span>
+<span class="sd">        ax : a matplotlib.axes.Axes instance, optional (default = None).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ind : 1D array_like</span>
+<span class="sd">            indeces of the peaks in `x`.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The detection of valleys instead of peaks is performed internally by simply</span>
+<span class="sd">        negating the data: `ind_valleys = detect_peaks(-x)`</span>
+
+<span class="sd">        The function can handle NaN&#39;s</span>
+
+<span class="sd">        See this IPython Notebook [1]_.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        .. [1] http://nbviewer.ipython.org/github/demotu/BMC/blob/master/notebooks/DetectPeaks.ipynb</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from detect_peaks import detect_peaks</span>
+<span class="sd">        &gt;&gt;&gt; x = np.random.randn(100)</span>
+<span class="sd">        &gt;&gt;&gt; x[60:81] = np.nan</span>
+<span class="sd">        &gt;&gt;&gt; # detect all peaks and plot data</span>
+<span class="sd">        &gt;&gt;&gt; ind = detect_peaks(x, show=True)</span>
+<span class="sd">        &gt;&gt;&gt; print(ind)</span>
+
+<span class="sd">        &gt;&gt;&gt; x = np.sin(2*np.pi*5*np.linspace(0, 1, 200)) + np.random.randn(200)/5</span>
+<span class="sd">        &gt;&gt;&gt; # set minimum peak height = 0 and minimum peak distance = 20</span>
+<span class="sd">        &gt;&gt;&gt; detect_peaks(x, mph=0, mpd=20, show=True)</span>
+
+<span class="sd">        &gt;&gt;&gt; x = [0, 1, 0, 2, 0, 3, 0, 2, 0, 1, 0]</span>
+<span class="sd">        &gt;&gt;&gt; # set minimum peak distance = 2</span>
+<span class="sd">        &gt;&gt;&gt; detect_peaks(x, mpd=2, show=True)</span>
+
+<span class="sd">        &gt;&gt;&gt; x = np.sin(2*np.pi*5*np.linspace(0, 1, 200)) + np.random.randn(200)/5</span>
+<span class="sd">        &gt;&gt;&gt; # detection of valleys instead of peaks</span>
+<span class="sd">        &gt;&gt;&gt; detect_peaks(x, mph=0, mpd=20, valley=True, show=True)</span>
+
+<span class="sd">        &gt;&gt;&gt; x = [0, 1, 1, 0, 1, 1, 0]</span>
+<span class="sd">        &gt;&gt;&gt; # detect both edges</span>
+<span class="sd">        &gt;&gt;&gt; detect_peaks(x, edge=&#39;both&#39;, show=True)</span>
+
+<span class="sd">        &gt;&gt;&gt; x = [-2, 1, -2, 2, 1, 1, 3, 0]</span>
+<span class="sd">        &gt;&gt;&gt; # set threshold = 2</span>
+<span class="sd">        &gt;&gt;&gt; detect_peaks(x, threshold = 2, show=True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">_plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mph</span><span class="p">,</span> <span class="n">mpd</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">edge</span><span class="p">,</span> <span class="n">valley</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">ind</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Plot results of the detect_peaks function, see its help.&quot;&quot;&quot;</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+            <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;matplotlib is not available.&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ind</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;valley&#39;</span> <span class="k">if</span> <span class="n">valley</span> <span class="k">else</span> <span class="s1">&#39;peak&#39;</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="n">label</span> <span class="o">+</span> <span class="s1">&#39;s&#39;</span> <span class="k">if</span> <span class="n">ind</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">label</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">mfc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mec</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">mew</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+                            <span class="n">label</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ind</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">label</span><span class="p">))</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span> <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-.</span><span class="mi">02</span><span class="o">*</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="o">*</span><span class="mf">1.02</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                <span class="n">yrange</span> <span class="o">=</span> <span class="n">ymax</span> <span class="o">-</span> <span class="n">ymin</span> <span class="k">if</span> <span class="n">ymax</span> <span class="o">&gt;</span> <span class="n">ymin</span> <span class="k">else</span> <span class="mi">1</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ymin</span> <span class="o">-</span> <span class="mf">0.1</span><span class="o">*</span><span class="n">yrange</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">+</span> <span class="mf">0.1</span><span class="o">*</span><span class="n">yrange</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Data #&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Amplitude&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+                <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;Valley detection&#39;</span> <span class="k">if</span> <span class="n">valley</span> <span class="k">else</span> <span class="s1">&#39;Peak detection&#39;</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (mph=</span><span class="si">%s</span><span class="s2">, mpd=</span><span class="si">%d</span><span class="s2">, threshold=</span><span class="si">%s</span><span class="s2">, edge=&#39;</span><span class="si">%s</span><span class="s2">&#39;)&quot;</span>
+                             <span class="o">%</span> <span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">mph</span><span class="p">),</span> <span class="n">mpd</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">threshold</span><span class="p">),</span> <span class="n">edge</span><span class="p">))</span>
+                <span class="c1"># plt.grid()</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">valley</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="n">x</span>
+        <span class="c1"># find indices of all peaks</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># handle NaN&#39;s</span>
+        <span class="n">indnan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">x</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">indnan</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="n">x</span><span class="p">[</span><span class="n">indnan</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+            <span class="n">dx</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">dx</span><span class="p">))[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="n">ine</span><span class="p">,</span> <span class="n">ire</span><span class="p">,</span> <span class="n">ife</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[],</span> <span class="p">[],</span> <span class="p">[]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">edge</span><span class="p">:</span>
+            <span class="n">ine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">dx</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">dx</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;rising&#39;</span><span class="p">,</span> <span class="s1">&#39;both&#39;</span><span class="p">]:</span>
+                <span class="n">ire</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">dx</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">dx</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;falling&#39;</span><span class="p">,</span> <span class="s1">&#39;both&#39;</span><span class="p">]:</span>
+                <span class="n">ife</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">dx</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">dx</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">ine</span><span class="p">,</span> <span class="n">ire</span><span class="p">,</span> <span class="n">ife</span><span class="p">)))</span>
+        <span class="c1"># handle NaN&#39;s</span>
+        <span class="k">if</span> <span class="n">ind</span><span class="o">.</span><span class="n">size</span> <span class="ow">and</span> <span class="n">indnan</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="c1"># NaN&#39;s and values close to NaN&#39;s cannot be peaks</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">indnan</span><span class="p">,</span> <span class="n">indnan</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">indnan</span><span class="o">+</span><span class="mi">1</span><span class="p">))),</span> <span class="n">invert</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+        <span class="c1"># first and last values of x cannot be peaks</span>
+        <span class="k">if</span> <span class="n">ind</span><span class="o">.</span><span class="n">size</span> <span class="ow">and</span> <span class="n">ind</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="n">ind</span><span class="o">.</span><span class="n">size</span> <span class="ow">and</span> <span class="n">ind</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># remove peaks &lt; minimum peak height</span>
+        <span class="k">if</span> <span class="n">ind</span><span class="o">.</span><span class="n">size</span> <span class="ow">and</span> <span class="n">mph</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">mph</span><span class="p">]</span>
+        <span class="c1"># remove peaks - neighbors &lt; threshold</span>
+        <span class="k">if</span> <span class="n">ind</span><span class="o">.</span><span class="n">size</span> <span class="ow">and</span> <span class="n">threshold</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="n">ind</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="n">ind</span><span class="o">+</span><span class="mi">1</span><span class="p">]]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">dx</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># detect small peaks closer than minimum peak distance</span>
+        <span class="k">if</span> <span class="n">ind</span><span class="o">.</span><span class="n">size</span> <span class="ow">and</span> <span class="n">mpd</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">ind</span><span class="p">])][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># sort ind by peak height</span>
+            <span class="n">idel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ind</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ind</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">idel</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="c1"># keep peaks with the same height if kpsh is True</span>
+                    <span class="n">idel</span> <span class="o">=</span> <span class="n">idel</span> <span class="o">|</span> <span class="p">(</span><span class="n">ind</span> <span class="o">&gt;=</span> <span class="n">ind</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">mpd</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">ind</span> <span class="o">&lt;=</span> <span class="n">ind</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">mpd</span><span class="p">)</span> \
+                        <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">ind</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="k">if</span> <span class="n">kpsh</span> <span class="k">else</span> <span class="kc">True</span><span class="p">)</span>
+                    <span class="n">idel</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Keep current peak</span>
+            <span class="c1"># remove the small peaks and sort back the indices by their occurrence</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">ind</span><span class="p">[</span><span class="o">~</span><span class="n">idel</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">indnan</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">[</span><span class="n">indnan</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="k">if</span> <span class="n">valley</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="n">x</span>
+            <span class="n">_plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mph</span><span class="p">,</span> <span class="n">mpd</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">edge</span><span class="p">,</span> <span class="n">valley</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">ind</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ind</span></div>
+
+<div class="viewcode-block" id="post_utilities.MLTWA_calc"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.MLTWA_calc">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">MLTWA_calc</span><span class="p">(</span><span class="n">TS_DB</span><span class="p">,</span> <span class="n">after_FB</span><span class="p">,</span> <span class="n">Ewdth</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">wd_shift</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                   <span class="n">ref_trace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="n">mph</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mpd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">R1_Sign</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">grad_period</span><span class="o">=-</span><span class="mi">50</span><span class="p">,</span>
+                   <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Apply Multi Lapse-Time Window Analysis on the input database time</span>
+<span class="sd">        -series. Additional parameters are calculated such as the B0 or ratio of</span>
+<span class="sd">        R1 to R2 as well as their gradient difference.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        TS_DB : DataFrame</span>
+<span class="sd">            Time-series database in cronological order.</span>
+<span class="sd">        after_FB : DataFrame.index</span>
+<span class="sd">            Index of ``TS_DB`` after which the S-wave max value will be found</span>
+<span class="sd">        Ewdth : list, optional (default = [len(TS_DB)//16,len(TS_DB)//16,len(TS_DB)//4]</span>
+<span class="sd">            The first two energy window widths in sample points</span>
+<span class="sd">        wd_shift : int</span>
+<span class="sd">            Shift parameter of the start of windows</span>
+<span class="sd">        ref_trace : int</span>
+<span class="sd">            The trace to use as a reference for calculation of R2</span>
+<span class="sd">        mph : {None, number}, optional (default = None)</span>
+<span class="sd">            detect peaks that are greater than minimum peak height.</span>
+<span class="sd">        mpd : positive integer, optional (default = 1)</span>
+<span class="sd">            detect peaks that are at least separated by minimum peak distance (in</span>
+<span class="sd">            number of data).</span>
+<span class="sd">        threshold : positive number, optional (default = 0)</span>
+<span class="sd">            detect peaks (valleys) that are greater (smaller) than `threshold`</span>
+<span class="sd">            in relation to their immediate neighbors.</span>
+<span class="sd">        R1_Sign : bool (Default False)</span>
+<span class="sd">            Apply sign change to R1.</span>
+<span class="sd">        grad_period : int (Default False)</span>
+<span class="sd">            The number of periods to use when calculating the gradient of ratios R1</span>
+<span class="sd">            and R2.</span>
+<span class="sd">        verbose: bool, optional (default = False)</span>
+<span class="sd">            Provide a details output</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        DB_MLTWA : DataFrame</span>
+<span class="sd">            Containing all of the MLTWA data with index equal to third</span>
+<span class="sd">            expected Time column of the input ``TS_DB``.</span>
+<span class="sd">        dict_MLTWA: dictcontaining parameters pertaining to the MLTWA processing.</span>
+<span class="sd">              -**R1**: Ratio of ``log_10 E_1(t_i)/ E_3(t_i)``</span>
+<span class="sd">              -**R2**: Ratio of ``log_10 E_1(t_u)/ E_1(t_i)``</span>
+<span class="sd">              -**E1**: Integrated energy early S-wave</span>
+<span class="sd">              -**E2**: Integrated energy mid S-wave</span>
+<span class="sd">              -**E3**: Integrated energy late S-wave</span>
+<span class="sd">              -**E_wdw_pos**: list of start, mid, end of ``E1,E2,E3``</span>
+<span class="sd">              -**idx_break**: list detected peaks in search of the S-wave arrival</span>
+<span class="sd">        verbose: bool, optional (default = False)</span>
+<span class="sd">            Provide a detailed output</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import postProcess as pp</span>
+<span class="sd">        &gt;&gt;&gt; idx = pp.post_utilities.MLTWA_calc(TScut_DB_in, after_FB = 0.00008,</span>
+<span class="sd">                                               wd_shift=-500, mph=None, mpd=12,</span>
+<span class="sd">                                               threshold=0, verbose=True)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">Ewdth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">Ewdth</span> <span class="o">=</span> <span class="p">[</span><span class="n">length</span><span class="o">//</span><span class="mi">16</span><span class="p">,</span> <span class="n">length</span><span class="o">//</span><span class="mi">16</span><span class="p">,</span> <span class="n">length</span><span class="o">//</span><span class="mi">4</span><span class="p">]</span>
+        <span class="n">TS_DB_copy</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># Set all before after_FB to zero</span>
+        <span class="n">TS_DB</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">index</span> <span class="o">&lt;</span> <span class="n">after_FB</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">idx_break</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Detect the onset of the S-wave</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">post_utilities</span><span class="o">.</span><span class="n">detect_peaks</span><span class="p">(</span><span class="n">TS_DB</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">mph</span> <span class="o">=</span> <span class="n">mph</span><span class="p">,</span>
+                                              <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span> <span class="n">mpd</span><span class="o">=</span><span class="n">mpd</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">idx</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># Catch no detections</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No detected peaks found with parameters in trace </span><span class="si">%d</span><span class="s1">, check inputs&#39;</span> <span class="o">%</span> <span class="n">col</span> <span class="p">)</span>
+
+            <span class="c1"># Append the max of all detected</span>
+            <span class="n">idx_break</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span> <span class="n">idx</span><span class="p">[</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">TS_DB</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()[</span><span class="n">idx</span><span class="p">])</span> <span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+
+
+        <span class="c1"># Start of E1 based on average of S-wave peak</span>
+        <span class="n">E1sta</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">idx_break</span><span class="p">))</span> <span class="o">+</span> <span class="n">wd_shift</span>
+        <span class="n">dict_MLTWA</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;idx_break&#39;</span><span class="p">:</span> <span class="n">idx_break</span><span class="p">,</span>
+                      <span class="s1">&#39;E1sta&#39;</span><span class="p">:</span> <span class="n">E1sta</span><span class="p">}</span>
+
+        <span class="c1"># Empty Dataframe for MLTWA processing</span>
+        <span class="n">DB_MLTWA</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;E1&#39;</span><span class="p">,</span> <span class="s1">&#39;E2&#39;</span><span class="p">,</span> <span class="s1">&#39;E3&#39;</span><span class="p">,</span> <span class="s1">&#39;R1&#39;</span><span class="p">,</span> <span class="s1">&#39;R2&#39;</span><span class="p">])</span>
+        <span class="c1"># Create the windows based on E1 start</span>
+        <span class="k">for</span> <span class="n">no</span><span class="p">,</span><span class="n">Ewd</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Ewdth</span><span class="p">):</span>
+            <span class="n">sta</span> <span class="o">=</span> <span class="s1">&#39;E&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">no</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;sta&#39;</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="s1">&#39;E&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">no</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;end&#39;</span>
+            <span class="n">dict_MLTWA</span><span class="p">[</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">dict_MLTWA</span><span class="p">[</span><span class="n">sta</span><span class="p">]</span> <span class="o">+</span> <span class="n">Ewd</span>
+            <span class="k">if</span> <span class="n">no</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">dict_MLTWA</span><span class="p">[</span><span class="s1">&#39;E&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">no</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;sta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dict_MLTWA</span><span class="p">[</span><span class="n">end</span><span class="p">]</span>
+
+            <span class="c1"># ----------- Integrate the Energy in each window -------------</span>
+            <span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;E&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">no</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">TS_DB_copy</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">dict_MLTWA</span><span class="p">[</span><span class="n">sta</span><span class="p">]:</span><span class="n">dict_MLTWA</span><span class="p">[</span><span class="n">end</span><span class="p">],:]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span>
+            <span class="c1"># Normalise each energy window</span>
+<span class="c1">#            dict_MLTWA[&#39;E&#39;+str(no+1)] = dict_MLTWA[&#39;E&#39;+str(no+1)] #\</span>
+                                        <span class="c1">#/dict_MLTWA[&#39;E&#39;+str(no+1)][ref_trace]</span>
+
+        <span class="c1"># Calculate the ratios</span>
+        <span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;R1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;E1&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;E3&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">R1_Sign</span><span class="p">:</span> <span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;R1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;R1&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;R2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;E1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ref_trace</span><span class="p">]</span><span class="o">/</span><span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;E1&#39;</span><span class="p">])</span>
+
+        <span class="c1"># Zero Shift the ratios and calculate B0</span>
+        <span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;R1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">R1</span> <span class="o">-</span> <span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">R1</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;R2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">R2</span> <span class="o">-</span> <span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">R2</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;R3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">R2</span> <span class="o">-</span> <span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">R1</span>
+        <span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;B0&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">R1</span> <span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">/</span><span class="p">(</span><span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">R2</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">-</span><span class="mi">1</span>
+
+        <span class="c1"># Calculate the gradient and differences of the ratios</span>
+        <span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;R1_grad&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">R1</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">grad_period</span><span class="p">)</span>
+        <span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;R2_grad&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">R2</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">grad_period</span><span class="p">)</span>
+        <span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;R2R1_gradDiff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">R2_grad</span> <span class="o">-</span> <span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">R1_grad</span>
+
+        <span class="c1"># Normalise The Energy windows</span>
+        <span class="k">for</span> <span class="n">no</span><span class="p">,</span><span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Ewdth</span><span class="p">):</span>
+            <span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;E&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">no</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;E&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">no</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span> \
+                                        <span class="o">/</span><span class="n">DB_MLTWA</span><span class="p">[</span><span class="s1">&#39;E&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">no</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ref_trace</span><span class="p">]</span>
+
+        <span class="c1"># Drop levels greater that 3</span>
+        <span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">droplevel</span><span class="p">([</span><span class="n">level</span> <span class="k">for</span>
+                                                   <span class="n">level</span> <span class="ow">in</span>
+                                                   <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">nlevels</span><span class="p">)])</span>
+        <span class="n">DB_MLTWA</span> <span class="o">=</span> <span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">DB_MLTWA</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+        <span class="c1"># ----------- Add interactive check of first break picking -------------</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">ts_slider</span><span class="p">,</span> <span class="n">hdl</span><span class="p">,</span> <span class="n">hdl_break</span><span class="p">,</span> <span class="n">hdl_thsh</span> <span class="o">=</span> <span class="n">post_utilities</span><span class="o">.</span>\
+                                        <span class="n">TS_interactive</span><span class="p">(</span><span class="n">TS_DB_copy</span><span class="p">,</span> <span class="n">idx_break</span><span class="p">,</span>
+                                          <span class="n">wdws</span><span class="o">=</span><span class="p">[[</span><span class="n">dict_MLTWA</span><span class="p">[</span><span class="s1">&#39;E1sta&#39;</span><span class="p">],</span>
+                                            <span class="n">dict_MLTWA</span><span class="p">[</span><span class="s1">&#39;E1end&#39;</span><span class="p">]],</span>
+                                           <span class="p">[</span><span class="n">dict_MLTWA</span><span class="p">[</span><span class="s1">&#39;E2sta&#39;</span><span class="p">],</span>
+                                            <span class="n">dict_MLTWA</span><span class="p">[</span><span class="s1">&#39;E2end&#39;</span><span class="p">]],</span>
+                                           <span class="p">[</span><span class="n">dict_MLTWA</span><span class="p">[</span><span class="s1">&#39;E3sta&#39;</span><span class="p">],</span>
+                                            <span class="n">dict_MLTWA</span><span class="p">[</span><span class="s1">&#39;E3end&#39;</span><span class="p">]]])</span>
+
+        <span class="k">return</span> <span class="n">DB_MLTWA</span><span class="p">,</span> <span class="n">dict_MLTWA</span><span class="p">,</span> <span class="p">(</span><span class="n">ts_slider</span><span class="p">,</span> <span class="n">hdl</span><span class="p">,</span> <span class="n">hdl_break</span><span class="p">,</span> <span class="n">hdl_thsh</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="post_utilities.PV_segmentation"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.PV_segmentation">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">PV_segmentation</span><span class="p">(</span><span class="n">PV_df</span><span class="p">,</span> <span class="n">Segments</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">indexName</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">,</span>
+                        <span class="n">shiftCols</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Apply a range of data parameterisation methods from segments of input</span>
+<span class="sd">        data. Note, any row with a ``nan`` will be removed before segmentation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        PV_df : DataFrame</span>
+<span class="sd">            Time-series database in cronological order.</span>
+<span class="sd">        Segments: list</span>
+<span class="sd">            A list of indicies at which between which the input ``PV_df`` will be</span>
+<span class="sd">            segmented and paramterised.</span>
+<span class="sd">        targets: list</span>
+<span class="sd">            List of column names in ``PV_df``.</span>
+<span class="sd">        indexName : Str (Default &#39;index&#39;)</span>
+<span class="sd">            The index in which the ``Segments`` are defined.</span>
+<span class="sd">        shiftCols : list (Default = None)</span>
+<span class="sd">            List of columns to begin as zero (The first value will be subtracted</span>
+<span class="sd">            from all)</span>
+<span class="sd">        verbose: bool, optional (default = False)</span>
+<span class="sd">            Provide a detailed output</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict_Segments: dictcontaining parameters for each segment</span>
+<span class="sd">              -**Sigma**: Sigma of each segment</span>
+<span class="sd">              -**R2**: R2 of each segment</span>
+<span class="sd">              -**Mean**: mean of each segment</span>
+<span class="sd">              -**Skewedness**: mean of each segment</span>
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import postProcess as pp</span>
+<span class="sd">        &gt;&gt;&gt; seg_list = [[4, 19.5], [21.74, 37.2], [39.68, 55.29]] # In Hours</span>
+<span class="sd">        &gt;&gt;&gt; DF_Segments = pp.post_utilities.PV_segmentation(PV_df_in, seg_list,</span>
+<span class="sd">                                targets = [&#39;Pore pressure| [MPa]&#39;,&#39;R1&#39;,&#39;R2&#39;])</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Drop any nan row with nan before processing begins</span>
+        <span class="n">PV_df</span> <span class="o">=</span> <span class="n">PV_df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># shift to zero all columns in shiftCols</span>
+        <span class="k">if</span> <span class="n">shiftCols</span><span class="p">:</span>
+            <span class="n">PV_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">shiftCols</span><span class="p">]</span> <span class="o">=</span> <span class="n">PV_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">shiftCols</span><span class="p">]</span> <span class="o">-</span> \
+                                        <span class="n">PV_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">shiftCols</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># DataFrame for segment stats</span>
+        <span class="n">SegIdx</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">seg</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="s1">&#39;-&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">seg</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">Segments</span><span class="p">]</span>
+        <span class="n">df_out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">SegIdx</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Index from input data for masking each segment</span>
+        <span class="n">maskIdx</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">PV_df</span><span class="p">,</span> <span class="n">indexName</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">seg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">SegIdx</span><span class="p">):</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">maskIdx</span> <span class="o">&gt;=</span> <span class="n">Segments</span><span class="p">[</span><span class="n">ind</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">maskIdx</span> <span class="o">&lt;</span> <span class="n">Segments</span><span class="p">[</span><span class="n">ind</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">PV_df_seg</span> <span class="o">=</span> <span class="n">PV_df</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+            <span class="n">segIdx</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">PV_df_seg</span><span class="p">,</span> <span class="n">indexName</span><span class="p">)</span>
+            <span class="c1"># PV_df_seg = PV_df.iloc[seg:Segments[ind+1]]</span>
+            <span class="c1"># For each target</span>
+            <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+                <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">seg</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;-mean&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PV_df_seg</span><span class="p">[</span><span class="n">target</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+                <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">seg</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;-std&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PV_df_seg</span><span class="p">[</span><span class="n">target</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+                <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">seg</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;-skew&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PV_df_seg</span><span class="p">[</span><span class="n">target</span><span class="p">]</span><span class="o">.</span><span class="n">skew</span><span class="p">()</span>
+                <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">seg</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;-min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PV_df_seg</span><span class="p">[</span><span class="n">target</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+                <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">seg</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;-max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PV_df_seg</span><span class="p">[</span><span class="n">target</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+                <span class="c1"># Check fit quality</span>
+
+                <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span><span class="p">,</span> <span class="n">r_value</span><span class="p">,</span> <span class="n">p_value</span><span class="p">,</span> <span class="n">std_err</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">linregress</span><span class="p">(</span>
+                        <span class="n">segIdx</span><span class="p">,</span> <span class="n">PV_df_seg</span><span class="p">[</span><span class="n">target</span><span class="p">])</span>
+                <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">seg</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;-slope&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slope</span>
+                <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">seg</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;-intercept&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">intercept</span>
+                <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">seg</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;-R^2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_value</span><span class="o">**</span><span class="mi">2</span>
+                <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">seg</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;-pValue&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_value</span>
+
+        <span class="n">df_out</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df_out</span></div>
+
+<div class="viewcode-block" id="post_utilities.TS_FBP"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.TS_FBP">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">TS_FBP</span><span class="p">(</span><span class="n">TS_DB</span><span class="p">,</span> <span class="n">noiseWD</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">threshold_shift</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mpd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;This function is intended to perform first break picking</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        TS_DB : DataFrame</span>
+<span class="sd">            Columnweise DataFrame of TS data, index of time expected</span>
+<span class="sd">        noiseWD : int</span>
+<span class="sd">            Window width in TS_DB index which is expected to be only noise in</span>
+<span class="sd">            number of sample points.</span>
+<span class="sd">        threshold : int/float</span>
+<span class="sd">            Percentage of the noise standard deviation which will define the</span>
+<span class="sd">            detection threshold.</span>
+<span class="sd">        threshold_shift : float</span>
+<span class="sd">            A shift to the (threshold * noiseStd)</span>
+<span class="sd">        mpd : int</span>
+<span class="sd">            Minimum poit distance in number of samples</span>
+<span class="sd">        verbose : bool</span>
+<span class="sd">            If True, the interactive plotting of picks will be made</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        idx_break : int</span>
+<span class="sd">            index of the first break detection.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">TS_DB_copy</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">-</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+        <span class="c1"># Reset each trace to zero based on the average</span>
+        <span class="n">TS_DB</span> <span class="o">=</span> <span class="n">TS_DB</span> <span class="o">-</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+        <span class="c1"># Calculate the mean amp within the noise window</span>
+        <span class="n">noiseStd</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;index &lt;&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">noiseWD</span><span class="p">))</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+
+        <span class="c1"># set all values in the noise window to 0</span>
+        <span class="n">TS_DB</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">index</span> <span class="o">&lt;</span> <span class="n">noiseWD</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Run the detection for each trace</span>
+        <span class="n">TS_DB</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">TS_DB</span><span class="p">)</span>
+
+        <span class="n">df_FBP</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">TS_DB_copy</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;FBP&#39;</span><span class="p">])</span>
+        <span class="n">idx_break</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">thresholds</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">thsh</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                             <span class="nb">abs</span><span class="p">(</span><span class="n">noiseStd</span><span class="p">)</span><span class="o">*</span><span class="n">threshold</span> <span class="o">+</span> <span class="n">threshold_shift</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Threshold:&#39;</span><span class="p">,</span> <span class="n">thsh</span><span class="p">)</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">post_utilities</span><span class="o">.</span><span class="n">detect_peaks</span><span class="p">(</span><span class="n">TS_DB</span><span class="p">[</span><span class="n">col</span><span class="p">],</span>
+                                              <span class="n">mph</span><span class="o">=</span><span class="n">thsh</span><span class="p">,</span> <span class="n">mpd</span><span class="o">=</span><span class="n">mpd</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">idx</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Catch no detections</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">idx_break</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">thresholds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thsh</span><span class="p">)</span>
+
+        <span class="c1">#  ----------- Add interactive check of first break picking -----------</span>
+        <span class="n">ts_slider</span><span class="p">,</span> <span class="n">hdl</span><span class="p">,</span> <span class="n">hdl_break</span><span class="p">,</span> <span class="n">hdl_thsh</span> <span class="o">=</span> <span class="n">post_utilities</span><span class="o">.</span>\
+            <span class="n">TS_interactive</span><span class="p">(</span><span class="n">TS_DB_copy</span><span class="p">,</span> <span class="n">idx_break</span><span class="p">,</span> <span class="n">thresholds</span><span class="p">,</span> <span class="n">noiseWD</span><span class="p">)</span>
+
+        <span class="n">df_FBP</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;FBP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx_break</span>
+        <span class="k">return</span> <span class="n">df_FBP</span><span class="p">,</span> <span class="p">(</span><span class="n">ts_slider</span><span class="p">,</span> <span class="n">hdl</span><span class="p">,</span> <span class="n">hdl_break</span><span class="p">,</span> <span class="n">hdl_thsh</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="post_utilities.TS_interactive"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.TS_interactive">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">TS_interactive</span><span class="p">(</span><span class="n">TS_DB</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">noiseWD</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                       <span class="n">wdws</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Interactive plot of time-series data with ability to plot detection</span>
+<span class="sd">        parameters for analysis.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        TS_DB : dataframe</span>
+<span class="sd">            Database of all input time series in each columns</span>
+<span class="sd">        idx : int (default None)</span>
+<span class="sd">            The index of the detected peak</span>
+<span class="sd">        threshold : list (default False)</span>
+<span class="sd">            Thresholds for each trace in terms of amplitude</span>
+<span class="sd">        noiseWD : int (default False)</span>
+<span class="sd">            The noise zeroed window length</span>
+<span class="sd">        wdws : list (default None)</span>
+<span class="sd">            A list of window index start stop positions e.g. [[sta, stp]...].</span>
+<span class="sd">                &#39;&#39;&#39;</span>
+
+        <span class="kn">import</span> <span class="nn">matplotlib.patches</span> <span class="k">as</span> <span class="nn">patches</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+
+        <span class="c1"># Add TS data pannel below main plot</span>
+        <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+        <span class="n">init_pos</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span>
+        <span class="n">hdl</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">init_pos</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                       <span class="n">TS_DB</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">init_pos</span><span class="p">])</span>
+
+        <span class="c1"># --------------------- Add TS slider -----------------------</span>
+        <span class="n">slider_color</span> <span class="o">=</span> <span class="s1">&#39;lightgoldenrodyellow&#39;</span>
+        <span class="n">ts_slider_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span>
+                                    <span class="n">facecolor</span><span class="o">=</span><span class="n">slider_color</span><span class="p">)</span>
+        <span class="n">ts_slider</span> <span class="o">=</span> <span class="n">Slider</span><span class="p">(</span><span class="n">ts_slider_ax</span><span class="p">,</span> <span class="s1">&#39;Time Series&#39;</span><span class="p">,</span>
+                           <span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+                           <span class="n">valfmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span>
+                           <span class="n">valinit</span><span class="o">=</span><span class="n">init_pos</span><span class="p">)</span>
+        <span class="c1"># just idx and thresholds</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="ow">and</span> <span class="n">threshold</span> <span class="ow">and</span> <span class="n">noiseWD</span><span class="p">:</span>
+            <span class="c1"># Add the break detection point</span>
+            <span class="n">detec_x</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">init_pos</span><span class="p">]]</span>
+            <span class="n">detec_y</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">init_pos</span><span class="p">],</span> <span class="n">init_pos</span><span class="p">]</span>
+
+
+            <span class="n">hdl_break</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">detec_x</span><span class="p">,</span> <span class="n">detec_y</span><span class="p">,</span> <span class="s1">&#39;r*&#39;</span><span class="p">)</span>
+
+            <span class="n">hdl_thsh</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">threshold</span><span class="p">[</span><span class="n">init_pos</span><span class="p">],</span>
+                                  <span class="n">xmin</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="n">init_pos</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                                  <span class="n">xmax</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="n">init_pos</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">noiseWD</span><span class="p">,</span>
+                        <span class="n">ymin</span> <span class="o">=</span> <span class="o">-</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+                        <span class="n">ymax</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+            <span class="k">def</span> <span class="nf">slider_ts_pos_on_change</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                <span class="n">trace_no</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ts_slider</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+                <span class="n">detec_x</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">trace_no</span><span class="p">]]</span>
+                <span class="c1">#detec_x = TS_DB[trace_no].index.values[idx[trace_no]]</span>
+                <span class="n">detec_y</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">trace_no</span><span class="p">],</span> <span class="n">trace_no</span><span class="p">]</span>
+                <span class="n">hdl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ydata</span><span class="p">(</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">trace_no</span><span class="p">])</span>
+                <span class="n">hdl_thsh</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">threshold</span><span class="p">[</span><span class="n">trace_no</span><span class="p">],</span>
+                                  <span class="n">xmin</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="n">trace_no</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                                  <span class="n">xmax</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="n">trace_no</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+                <span class="n">hdl_break</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">detec_x</span><span class="p">,</span> <span class="n">detec_y</span><span class="p">)</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+        <span class="c1"># Just index and window positions</span>
+        <span class="k">elif</span> <span class="n">idx</span> <span class="ow">and</span> <span class="n">wdws</span><span class="p">:</span>
+                        <span class="c1"># Add the break detection point</span>
+            <span class="n">detec_x</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">init_pos</span><span class="p">]]</span>
+            <span class="n">detec_y</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">init_pos</span><span class="p">],</span> <span class="n">init_pos</span><span class="p">]</span>
+
+            <span class="n">hdl_break</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">detec_x</span><span class="p">,</span> <span class="n">detec_y</span><span class="p">,</span> <span class="s1">&#39;r*&#39;</span><span class="p">)</span>
+            <span class="n">hdl_thsh</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="n">height</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">*</span><span class="mi">2</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">height</span><span class="o">/</span><span class="mi">2</span>
+
+            <span class="k">for</span> <span class="n">wdw</span> <span class="ow">in</span> <span class="n">wdws</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">wdw</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">width</span> <span class="o">=</span> <span class="p">(</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">wdw</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">-</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">wdw</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+
+                <span class="n">hdlPatch</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span>
+                    <span class="n">patches</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span>   <span class="c1"># (x,y)</span>
+                        <span class="n">width</span><span class="p">,</span>          <span class="c1"># width</span>
+                        <span class="n">height</span><span class="p">,</span>          <span class="c1"># height</span>
+                        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                        <span class="n">linewidth</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+                        <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;violet&#39;</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+
+            <span class="k">def</span> <span class="nf">slider_ts_pos_on_change</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                <span class="n">trace_no</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ts_slider</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+                <span class="n">detec_x</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">trace_no</span><span class="p">]]</span>
+                <span class="c1">#detec_x = TS_DB[trace_no].index.values[idx[trace_no]]</span>
+                <span class="n">detec_y</span> <span class="o">=</span> <span class="n">TS_DB</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">trace_no</span><span class="p">],</span> <span class="n">trace_no</span><span class="p">]</span>
+                <span class="n">hdl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ydata</span><span class="p">(</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">trace_no</span><span class="p">])</span>
+
+                <span class="n">hdl_break</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">detec_x</span><span class="p">,</span> <span class="n">detec_y</span><span class="p">)</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+        <span class="c1"># Only the traces</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hdl_break</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">hdl_thsh</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">def</span> <span class="nf">slider_ts_pos_on_change</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                <span class="n">trace_no</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ts_slider</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+
+                <span class="n">hdl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ydata</span><span class="p">(</span><span class="n">TS_DB</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">trace_no</span><span class="p">])</span>
+
+                <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+
+        <span class="n">ts_slider</span><span class="o">.</span><span class="n">on_changed</span><span class="p">(</span><span class="n">slider_ts_pos_on_change</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ts_slider</span><span class="p">,</span> <span class="n">hdl</span><span class="p">,</span> <span class="n">hdl_break</span><span class="p">,</span> <span class="n">hdl_thsh</span></div>
+
+<div class="viewcode-block" id="post_utilities.CC_ch_drop"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.CC_ch_drop">[docs]</a>    <span class="k">def</span> <span class="nf">CC_ch_drop</span><span class="p">(</span><span class="n">CC_DB</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Drops channels from standard CCdata dataframe</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        CC_DB : dataframe</span>
+<span class="sd">            Database containing in the first two levels src and rec numbers</span>
+<span class="sd">        channels : int (default None)</span>
+<span class="sd">            the channels to remove from the dataframe</span>
+<span class="sd">                &#39;&#39;&#39;</span>
+
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">chan</span> <span class="ow">in</span> <span class="n">channels</span><span class="p">:</span>
+                <span class="n">CC_DB</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">chan</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">CC_DB</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">chan</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">srcDrop</span> <span class="o">=</span> <span class="p">[</span><span class="n">ch</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">channels</span><span class="p">]</span>
+            <span class="n">recDrop</span> <span class="o">=</span> <span class="p">[</span><span class="n">ch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">channels</span><span class="p">]</span>
+
+            <span class="n">CC_DB_drop_idx</span> <span class="o">=</span> <span class="n">CC_DB</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">srcDrop</span><span class="p">,</span> <span class="n">recDrop</span><span class="p">,</span>
+                                        <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">srcDrop</span><span class="p">)),</span> <span class="p">:]</span><span class="o">.</span><span class="n">index</span>
+            <span class="n">CC_DB</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">CC_DB_drop_idx</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="post_utilities.calcSNR"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.calcSNR">[docs]</a>    <span class="k">def</span> <span class="nf">calcSNR</span><span class="p">(</span><span class="n">TSsurvey</span><span class="p">,</span> <span class="n">Noise_channels</span><span class="p">,</span> <span class="n">all_channels</span><span class="p">,</span> <span class="n">wdws</span><span class="p">,</span> <span class="n">noiseCutOff</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Determines the channels which are above a certain SNR.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        TSsurvey : dataframe</span>
+<span class="sd">            Single survey dataframe of traces</span>
+<span class="sd">        Noise_channels : list</span>
+<span class="sd">            the channels on which the noise will be estimated</span>
+<span class="sd">        all_channels : list</span>
+<span class="sd">            All channels numbers</span>
+<span class="sd">        wdws : list</span>
+<span class="sd">            The windows in samples points at which the SNR is calculated</span>
+<span class="sd">        noiseCutOff: float</span>
+<span class="sd">            The threshold of SNR in Db to filter</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        noiseyChannels : float</span>
+<span class="sd">            The noisey channels</span>
+<span class="sd">                &#39;&#39;&#39;</span>
+        <span class="c1"># Generate all combinations of two</span>
+
+        <span class="n">noise_pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">all_channels</span><span class="p">,</span> <span class="n">Noise_channels</span><span class="p">,</span><span class="n">repeat</span> <span class="o">=</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">noise_pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">noise_pairs</span> <span class="o">+</span> <span class="p">[</span><span class="n">t</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">noise_pairs</span><span class="p">]))</span>
+
+
+        <span class="n">traceMask</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">noise_pairs</span><span class="p">:</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="p">(</span><span class="n">TSsurvey</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;srcNo&#39;</span><span class="p">)</span> <span class="o">==</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">TSsurvey</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;recNo&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">traceMask</span> <span class="o">=</span> <span class="n">temp</span> <span class="o">+</span> <span class="n">traceMask</span>
+
+        <span class="n">NoiseTraces</span> <span class="o">=</span>  <span class="n">TSsurvey</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">traceMask</span><span class="p">]</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-------- Calculate SNR for each window --------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">wdws_num</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])]</span> <span class="k">for</span> <span class="n">wd</span> <span class="ow">in</span> <span class="n">wdws</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">wd</span> <span class="ow">in</span> <span class="n">wdws_num</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;window: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span><span class="n">wd</span><span class="p">)</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">((</span><span class="n">TSsurvey</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">wd</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">wd</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span> <span class="o">-</span> \
+                              <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">((</span><span class="n">NoiseTraces</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">wd</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">wd</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span>\
+                                          <span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">SNR</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">SNR</span><span class="p">,</span> <span class="n">temp</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+                <span class="n">SNR</span> <span class="o">=</span> <span class="n">temp</span>
+
+        <span class="n">noisyCh</span> <span class="o">=</span> <span class="n">SNR</span><span class="p">[</span><span class="n">SNR</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">left</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">noiseCutOff</span><span class="p">)]</span><span class="o">.</span>\
+            <span class="n">index</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">noisyCh</span><span class="p">,</span> <span class="n">SNR</span><span class="p">,</span> <span class="n">NoiseTraces</span></div>
+
+
+
+<div class="viewcode-block" id="post_utilities.smooth"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.smooth">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">smooth</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">window_len</span> <span class="o">=</span> <span class="mi">11</span><span class="p">,</span> <span class="n">window</span> <span class="o">=</span> <span class="s1">&#39;hanning&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;smooth the data using a window with requested size.</span>
+
+<span class="sd">        This method is based on the convolution of a scaled window with the signal.</span>
+<span class="sd">        The signal is prepared by introducing reflected copies of the signal</span>
+<span class="sd">        (with the window size) in both ends so that transient parts are minimized</span>
+<span class="sd">        in the begining and end part of the output signal.</span>
+
+<span class="sd">        input:</span>
+<span class="sd">            x: the input signal</span>
+<span class="sd">            window_len: the dimension of the smoothing window; should be an odd integer</span>
+<span class="sd">            window: the type of window from &#39;flat&#39;, &#39;hanning&#39;, &#39;hamming&#39;, &#39;bartlett&#39;, &#39;blackman&#39;</span>
+<span class="sd">                flat window will produce a moving average smoothing.</span>
+
+<span class="sd">        output:</span>
+<span class="sd">            the smoothed signal</span>
+
+<span class="sd">        example:</span>
+
+<span class="sd">        t=linspace(-2,2,0.1)</span>
+<span class="sd">        x=sin(t)+randn(len(t))*0.1</span>
+<span class="sd">        y=smooth(x)</span>
+
+<span class="sd">        see also:</span>
+
+<span class="sd">        numpy.hanning, numpy.hamming, numpy.bartlett, numpy.blackman, numpy.convolve</span>
+<span class="sd">        scipy.signal.lfilter</span>
+
+<span class="sd">        TODO: the window parameter could be the window itself if an array instead of a string</span>
+<span class="sd">        NOTE: length(output) != length(input), to correct this: return y[(window_len/2-1):-(window_len/2)] instead of just y.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;smooth only accepts 1 dimension arrays.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="n">window_len</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input vector needs to be bigger than window size.&quot;</span><span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="n">window_len</span><span class="o">&lt;</span><span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">x</span>
+
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">window</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;flat&#39;</span><span class="p">,</span> <span class="s1">&#39;hanning&#39;</span><span class="p">,</span> <span class="s1">&#39;hamming&#39;</span><span class="p">,</span> <span class="s1">&#39;bartlett&#39;</span><span class="p">,</span> <span class="s1">&#39;blackman&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Window is on of &#39;flat&#39;, &#39;hanning&#39;, &#39;hamming&#39;, &#39;bartlett&#39;, &#39;blackman&#39;&quot;</span><span class="p">)</span>
+
+
+        <span class="n">s</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">window_len</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="n">window_len</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="c1">#print(len(s))</span>
+        <span class="k">if</span> <span class="n">window</span> <span class="o">==</span> <span class="s1">&#39;flat&#39;</span><span class="p">:</span> <span class="c1">#moving average</span>
+            <span class="n">w</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">window_len</span><span class="p">,</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">w</span><span class="o">=</span><span class="nb">eval</span><span class="p">(</span><span class="s1">&#39;np.&#39;</span><span class="o">+</span><span class="n">window</span><span class="o">+</span><span class="s1">&#39;(window_len)&#39;</span><span class="p">)</span>
+
+        <span class="n">y</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">w</span><span class="o">/</span><span class="n">w</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span><span class="n">s</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span></div></div>
+
+
+<div class="viewcode-block" id="postProcess"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.postProcess">[docs]</a><span class="k">class</span> <span class="nc">postProcess</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;This class is intended to handel post processing of a database of</span>
+<span class="sd">    CC and PV data.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">PV_df</span><span class="p">,</span> <span class="n">CC</span><span class="p">,</span> <span class="n">TS</span> <span class="o">=</span> <span class="p">[]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="n">param</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TS</span> <span class="o">=</span> <span class="n">TS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span> <span class="o">=</span> <span class="n">PV_df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CC</span> <span class="o">=</span> <span class="n">CC</span>
+
+<div class="viewcode-block" id="postProcess.PV_CC_join"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.postProcess.PV_CC_join">[docs]</a>    <span class="k">def</span> <span class="nf">PV_CC_join</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Combine both PV and CC data into a single dataset based on</span>
+<span class="sd">        measurement number</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Measurement numbers to join by</span>
+        <span class="n">meas</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Meas&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+
+        <span class="c1"># Add to PV df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span><span class="p">[</span><span class="s1">&#39;measNo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meas</span>
+
+        <span class="c1"># Merge</span>
+        <span class="n">df_merged</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PV_df</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">CC</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s1">&#39;measNo&#39;</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">df_merged</span></div>
+
+<div class="viewcode-block" id="postProcess.TS_DB"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.postProcess.TS_DB">[docs]</a>    <span class="k">def</span> <span class="nf">TS_DB</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Convert TS matrix into a DataFrame with axis index in time</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">TS_DB</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TS</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;t_axis&#39;</span><span class="p">],</span>
+                             <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">TS_DB</span></div>
+
+
+<div class="viewcode-block" id="postProcess.postProcess_run"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.postProcess.postProcess_run">[docs]</a>    <span class="k">def</span> <span class="nf">postProcess_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Perform expected Post Processing</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Join the PV and CC datasets into one</span>
+        <span class="n">PV_CC</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PV_CC_join</span><span class="p">()</span>
+
+        <span class="c1"># Add TS data into pandas dataframe with t_axis as index</span>
+        <span class="n">TS_DB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TS_DB</span><span class="p">()</span>
+
+        <span class="c1"># Perform first break picking and add to PV_CC if requested</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;FBP&#39;</span><span class="p">]:</span>
+            <span class="n">idx_break</span> <span class="o">=</span> <span class="n">post_utilities</span><span class="p">()</span><span class="o">.</span><span class="n">TS_FBP</span><span class="p">(</span><span class="n">TS_DB</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;noiseWD&#39;</span><span class="p">],</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;stdThd&#39;</span><span class="p">],</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;thdFactor&#39;</span><span class="p">],</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;mpd&#39;</span><span class="p">])</span>
+            <span class="n">PV_CC</span><span class="p">[</span><span class="s1">&#39;TOF&#39;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">TS_DB</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">idx_break</span><span class="p">]</span>
+
+
+        <span class="k">return</span> <span class="n">TS_DB</span><span class="p">,</span> <span class="n">PV_CC</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Reuben Zotz-wilson.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>

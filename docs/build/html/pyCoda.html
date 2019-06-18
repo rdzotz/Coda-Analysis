@@ -1,0 +1,2697 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyCoda package &#8212; CWI 0 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="pyCoda" href="modules.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="pyCoda"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" accesskey="U">pyCoda</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="modules.html"
+                        title="previous chapter">pyCoda</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pycoda-package">
+<h1>pyCoda package<a class="headerlink" href="#pycoda-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pycoda-decayrate-module">
+<h2>pyCoda.DecayRate module<a class="headerlink" href="#pycoda-decayrate-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pycoda-core-module">
+<h2>pyCoda.core module<a class="headerlink" href="#pycoda-core-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pycoda-cross-correlation-module">
+<h2>pyCoda.cross_correlation module<a class="headerlink" href="#pycoda-cross-correlation-module" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pyCoda.cross_correlation"></span><p>Implements various cross-correlation operations</p>
+<p>Created on Tue Jan 17 11:40:08 2017
+&#64;author: rwilson</p>
+<dl class="class">
+<dt id="pyCoda.cross_correlation.cross_correlation_survey">
+<em class="property">class </em><code class="descclassname">pyCoda.cross_correlation.</code><code class="descname">cross_correlation_survey</code><span class="sig-paren">(</span><em>Database</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/cross_correlation.html#cross_correlation_survey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.cross_correlation.cross_correlation_survey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Perform the cross-correlation for a multi-source receiver survey</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>Database</strong> : str</p>
+<blockquote class="last">
+<div><p>Relative or absolute location of the database.h5 file.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyCoda.cross_correlation.cross_correlation_survey.CC_run">
+<code class="descname">CC_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/cross_correlation.html#cross_correlation_survey.CC_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.cross_correlation.cross_correlation_survey.CC_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the overhead tasks performing the cross-correlation, based on the
+parameters found in the Database attributes. A final database containing
+the CC for each source receiver pair is then stored within the Database.5
+file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.cross_correlation.cross_correlation_survey.CC_dataframes">
+<code class="descname">CC_dataframes</code><span class="sig-paren">(</span><em>TSdata1</em>, <em>TSdata2</em>, <em>processing</em>, <em>lag</em>, <em>eng_wdw</em>, <em>wdwPos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/cross_correlation.html#cross_correlation_survey.CC_dataframes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.cross_correlation.cross_correlation_survey.CC_dataframes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cross-correlation between two dataframes for multiple lags, along with
+the optional calculation of the relative amplitude changes between traces
+or the spectral significance of the correlation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>TSdata1, TSdata1</strong> : DataFrame</p>
+<blockquote>
+<div><p>The time-series dataframes, stored in columns, with multi-level index
+names <code class="docutils literal"><span class="pre">srcNo</span></code> and <code class="docutils literal"><span class="pre">recNo</span></code>. Only equivelent src/rec pairs will be
+compared.</p>
+</div></blockquote>
+<p><strong>processing</strong> : list(str)</p>
+<blockquote>
+<div><p>A list of strings containing additional processing types if requested.
+The defualt is [‘CC’, ‘CC-lag’]. If ‘sig’ is found in the list then the
+spectral significance of the correlation will also be calculated.</p>
+</div></blockquote>
+<p><strong>lag</strong> : int</p>
+<blockquote>
+<div><p>lag between <code class="docutils literal"><span class="pre">TSdata1</span></code> and <code class="docutils literal"><span class="pre">TSdata2</span></code> in terms of repeat measurements.</p>
+</div></blockquote>
+<p><strong>eng_wdw</strong> : series</p>
+<blockquote>
+<div><p>The window within the time-series corresponding to the user selected
+reference time-series.</p>
+</div></blockquote>
+<p><strong>wdwPos</strong> : list</p>
+<blockquote>
+<div><p>The start and stop window positions within a trace</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>CC</strong> : DataFrame(len(TSdata1.shape[1]), len(processing))</p>
+<p><strong>processing</strong> : list(str)</p>
+<blockquote class="last">
+<div><p>a list of strings pertaining to the column values of <code class="docutils literal"><span class="pre">CC</span></code></p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.cross_correlation.cross_correlation_survey.relative_amplitude">
+<code class="descname">relative_amplitude</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/cross_correlation.html#cross_correlation_survey.relative_amplitude"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.cross_correlation.cross_correlation_survey.relative_amplitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the relative amplitude difference between two traces.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>a</strong> : int or float</p>
+<blockquote>
+<div><p>Reference time-series of length <code class="docutils literal"><span class="pre">N</span></code>.</p>
+</div></blockquote>
+<p><strong>b</strong> : int or float</p>
+<blockquote>
+<div><p>Comparison time-series of length <code class="docutils literal"><span class="pre">N</span></code>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Relative amplitude</strong> : float</p>
+<blockquote>
+<div><p>The rejection</p>
+</div></blockquote>
+<p>Notes</p>
+<p>To calculate the confidence associated with the Z-score use</p>
+<blockquote class="last">
+<div><p><code class="docutils literal"><span class="pre">scipy.stats.norm.ppf(sig)</span></code></p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.cross_correlation.cross_correlation_survey.spec_corr_significance">
+<code class="descname">spec_corr_significance</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>C_xy=None</em>, <em>tot=2000</em>, <em>confidence=0.99</em>, <em>maxlag=16</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/cross_correlation.html#cross_correlation_survey.spec_corr_significance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.cross_correlation.cross_correlation_survey.spec_corr_significance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a spectral perturbation of phase to assess the
+significance of a correlation. This is similar to the work by Ebisuzaki 1997
+The basic output is the acceptance rate of the alternative to
+the Null Hypothesis H0 that there is no correlation between two time series
+based on the CC for the.
+Parameters
+———-
+a : int or float</p>
+<blockquote>
+<div>Reference time-series of length <code class="docutils literal"><span class="pre">N</span></code>.</div></blockquote>
+<dl class="docutils">
+<dt>b <span class="classifier-delimiter">:</span> <span class="classifier">int or float</span></dt>
+<dd>Comparison time-series of length <code class="docutils literal"><span class="pre">N</span></code>.</dd>
+<dt>C_xy <span class="classifier-delimiter">:</span> <span class="classifier">int or float</span></dt>
+<dd>The normalised cross-correlation coefficient of length corresponding
+to <code class="docutils literal"><span class="pre">maxlag</span></code>.</dd>
+<dt>tot <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Total number of random perturbations to check the correlation
+(Default is 2000).</dd>
+<dt>confidence <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The confidence at which the acceptance rate <code class="docutils literal"><span class="pre">H1_AR</span></code> is tested,
+(Default is 0.95).</dd>
+<dt>maxlag <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>The maximum sample lags applied in the cross-correlations,
+(Default is 64).</dd>
+<dt>verbose <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>If <code class="docutils literal"><span class="pre">True</span></code> an output of the distribution of the random phase test
+cross-correlations will be made with that of the <code class="docutils literal"><span class="pre">C_xy</span></code>
+(Default is 64).</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>H1_AR</strong> : float</p>
+<blockquote>
+<div><p>The rejection rate of the null hypoth <code class="docutils literal"><span class="pre">a</span></code>
+and <code class="docutils literal"><span class="pre">b</span></code>.</p>
+</div></blockquote>
+<p><strong>sigma</strong> : float</p>
+<blockquote>
+<div><p>The variance of the distribution of random phase perturbed time-series.</p>
+</div></blockquote>
+<p><strong>mean</strong> : float</p>
+<blockquote>
+<div><p>The mean of the distribution of random phase perturbed time-series.</p>
+</div></blockquote>
+<p><strong>Z_dist</strong> : float</p>
+<blockquote>
+<div><p>The distribution of the random phase z-scores.</p>
+</div></blockquote>
+<p><strong>Z</strong> : float</p>
+<blockquote class="last">
+<div><p>The distribution of the C_xy z-scores.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<dl class="docutils">
+<dt>To calculate the confidence associated with the Z-score use</dt>
+<dd><code class="docutils literal"><span class="pre">scipy.stats.norm.ppf(sig)</span></code></dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.cross_correlation.cross_correlation_survey.decay_rate">
+<code class="descname">decay_rate</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/cross_correlation.html#cross_correlation_survey.decay_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.cross_correlation.cross_correlation_survey.decay_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the correlation decay rate of two time series.
+Parameters
+———-
+a : int or float</p>
+<blockquote>
+<div>Reference time-series of length <code class="docutils literal"><span class="pre">N</span></code>.</div></blockquote>
+<dl class="docutils">
+<dt>b <span class="classifier-delimiter">:</span> <span class="classifier">int or float</span></dt>
+<dd>Comparison time-series of length <code class="docutils literal"><span class="pre">N</span></code>.</dd>
+<dt>verbose <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>If <code class="docutils literal"><span class="pre">True</span></code> a plot of the decay fitting will be provided</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Tau</strong> : float</p>
+<blockquote class="last">
+<div><p>The decay rate of the correlation between <code class="docutils literal"><span class="pre">a</span></code> and <code class="docutils literal"><span class="pre">b</span></code>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyCoda.cross_correlation.cross_correlation">
+<em class="property">class </em><code class="descclassname">pyCoda.cross_correlation.</code><code class="descname">cross_correlation</code><span class="sig-paren">(</span><em>TSdata</em>, <em>param</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/cross_correlation.html#cross_correlation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.cross_correlation.cross_correlation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>This class performed the cross-correlation of a matrix of time series
+based on various user defined input parameters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>TSdata:  Time series data columnweise</strong></p>
+<p class="last"><strong>param:   Dictornay of user defined parameters</strong></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Opencv should be used in speed becomes an issue in correlations</p>
+<dl class="method">
+<dt id="pyCoda.cross_correlation.cross_correlation.CC_wdw">
+<code class="descname">CC_wdw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/cross_correlation.html#cross_correlation.CC_wdw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.cross_correlation.cross_correlation.CC_wdw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the number of windows of a certain lenght which fit within
+the TS, and outputs a list of start positions in terms of sample points</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.cross_correlation.cross_correlation.CC_run">
+<code class="descname">CC_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/cross_correlation.html#cross_correlation.CC_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.cross_correlation.cross_correlation.CC_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handels the cross-correlation coefficient of all TS input for each
+correlation window position defined.</p>
+<dl class="docutils">
+<dt>R_t Either a dataframe or panel of dataframes with index of start of</dt>
+<dd>window positions</dd>
+<dt>TODO:</dt>
+<dd>Need to expand capability to allow for multiple lag values. Might
+be best to build a 2D matrix for this purpose.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.cross_correlation.cross_correlation.norm_CC">
+<code class="descname">norm_CC</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>eng_ref=None</em>, <em>lag=None</em>, <em>ww=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/cross_correlation.html#cross_correlation.norm_CC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.cross_correlation.cross_correlation.norm_CC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the cross-correlation of two 1D input TS, outputting the
+normalised versions. Additional parameters are calculated and output as
+described below.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>a</strong> : int or float</p>
+<blockquote>
+<div><p>Reference time-series of length <code class="docutils literal"><span class="pre">N</span></code>.</p>
+</div></blockquote>
+<p><strong>b</strong> : int or float</p>
+<blockquote>
+<div><p>Comparison time-series of length <code class="docutils literal"><span class="pre">N</span></code>.</p>
+</div></blockquote>
+<p><strong>eng_ref</strong> : int or float</p>
+<blockquote>
+<div><p>The time-series to be taken as the reference for relative
+integrated energy changes. Default is <code class="docutils literal"><span class="pre">None</span></code>.</p>
+</div></blockquote>
+<p><strong>lag</strong> : int</p>
+<blockquote>
+<div><p>The lag value of the given <code class="docutils literal"><span class="pre">b</span></code> time-series. Default is <code class="docutils literal"><span class="pre">None</span></code></p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>CC</strong> : float</p>
+<blockquote>
+<div><p>The max Cross-correlation Coefficient for all lag values.</p>
+</div></blockquote>
+<p><strong>Lag</strong> : int</p>
+<blockquote>
+<div><p>The lag at which max cross-correlation was found in sample points.</p>
+</div></blockquote>
+<p><strong>Eng_comp</strong> : float</p>
+<blockquote>
+<div><p>Relative energy comparison.</p>
+</div></blockquote>
+<p><strong>freqBandW</strong> : float</p>
+<blockquote class="last">
+<div><p>Frequency band width in Hertz.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.cross_correlation.cross_correlation.spec_corr_significance">
+<code class="descname">spec_corr_significance</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>C_xy=None</em>, <em>tot=2000</em>, <em>confidence=0.99</em>, <em>maxlag=16</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/cross_correlation.html#cross_correlation.spec_corr_significance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.cross_correlation.cross_correlation.spec_corr_significance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a spectral perturbation of phase to assess the
+significance of a correlation. This is similar to the work by Ebisuzaki 1997
+The basic output is the acceptance rate of the alternative to
+the Null Hypothesis H0 that there is no correlation between two time series
+based on the CC for the.
+Parameters
+———-
+a : int or float</p>
+<blockquote>
+<div>Reference time-series of length <code class="docutils literal"><span class="pre">N</span></code>.</div></blockquote>
+<dl class="docutils">
+<dt>b <span class="classifier-delimiter">:</span> <span class="classifier">int or float</span></dt>
+<dd>Comparison time-series of length <code class="docutils literal"><span class="pre">N</span></code>.</dd>
+<dt>C_xy <span class="classifier-delimiter">:</span> <span class="classifier">int or float</span></dt>
+<dd>The normalised cross-correlation coefficient of length corresponding
+to <code class="docutils literal"><span class="pre">maxlag</span></code>.</dd>
+<dt>tot <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Total number of random perturbations to check the correlation
+(Default is 2000).</dd>
+<dt>confidence <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The confidence at which the acceptance rate <code class="docutils literal"><span class="pre">H1_AR</span></code> is tested,
+(Default is 0.95).</dd>
+<dt>maxlag <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>The maximum sample lags applied in the cross-correlations,
+(Default is 64).</dd>
+<dt>verbose <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>If <code class="docutils literal"><span class="pre">True</span></code> an output of the distribution of the random phase test
+cross-correlations will be made with that of the <code class="docutils literal"><span class="pre">C_xy</span></code>
+(Default is 64).</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>H1_AR</strong> : float</p>
+<blockquote>
+<div><p>The rejection rate of the null hypoth <code class="docutils literal"><span class="pre">a</span></code>
+and <code class="docutils literal"><span class="pre">b</span></code>.</p>
+</div></blockquote>
+<p><strong>sigma</strong> : float</p>
+<blockquote>
+<div><p>The variance of the distribution of random phase perturbed time-series.</p>
+</div></blockquote>
+<p><strong>mean</strong> : float</p>
+<blockquote>
+<div><p>The mean of the distribution of random phase perturbed time-series.</p>
+</div></blockquote>
+<p><strong>Z_dist</strong> : float</p>
+<blockquote>
+<div><p>The distribution of the random phase z-scores.</p>
+</div></blockquote>
+<p><strong>Z</strong> : float</p>
+<blockquote>
+<div><p>The distribution of the C_xy z-scores.</p>
+</div></blockquote>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p>To calculate the confidence associated with the Z-score use</p>
+<p class="last"><code class="docutils literal"><span class="pre">scipy.stats.norm.ppf(sig)</span></code></p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.cross_correlation.cross_correlation.decay_rate">
+<code class="descname">decay_rate</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/cross_correlation.html#cross_correlation.decay_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.cross_correlation.cross_correlation.decay_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the correlation decay rate of two time series.
+Parameters
+———-
+a : int or float</p>
+<blockquote>
+<div>Reference time-series of length <code class="docutils literal"><span class="pre">N</span></code>.</div></blockquote>
+<dl class="docutils">
+<dt>b <span class="classifier-delimiter">:</span> <span class="classifier">int or float</span></dt>
+<dd>Comparison time-series of length <code class="docutils literal"><span class="pre">N</span></code>.</dd>
+<dt>verbose <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>If <code class="docutils literal"><span class="pre">True</span></code> a plot of the decay fitting will be provided</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Tau</strong> : float</p>
+<blockquote class="last">
+<div><p>The decay rate of the correlation between <code class="docutils literal"><span class="pre">a</span></code> and <code class="docutils literal"><span class="pre">b</span></code>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pycoda-data-module">
+<h2>pyCoda.data module<a class="headerlink" href="#pycoda-data-module" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pyCoda.data"></span><p>Implements the global import of all data</p>
+<p>Created on Mon Dec 26 20:51:08 2016
+&#64;author: rwilson</p>
+<dl class="class">
+<dt id="pyCoda.data.utilities">
+<em class="property">class </em><code class="descclassname">pyCoda.data.</code><code class="descname">utilities</code><a class="reference internal" href="_modules/pyCoda/data.html#utilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.utilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Collection of functions intended for data related processes.</p>
+<dl class="staticmethod">
+<dt id="pyCoda.data.utilities.DB_group_names">
+<em class="property">static </em><code class="descname">DB_group_names</code><span class="sig-paren">(</span><em>Database</em>, <em>group_name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#utilities.DB_group_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.utilities.DB_group_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in group names found within group. If group is not provided the
+upper folder structure will be read from.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>Database</strong> : str</p>
+<blockquote>
+<div><p>Relative location of database</p>
+</div></blockquote>
+<p><strong>group_name</strong> : str</p>
+<blockquote>
+<div><p>The expected attribute name/s</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>group_names</strong> : list</p>
+<blockquote class="last">
+<div><p>Group names found within the group</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Add some additional error checks</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.data.utilities.DB_attrs_save">
+<em class="property">static </em><code class="descname">DB_attrs_save</code><span class="sig-paren">(</span><em>Database</em>, <em>dictionary</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#utilities.DB_attrs_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.utilities.DB_attrs_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save attribute to database head.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>Database</strong> : str</p>
+<blockquote>
+<div><p>Relative location of database</p>
+</div></blockquote>
+<p><strong>dictionary</strong> : dict</p>
+<blockquote class="last">
+<div><p>Dictionary of attributes</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Add some additional error checks</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.data.utilities.DB_attrs_load">
+<em class="property">static </em><code class="descname">DB_attrs_load</code><span class="sig-paren">(</span><em>Database</em>, <em>attrs_names</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#utilities.DB_attrs_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.utilities.DB_attrs_load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read attribute from database head.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>Database</strong> : str</p>
+<blockquote>
+<div><p>Relative location of database</p>
+</div></blockquote>
+<p><strong>attrs_names</strong> : list(str)</p>
+<blockquote>
+<div><p>The expected attribute name/s</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dict_attri</strong> : dict</p>
+<blockquote class="last">
+<div><p>The returned dictionary of attribute/s from the database</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Add some additional error checks</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.data.utilities.DB_pd_data_load">
+<em class="property">static </em><code class="descname">DB_pd_data_load</code><span class="sig-paren">(</span><em>Database</em>, <em>group</em>, <em>cols=None</em>, <em>whereList=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#utilities.DB_pd_data_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.utilities.DB_pd_data_load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads in a pandas dataframe stored in group from the Database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>Database</strong> : str</p>
+<blockquote>
+<div><p>Relative location of database</p>
+</div></blockquote>
+<p><strong>group</strong> : str</p>
+<blockquote>
+<div><p>The expected group name</p>
+</div></blockquote>
+<p><strong>cols</strong> : list(str) / list(int)</p>
+<blockquote>
+<div><p>If not None, will limit the return columns, only applicable for <code class="docutils literal"><span class="pre">table</span></code>
+format database. For <code class="docutils literal"><span class="pre">fixed</span></code> format database only int accepted</p>
+</div></blockquote>
+<p><strong>whereList</strong> : list of Term (or convertable) objects or slice(from, to)</p>
+<blockquote>
+<div><p>The conditional import of data, example [‘index&gt;11’, ‘index&lt;20’],
+only applicable for <code class="docutils literal"><span class="pre">table</span></code> format database. For <code class="docutils literal"><span class="pre">fixed</span></code> format
+database only a slice object is applicable and will use the row index
+numbers not the index values (i.e. df.iloc vs df.loc)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>group_df</strong> : DataFrame</p>
+<blockquote>
+<div><p>The PV data stored in the group <code class="docutils literal"><span class="pre">PVdata</span></code> as a pandas dataframe</p>
+</div></blockquote>
+<p>TSsurvey =  pd.read_hdf(h5file, ‘survey20180312093545’,</p>
+<blockquote class="last">
+<div><p>columns=[(1,1), (1,2)], # Load specific columns
+where = [‘index&gt;11’, ‘index&lt;20’]) # Load index 11 -&gt; 20</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.data.utilities.DB_pd_data_save">
+<em class="property">static </em><code class="descname">DB_pd_data_save</code><span class="sig-paren">(</span><em>Database</em>, <em>group</em>, <em>df</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#utilities.DB_pd_data_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.utilities.DB_pd_data_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves in a pandas dataframe stored in group from the Database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>Database</strong> : str</p>
+<blockquote>
+<div><p>Relative location of database</p>
+</div></blockquote>
+<p><strong>group</strong> : str</p>
+<blockquote>
+<div><p>The expected group name</p>
+</div></blockquote>
+<p><strong>df</strong> : DateFrame</p>
+<blockquote class="last">
+<div><p>Pandas DataFrame to be stored in h5 file <code class="docutils literal"><span class="pre">Database</span></code></p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.data.utilities.PV_TS_DB_merge">
+<em class="property">static </em><code class="descname">PV_TS_DB_merge</code><span class="sig-paren">(</span><em>CC</em>, <em>PVdata</em>, <em>mergeOnIndex=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#utilities.PV_TS_DB_merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.utilities.PV_TS_DB_merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge/concatenate based on the time axis. The expected structures of
+‘PVdata’ and ‘CC’ DataFrames is a <code class="docutils literal"><span class="pre">Time</span> <span class="pre">Stamp</span></code> axis and a <code class="docutils literal"><span class="pre">Time</span></code> index
+level on which the concatenation takes place.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>CC</strong> : DataFrame of list(DataFrame)</p>
+<blockquote>
+<div><p>Expected to contain the processed data or a list of DataFrame with
+processed data. The index must be a timestam.</p>
+</div></blockquote>
+<p><strong>PVdata</strong> : DataFrame</p>
+<blockquote>
+<div><p>A single DataFrame containing the corresponding perturbation information
+and must contain a column <code class="docutils literal"><span class="pre">Time</span> <span class="pre">Stamp</span></code>, which will be used during the
+concatentation/merge.</p>
+</div></blockquote>
+<p><strong>mergeOnIndex</strong> : Default False</p>
+<blockquote>
+<div><p>Merge based on the index values. Currently only works when a single <code class="docutils literal"><span class="pre">CC</span></code>
+DataFrame is provided, and not for a list of DF.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>PV_CC_df</strong> : DataFrame</p>
+<blockquote>
+<div><p>Merged/concatenated dataframe of both PV and Coda processed data.</p>
+</div></blockquote>
+<p><strong>column_values</strong> : array</p>
+<blockquote class="last">
+<div><p>of tuples defining the multi-level indecies of the CC data.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.data.utilities.DB_COL_stats">
+<em class="property">static </em><code class="descname">DB_COL_stats</code><span class="sig-paren">(</span><em>DF, colList, baseName, stats=['mean', 'std'], norm=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#utilities.DB_COL_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.utilities.DB_COL_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract stats from multiple columns with a <code class="docutils literal"><span class="pre">CommonKey</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>DF</strong> : DataFrame</p>
+<blockquote>
+<div><p>Dataframe from which statistics will be generated.</p>
+</div></blockquote>
+<p><strong>colList</strong> : str</p>
+<blockquote>
+<div><p>a list of columns from which the stats will be made.</p>
+</div></blockquote>
+<p><strong>baseName</strong> : str</p>
+<blockquote>
+<div><p>The base name of the new columns to which ‘_[stats]’ will be appended.</p>
+</div></blockquote>
+<p><strong>stats</strong> : list</p>
+<blockquote>
+<div><p>A list of strings containing the requested stats to be generated for
+columns with <code class="docutils literal"><span class="pre">CommonKey</span></code>.</p>
+</div></blockquote>
+<p><strong>norm</strong> : list</p>
+<blockquote>
+<div><p>Perform a min-max norm of the added statistic between 0 and 1.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>DF</strong> : DataFrame</p>
+<blockquote class="last">
+<div><p>Original dataframe plus columns containing requested stats.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.data.utilities.CC_lag">
+<em class="property">static </em><code class="descname">CC_lag</code><span class="sig-paren">(</span><em>CC_df</em>, <em>period</em>, <em>units='us'</em>, <em>relVel=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#utilities.CC_lag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.utilities.CC_lag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert CC lag or First Break Picked data from number of sample points
+to time or relative velocity change based on:</p>
+<blockquote>
+<div><div class="math">
+\[\dfrac{\delta v}{v} = \dfrac{\delta t}{t}\]</div>
+</div></blockquote>
+<p>Expected column names should either contain ‘lag’ in the last of a tuple,
+eg. col[-1] in the case of lag correction, or ‘FBP’ in the case of First
+Break Picking correction. If a ‘FBP’ correction is required, then the
+correct input initial velocity should be given.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>CC_df</strong> : DataFrame</p>
+<blockquote>
+<div><p>Dataframe from which statistics will be generated. A three level
+dataframe is expected where the lowest level</p>
+</div></blockquote>
+<p><strong>period</strong> : float</p>
+<blockquote>
+<div><p>Seconds per sample</p>
+</div></blockquote>
+<p><strong>units</strong> : str</p>
+<blockquote>
+<div><p>unit of the arg (D,s,ms,us,ns) denote the unit, which is an integer
+or float number.</p>
+</div></blockquote>
+<p><strong>relVel</strong> : bool</p>
+<blockquote>
+<div><p>Output the lag in terms of the relative velocity change.</p>
+</div></blockquote>
+<p><strong>Returns</strong></p>
+<p><strong>——-</strong></p>
+<p><strong>DF</strong> : DataFrame</p>
+<blockquote class="last">
+<div><p>Original dataframe with the lag columns modified as specified.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.data.utilities.CC_integration">
+<em class="property">static </em><code class="descname">CC_integration</code><span class="sig-paren">(</span><em>DF</em>, <em>dx='index'</em>, <em>intType='trapz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#utilities.CC_integration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.utilities.CC_integration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the integration of multiple columns witin a dataframe which is
+expected to contain row index levels ‘srcNo’, ‘recNo’ and ‘Time’. Each
+srcNo and recNo pair over time will be integrated and added back into the
+DF.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>DF</strong> : DataFrame</p>
+<blockquote>
+<div><p>Dataframe of the data to be integrated which must be row indexed by
+<code class="docutils literal"><span class="pre">datetime64[ns]</span></code>.</p>
+</div></blockquote>
+<p><strong>dx</strong> : str (Default ‘index’)</p>
+<blockquote>
+<div><p>If set to ‘index’ than integration is performed based on the time axis</p>
+</div></blockquote>
+<p><strong>intType</strong> : str (Default ‘trapz’)</p>
+<blockquote>
+<div><p>The type of integration to use. trapz for trapezoid, cumsum for pure
+cummulative summation.</p>
+</div></blockquote>
+<p><strong>Returns</strong></p>
+<p><strong>——-</strong></p>
+<p><strong>DF_int</strong> : DataFrame</p>
+<blockquote class="last">
+<div><p>THe same dimensions and row indicies as DF containing the cumtrapz
+integration.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.data.utilities.CC_to_K">
+<em class="property">static </em><code class="descname">CC_to_K</code><span class="sig-paren">(</span><em>DF</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#utilities.CC_to_K"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.utilities.CC_to_K" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert all Cross-correlation coefficients to decorrelation by applying
+the simple transform:</p>
+<blockquote>
+<div><div class="math">
+\[K = 1- CC\]</div>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>DF</strong> : DataFrame</p>
+<blockquote>
+<div><p>Dataframe with multi level columns where the cross-correlation
+coefficients are expected to be named ‘CC’.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>DF_int</strong> : DataFrame</p>
+<blockquote class="last">
+<div><p>The dataframe is returned with only the data of the columns modified.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.data.utilities.Data_CSV_dump">
+<em class="property">static </em><code class="descname">Data_CSV_dump</code><span class="sig-paren">(</span><em>DF</em>, <em>fileName</em>, <em>colNames=None</em>, <em>indices=None</em>, <em>CCtoK=False</em>, <em>shiftCols=None</em>, <em>nthRow=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#utilities.Data_CSV_dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.utilities.Data_CSV_dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dumps data from pandas dataframe to csv, intended for tikz plotting.
+Note, the following char will be removed from the column names ,’_[]%
+and any row of the selected <code class="docutils literal"><span class="pre">colNames</span></code> containing atleast one NaN will
+be filled with <code class="docutils literal"><span class="pre">0</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>DF</strong> : DataFrame</p>
+<blockquote>
+<div><p>DataFrame to be dumped</p>
+</div></blockquote>
+<p><strong>fileName</strong> : str</p>
+<blockquote>
+<div><p>Name of the csv file saved to current working directory.</p>
+</div></blockquote>
+<p><strong>colNames</strong> : list</p>
+<blockquote>
+<div><p>The columns to be dumped.</p>
+</div></blockquote>
+<p><strong>indices</strong> : slice</p>
+<blockquote>
+<div><p>The slice object of indix values to be dumped.</p>
+</div></blockquote>
+<p><strong>CCtoK</strong> : bool (Default = False)</p>
+<blockquote>
+<div><p>Convert all cross-correlation data to decorrelation. Expected column
+names as tuples with the last entry equal to ‘CC’ or ‘CC_mean’</p>
+</div></blockquote>
+<p><strong>shiftCols</strong> : list (Default = None)</p>
+<blockquote>
+<div><p>List of columns to begin as zero (The first value will be subtracted
+from all)</p>
+</div></blockquote>
+<p><strong>nthRow</strong> : list (Default = None)</p>
+<blockquote class="last">
+<div><p>List of columns to begin as zero (The first value will be subtracted
+from all)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.data.utilities.Data_atGT">
+<em class="property">static </em><code class="descname">Data_atGT</code><span class="sig-paren">(</span><em>DF</em>, <em>targetCols</em>, <em>outputCols</em>, <em>points</em>, <em>pointsCol</em>, <em>shiftCols=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#utilities.Data_atGT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.utilities.Data_atGT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts first datapoint greater than a defined column value</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>DF</strong> : DataFrame</p>
+<blockquote>
+<div><p>DataFrame to be dumped</p>
+</div></blockquote>
+<p><strong>targetCols</strong> : list</p>
+<blockquote>
+<div><p>list of all target columns in <code class="docutils literal"><span class="pre">DF</span></code></p>
+</div></blockquote>
+<p><strong>outputCols</strong> : list</p>
+<blockquote>
+<div><p>list of output column names to use in output dataframe <code class="docutils literal"><span class="pre">DF_out</span></code>. Must
+be of equal length to targetCols.</p>
+</div></blockquote>
+<p><strong>points</strong> : list</p>
+<blockquote>
+<div><p>list of points at which the first values &gt; should be extracted from
+each entry in <code class="docutils literal"><span class="pre">targetCols</span></code>.</p>
+</div></blockquote>
+<p><strong>pointsCol</strong> : str</p>
+<blockquote>
+<div><p>list of output column names to use in output dataframe <code class="docutils literal"><span class="pre">DF_out</span></code>. Must
+be of equal length to targetCols.</p>
+</div></blockquote>
+<p><strong>shiftCols</strong> : list (Default = None)</p>
+<blockquote>
+<div><p>List of columns to begin as zero (The first value will be subtracted
+from all)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>df_trans</strong> : DataFrame</p>
+<blockquote class="last">
+<div><p>Output dataframe containing the requested points</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.data.utilities.TS_Time">
+<em class="property">static </em><code class="descname">TS_Time</code><span class="sig-paren">(</span><em>DF</em>, <em>secPerSamp</em>, <em>traceSlice</em>, <em>resampleStr='1 us'</em>, <em>csvDump=True</em>, <em>wdwPos=None</em>, <em>fileName='traces.csv'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#utilities.TS_Time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.utilities.TS_Time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes raw time series dataframe, allowing the slicing, resampling and
+re-indexing. Output times are in seconds.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>DF</strong> : DataFrame</p>
+<blockquote>
+<div><p>DataFrame to be modified.</p>
+</div></blockquote>
+<p><strong>secPerSamp</strong> : float</p>
+<blockquote>
+<div><p>The sampling period or seconds per sample required to generate a time
+index for the dataframe.</p>
+</div></blockquote>
+<p><strong>traceSlice</strong> : slice</p>
+<blockquote>
+<div><p>The slice object to extract from the DF.</p>
+</div></blockquote>
+<p><strong>resampleStr</strong> : str (default = ‘1 us’)</p>
+<blockquote>
+<div><p>The resample string to reduce the size of each trace.</p>
+</div></blockquote>
+<p><strong>csvDump</strong> : bool (default = True)</p>
+<blockquote>
+<div><p>Save data to <code class="docutils literal"><span class="pre">traces.csv</span></code> in pwd in the order, time [sec], trace1, trace2,….</p>
+</div></blockquote>
+<p><strong>wdwPos</strong> : list</p>
+<blockquote>
+<div><p>List of [start, stop] window positions in no. of smaples</p>
+</div></blockquote>
+<p><strong>fileName</strong> : str (Default = ‘traces.csv’)</p>
+<blockquote>
+<div><p>Name of output csv file.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>DF</strong> : DataFrame</p>
+<blockquote>
+<div><p>Output dataframe.</p>
+</div></blockquote>
+<p><strong>wdwTimes</strong> : list</p>
+<blockquote class="last">
+<div><p>List of lists of the window positions in seconds</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.data.utilities.hdf_csv_dump">
+<em class="property">static </em><code class="descname">hdf_csv_dump</code><span class="sig-paren">(</span><em>DB_fdl</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#utilities.hdf_csv_dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.utilities.hdf_csv_dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dumps the processed databases to CC, PV, TShdrs to csv files. Note
+this function should be run in the run folder, not the database folder</p>
+<p>—inputs—
+DB_fdl: relative or absolute location to the folder where all database
+files are located</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.data.utilities.run_dataLoad">
+<em class="property">static </em><code class="descname">run_dataLoad</code><span class="sig-paren">(</span><em>DB_fdl</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#utilities.run_dataLoad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.utilities.run_dataLoad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a previous processing session into memory ready for analysis.</p>
+<ul class="simple">
+<li>Inputs -</li>
+</ul>
+<dl class="docutils">
+<dt>DB_fdl: input folder holding the expected databases in the form</dt>
+<dd>‘DB_fld/’</dd>
+</dl>
+<ul class="simple">
+<li>Outputs -</li>
+</ul>
+<p>PV_df:  Main database holding PV, and CC data
+TS_DB:  Database of TS data
+PV_df_full: Database including all PV data, empty if original PV and TS</p>
+<blockquote>
+<div>data was coincident already.</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyCoda.data.data_import">
+<em class="property">class </em><code class="descclassname">pyCoda.data.</code><code class="descname">data_import</code><span class="sig-paren">(</span><em>TSfpath</em>, <em>PVloc</em>, <em>import_dtype</em>, <em>param=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#data_import"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.data_import" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>This class handels the import and basic processing of all
+user imput data. The core data streams are the time series information
+(TS) and the corresponding Perturbation Vectors (PV)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>TSfpath</strong> :  str</p>
+<blockquote>
+<div><p>Defines the relative or absolute location of the TS data folder</p>
+</div></blockquote>
+<p><strong>TSlocL</strong> :  list (default = None)</p>
+<blockquote>
+<div><p>List of the relative or absolute location of the TS data files</p>
+</div></blockquote>
+<p><strong>PVloc</strong> : str</p>
+<blockquote>
+<div><p>Defines the relative or absolute location of the PV’s</p>
+</div></blockquote>
+<p><strong>Database</strong> : str</p>
+<blockquote>
+<div><p>Defines a common hdf5 database name <code class="docutils literal"><span class="pre">Database.h5</span></code></p>
+</div></blockquote>
+<p><strong>import_dtype: str</strong></p>
+<blockquote>
+<div><p>Defines several raw data types, “bin_par”: for data in a binary single
+trace per file and header data in .par files, “Shell_format”: all data in a
+single csv file (both PV and TS), ‘NoTShdrer_format’
+“NoTShdrer_format”<a href="#id1"><span class="problematic" id="id2">``</span></a>.</p>
+</div></blockquote>
+<p><strong>notes</strong></p>
+<p><strong>—–</strong></p>
+<p><strong>The output of this class should be a single ``Database.h5`` database in the</strong></p>
+<p><strong>run directory, containing all relevant data. All user defined parameters are</strong></p>
+<p class="last"><strong>assigned to the attribues of the database head.</strong></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">h5py</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Reading the user defined parameters from the database attributes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="s1">&#39;Database.h5&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5file</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nb">print</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">h5file</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="pyCoda.data.data_import.TSfiles">
+<code class="descname">TSfiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#data_import.TSfiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.data_import.TSfiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function lists the files in the TSfpath folder location reading
+all of the information contained within. The structure of this
+data is checked and the appropriate sub-function initiated based on the
+user defined parameter ‘import_dtype’</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>headerDB</strong> : DataFrame</p>
+<blockquote>
+<div><p>Database of header information</p>
+</div></blockquote>
+<p><strong>TSdataList</strong> : list</p>
+<blockquote>
+<div><p>List of TS data file relative locations</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>headerDB</strong> : DataFrame or dict(DataFrames)</p>
+<blockquote class="last">
+<div><p>DataFrame of all header file information or dict of DataFrames. The
+structure should be
+index | srcNo | recNo | Time | “other header info”</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.data.data_import.read_finfd">
+<code class="descname">read_finfd</code><span class="sig-paren">(</span><em>file_loc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#data_import.read_finfd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.data_import.read_finfd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic function to read files in folder and sort by numeric end digits
+Parameters
+———-
+file_loc: str</p>
+<blockquote>
+<div>Path to files.</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.data.data_import.TSfilesPar">
+<code class="descname">TSfilesPar</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#data_import.TSfilesPar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.data_import.TSfilesPar" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is intended to perform the TSfile function operations
+for a folder containing .par headerfiles and associated binary files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>List of all header .par and Binary files</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">hdr_df  Database of all header file information, multiple</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>index file name. Must contain mandatory columns</dt>
+<dd><p class="first last"><code class="docutils literal"><span class="pre">['srcNo',</span> <span class="pre">'recNo',</span> <span class="pre">'Time',</span> <span class="pre">'Survey']</span></code>.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>TSdataL List of data files including relative location.</p>
+<p>TODO:</p>
+<ul class="last simple">
+<li>Add check for various header file types .txt ..etc</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.data.data_import.TSfilesPV_TS">
+<code class="descname">TSfilesPV_TS</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#data_import.TSfilesPV_TS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.data_import.TSfilesPV_TS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads in impuse response header data from a single folder.
+The expected format is the shell data structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>self.TSlocL</strong> : list</p>
+<blockquote>
+<div><p>List of all files within given folder</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>df_hdr</strong> : DataFrame</p>
+<blockquote class="last">
+<div><p>Database of all header file information for each file. Must contain
+mandatory columns <code class="docutils literal"><span class="pre">['srcNo',</span> <span class="pre">'recNo',</span> <span class="pre">'Time',</span> <span class="pre">'Survey']</span></code>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.data.data_import.TSfilesCSIRO">
+<code class="descname">TSfilesCSIRO</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#data_import.TSfilesCSIRO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.data_import.TSfilesCSIRO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads in impulse response header data from multiple subfolders throughout
+a survey. Each subfolder should be of the format “sometext”YYYYMMDDHHMMSS.
+Within each subfolder are files for each source receiver pair.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>self.TSlocL</strong> : list</p>
+<blockquote>
+<div><p>List of all files within given</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>header_dict</strong> : dict</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Database of all header file information, multiple</dt>
+<dd><p class="first last">index file name</p>
+</dd>
+</dl>
+</div></blockquote>
+<p><strong>TdeltaIdx</strong> : timedelta64[ns]</p>
+<blockquote>
+<div><p>Time delta index of length equal to trace length of TS data</p>
+</div></blockquote>
+<p><strong>self.TSlocL</strong> : list of lists</p>
+<blockquote class="last">
+<div><p>Updated list of lists of each survey folders contents.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.data.data_import.TSload">
+<code class="descname">TSload</code><span class="sig-paren">(</span><em>TShdrs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#data_import.TSload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.data_import.TSload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the list of TS files <code class="docutils literal"><span class="pre">TSflist</span></code> found and output a
+matrix storing TS data columnweise.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>TShdrs: DataFrame</strong></p>
+<blockquote>
+<div><p>A database of each file name containing the corresponding header. This
+is output from the function <code class="docutils literal"><span class="pre">TSfiles</span></code>.</p>
+</div></blockquote>
+<p><strong>TSflist: list</strong></p>
+<blockquote>
+<div><p>A list of the files within the <code class="docutils literal"><span class="pre">TSfpath</span></code> folder location. This
+is output from the function <code class="docutils literal"><span class="pre">TSfiles</span></code>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>TSdataMtx</strong> : numpy array or <code class="docutils literal"><span class="pre">None</span></code></p>
+<blockquote class="last">
+<div><p>A columnweise stored matrix of traces for a single receiver, or <code class="docutils literal"><span class="pre">None</span></code>
+if a multiple receiver survey is detected. In this case all TS data
+will be saved into a hdf5 database ‘TSdata.h5’.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.data.data_import.TSsurveys">
+<code class="descname">TSsurveys</code><span class="sig-paren">(</span><em>hdr_df</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#data_import.TSsurveys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.data_import.TSsurveys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load TS data from a folder with sub-folders for each survey. The sub-
+folders should be named ‘sometext’(unique_number)’
+(e.g. ‘survey20180312093545’). The individual csv files must be
+named ‘sometext’(unique_number)_(sourceNo)_(receverNo).(csv type formate)
+(e.g. ‘survey20180312093545_0001_01.csv’). A hdf5 database will be saved
+with the following group structure.</p>
+<blockquote>
+<div><p>Database.h5
+│
+TSdata</p>
+<blockquote>
+<div>│
+└───survey20180312093545
+│       Table
+└───survey20180312093555
+│       Table
+:               :</div></blockquote>
+</div></blockquote>
+<p>Each table includes header data from the csv files imported from the second
+line of the csv files as Date=12-03-2018; Time=09:35:45.833000;
+TracePoints=4096; TSamp=0.10000; TimeUnits=1.00000e-006;
+AmpToVolts=1.0000; TraceMaxVolts=5.0000; PTime=0.00000; STime=0.00000;</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>hdf_df</strong> : dict of DataFrames</p>
+<blockquote>
+<div><p>A database of header information for each Time-series recorded. As a
+minimum must contain the first three columns of ‘srcNo’, ‘recNo’ and
+‘time’. The remaining header info can be any order.</p>
+</div></blockquote>
+<p><strong>self.TSlocL</strong> : list of lists</p>
+<blockquote>
+<div><p>List of lists of the files within each survey</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>_</strong> : None</p>
+<blockquote class="last">
+<div><p>None indicating that data is stored in a HDF5 file.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>No longer is the TdeltaIdx added to each dataframe, thus I should figure
+out how best to store this information into the h5 file.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">h5py</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="s1">&#39;Database.h5&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5file</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">TSsurvey</span> <span class="o">=</span>  <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">h5file</span><span class="p">,</span> <span class="s1">&#39;survey20180312093545&#39;</span><span class="p">)</span> <span class="c1"># basic load</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># Load specific source-receiver pair for window between 11 and 500</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">TSsurvey</span> <span class="o">=</span>  <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">h5file</span><span class="p">,</span> <span class="s1">&#39;survey20180312093545&#39;</span><span class="p">,</span>
+<span class="go">            columns=[(1,1), (1,2)], # Load specific columns</span>
+<span class="go">            where = [&#39;index&gt;11&#39;, &#39;index&lt;20&#39;]) # Load index 11 -&gt; 20</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.data.data_import.TSloadBin">
+<code class="descname">TSloadBin</code><span class="sig-paren">(</span><em>TShdrs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#data_import.TSloadBin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.data_import.TSloadBin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load in the binary file formate as expected from the
+‘import_dtype’= ‘bin_par’.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.data.data_import.TSloadPV_TS">
+<code class="descname">TSloadPV_TS</code><span class="sig-paren">(</span><em>TShdrs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#data_import.TSloadPV_TS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.data_import.TSloadPV_TS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in time-series data and save to database</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.data.data_import.PVload">
+<code class="descname">PVload</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#data_import.PVload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.data_import.PVload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load Perturbation Vectors into a single database and store in
+‘Database.h5’ within group ‘PVdata’.</p>
+<dl class="docutils">
+<dt>Database.h5</dt>
+<dd><p class="first">│
+PVdata</p>
+<blockquote class="last">
+<div>Table</div></blockquote>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>self.PVloc</strong> : str</p>
+<blockquote>
+<div><p>Path to PV data file/files</p>
+</div></blockquote>
+<p><strong>self.import_dtype</strong> : str</p>
+<blockquote class="last">
+<div><p>Indication of the data type, either <code class="docutils literal"><span class="pre">['.xls',</span> <span class="pre">'bin_par',</span> <span class="pre">'CSIRO']</span></code>
+or the ‘Shell_format’.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.data.data_import.PVloadPV_TS">
+<code class="descname">PVloadPV_TS</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#data_import.PVloadPV_TS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.data_import.PVloadPV_TS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads in the PV data from the shell format csv files</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>self.TSfiles()</strong> : list of files of containing both PV and TS data</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.data.data_import.run_data_import">
+<code class="descname">run_data_import</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/data.html#data_import.run_data_import"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.data.data_import.run_data_import" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the class functions for importing the raw data, and stores this all
+within a database ‘Database.h5’</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pycoda-datastore-module">
+<h2>pyCoda.dataStore module<a class="headerlink" href="#pycoda-datastore-module" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pyCoda.dataStore"></span><p>Created on Thu Mar 16 17:28:03 2017</p>
+<p>&#64;author: rwilson</p>
+<dl class="class">
+<dt id="pyCoda.dataStore.utilities">
+<em class="property">class </em><code class="descclassname">pyCoda.dataStore.</code><code class="descname">utilities</code><a class="reference internal" href="_modules/pyCoda/dataStore.html#utilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dataStore.utilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>A logical collection of functions for interacting with</p>
+<dl class="staticmethod">
+<dt id="pyCoda.dataStore.utilities.DB_pd_data_load">
+<em class="property">static </em><code class="descname">DB_pd_data_load</code><span class="sig-paren">(</span><em>Database</em>, <em>group</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dataStore.html#utilities.DB_pd_data_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dataStore.utilities.DB_pd_data_load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads in a pandas dataframe stored in group from the Database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>Database</strong> : str</p>
+<blockquote>
+<div><p>Relative location of database</p>
+</div></blockquote>
+<p><strong>group</strong> : str</p>
+<blockquote>
+<div><p>The expected group name</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>group_df</strong> : DataFrame</p>
+<blockquote class="last">
+<div><p>The PV data stored in the group <code class="docutils literal"><span class="pre">PVdata</span></code> as a pandas dataframe</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.dataStore.utilities.hdf_csv_dump">
+<em class="property">static </em><code class="descname">hdf_csv_dump</code><span class="sig-paren">(</span><em>DB_fdl</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dataStore.html#utilities.hdf_csv_dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dataStore.utilities.hdf_csv_dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dumps the processed databases to CC, PV, TShdrs to csv files. Note
+this function should be run in the run folder, not the database folder</p>
+<p>—inputs—
+DB_fdl: relative or absolute location to the folder where all database
+files are located</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.dataStore.utilities.run_dataLoad">
+<em class="property">static </em><code class="descname">run_dataLoad</code><span class="sig-paren">(</span><em>DB_fdl</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dataStore.html#utilities.run_dataLoad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dataStore.utilities.run_dataLoad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a previous processing session into memory ready for analysis.</p>
+<ul class="simple">
+<li>Inputs -</li>
+</ul>
+<dl class="docutils">
+<dt>DB_fdl: input folder holding the expected databases in the form</dt>
+<dd>‘DB_fld/’</dd>
+</dl>
+<ul class="simple">
+<li>Outputs -</li>
+</ul>
+<p>PV_df:  Main database holding PV, and CC data
+TS_DB:  Database of TS data
+PV_df_full: Database including all PV data, empty if original PV and TS</p>
+<blockquote>
+<div>data was coincident already.</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyCoda.dataStore.dataStore">
+<em class="property">class </em><code class="descclassname">pyCoda.dataStore.</code><code class="descname">dataStore</code><span class="sig-paren">(</span><em>param={}</em>, <em>PV_df=[]</em>, <em>PV_df_full=[]</em>, <em>TS_df=[]</em>, <em>TS_DB=[]</em>, <em>TShdrs=[]</em>, <em>CC=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dataStore.html#dataStore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dataStore.dataStore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>This class is intended to handel the storage of all data aquired and or
+generated during the processing.</p>
+<dl class="method">
+<dt id="pyCoda.dataStore.dataStore.pre_process">
+<code class="descname">pre_process</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dataStore.html#dataStore.pre_process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dataStore.dataStore.pre_process" title="Permalink to this definition">¶</a></dt>
+<dd><p>check inputs are in the correct or expected format, process if
+required.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dataStore.dataStore.post_process">
+<code class="descname">post_process</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dataStore.html#dataStore.post_process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dataStore.dataStore.post_process" title="Permalink to this definition">¶</a></dt>
+<dd><p>check loaded DB is of the expected format, process if
+required.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dataStore.dataStore.checkSetup">
+<code class="descname">checkSetup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dataStore.html#dataStore.checkSetup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dataStore.dataStore.checkSetup" title="Permalink to this definition">¶</a></dt>
+<dd><p>This functions checks the setup file to determine if any param have
+changed. If yes, the processing will be re-run, otherweise the saved
+datebases will be loaded. return True if change is detected</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dataStore.dataStore.to_hdf5">
+<code class="descname">to_hdf5</code><span class="sig-paren">(</span><em>DB_tbl</em>, <em>df</em>, <em>tbl_name</em>, <em>form</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dataStore.html#dataStore.to_hdf5"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dataStore.dataStore.to_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save expected df to hdf5 database</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dataStore.dataStore.from_hdf5">
+<code class="descname">from_hdf5</code><span class="sig-paren">(</span><em>DB_tbl</em>, <em>tbl_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dataStore.html#dataStore.from_hdf5"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dataStore.dataStore.from_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save expected df to hdf5 database</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dataStore.dataStore.from_sql_DB">
+<code class="descname">from_sql_DB</code><span class="sig-paren">(</span><em>tbl_name</em>, <em>DB_egn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dataStore.html#dataStore.from_sql_DB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dataStore.dataStore.from_sql_DB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data from the sql_DB uponsd</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dataStore.dataStore.from_pkl">
+<code class="descname">from_pkl</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dataStore.html#dataStore.from_pkl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dataStore.dataStore.from_pkl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load pickel files
+fname: file name rel or abs path</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dataStore.dataStore.to_pkl">
+<code class="descname">to_pkl</code><span class="sig-paren">(</span><em>data</em>, <em>fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dataStore.html#dataStore.to_pkl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dataStore.dataStore.to_pkl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save pickel files
+data: data to pickel
+fname: file name rel or abs path</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dataStore.dataStore.hdf_to_csv">
+<code class="descname">hdf_to_csv</code><span class="sig-paren">(</span><em>hdf_DB</em>, <em>tbl_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dataStore.html#dataStore.hdf_to_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dataStore.dataStore.hdf_to_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save hdf DB to csv
+hdf_DB: HDF5  database rel of abs path and name
+tbl_name: Name of table in database</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dataStore.dataStore.run_dataStore">
+<code class="descname">run_dataStore</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dataStore.html#dataStore.run_dataStore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dataStore.dataStore.run_dataStore" title="Permalink to this definition">¶</a></dt>
+<dd><p>run the expected data storage workflow</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dataStore.dataStore.run_dataLoad">
+<code class="descname">run_dataLoad</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dataStore.html#dataStore.run_dataLoad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dataStore.dataStore.run_dataLoad" title="Permalink to this definition">¶</a></dt>
+<dd><p>run the expected data loading workflow</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pycoda-dispcwi-module">
+<h2>pyCoda.dispCWI module<a class="headerlink" href="#pycoda-dispcwi-module" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pyCoda.dispCWI"></span><p>Created on Tue Jan 24 10:44:42 2017</p>
+<p>&#64;author: rwilson</p>
+<dl class="class">
+<dt id="pyCoda.dispCWI.dispUtilities">
+<em class="property">class </em><code class="descclassname">pyCoda.dispCWI.</code><code class="descname">dispUtilities</code><a class="reference internal" href="_modules/pyCoda/dispCWI.html#dispUtilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI.dispUtilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>A collection of functions which may be useful for certain display types</p>
+<dl class="staticmethod">
+<dt id="pyCoda.dispCWI.dispUtilities.multi_wdw">
+<em class="property">static </em><code class="descname">multi_wdw</code><span class="sig-paren">(</span><em>param</em>, <em>DB</em>, <em>TS</em>, <em>lag</em>, <em>PV</em>, <em>multi_plot=None</em>, <em>PV1=None</em>, <em>PV2=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI.html#dispUtilities.multi_wdw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI.dispUtilities.multi_wdw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inteneded to the display of multiple correlation windows on a single
+2D plot, with the average of all CC trend lines bold. Comparison with
+two PV is possible.
+—Inputs—
+param: output param file summarising the call
+DB: DataFrame containing all PV and CC data
+TS: The time series, pandas series trace indexed in time [sec]
+lag: The value of lag to compare to
+PV: DataFrame of PV only data. If provided then PV1 and PV2 will be</p>
+<blockquote>
+<div>taken from here, not DB.</div></blockquote>
+<p>multi_plot: Either ‘CC’, ‘CC_lag’ or ‘RelAmp’, default ‘CC’
+PV1 &amp; PV2: name of x y2 columns to plot against, if given</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.dispCWI.dispUtilities.dispCWI_pres">
+<em class="property">static </em><code class="descname">dispCWI_pres</code><span class="sig-paren">(</span><em>param</em>, <em>DB</em>, <em>TS</em>, <em>ccPlot_list</em>, <em>PV_full=None</em>, <em>PV1=None</em>, <em>PV2=None</em>, <em>PV3=None</em>, <em>PV4=None</em>, <em>plot_dic={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI.html#dispUtilities.dispCWI_pres"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI.dispUtilities.dispCWI_pres" title="Permalink to this definition">¶</a></dt>
+<dd><p>The flexible display of multiple input vectors</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>param</strong> : dict</p>
+<blockquote>
+<div><p>Dictionary summarising the processing run details</p>
+</div></blockquote>
+<p><strong>DB</strong> : DataFrame</p>
+<blockquote>
+<div><p>Database of all PV and CC data to be plotted</p>
+</div></blockquote>
+<p><strong>TS</strong> : DataFrame</p>
+<blockquote>
+<div><p>Single TS in order to display the window positions</p>
+</div></blockquote>
+<p><strong>PV_full</strong> : Database</p>
+<blockquote>
+<div><p>Non-filtered PV_data, used for plot if given</p>
+</div></blockquote>
+<p><strong>ccPlot_list</strong> : list</p>
+<blockquote>
+<div><p>List of tuples in CC data to plot (lag, wdwPos)</p>
+</div></blockquote>
+<p><strong>PV1</strong> : None or str</p>
+<blockquote>
+<div><p>X-axis, if ‘Index’ is given the DB datetime index will be used</p>
+</div></blockquote>
+<p><strong>PV: None or str</strong></p>
+<blockquote>
+<div><p>Y2 right axis</p>
+</div></blockquote>
+<p><strong>PV3: None or str</strong></p>
+<blockquote>
+<div><p>Y3 right axis</p>
+</div></blockquote>
+<p><strong>PV4: None or str</strong></p>
+<blockquote>
+<div><p>Y4 right axis</p>
+</div></blockquote>
+<p><strong>plot_dic: dict</strong></p>
+<blockquote class="last">
+<div><dl class="docutils">
+<dt>Dictionary to flexibility in ploting containing</dt>
+<dd><p class="first last">-<strong>PV1_leg</strong>: <code class="docutils literal"><span class="pre">None</span></code> PV1 legend name
+-<strong>PV2_lb</strong>: <code class="docutils literal"><span class="pre">PV2</span></code> PV2 axis name
+-<strong>PV3_lb</strong>: <code class="docutils literal"><span class="pre">PV3</span></code> PV3 axis name
+-<strong>PV4_lb</strong>: <code class="docutils literal"><span class="pre">PV4</span></code> PV4 axis name
+-<strong>PV4_leg</strong>: <code class="docutils literal"><span class="pre">None</span></code> PV4 legend name
+-<strong>wd_style</strong>: “Annotate” analysis window style
+-<strong>wd_lbl</strong>: <code class="docutils literal"><span class="pre">[None]*len(param['wdwPos'])</span></code> analysis window label
+-<strong>CC_range</strong>: <code class="docutils literal"><span class="pre">[0,</span> <span class="pre">1]</span></code> CC axis range
+-<strong>X_axis_range</strong>: <code class="docutils literal"><span class="pre">None</span></code> X axis range
+-<strong>PV2_range</strong>: <code class="docutils literal"><span class="pre">None</span></code> PV2 axis range
+-<strong>PV4_range</strong>: <code class="docutils literal"><span class="pre">None</span></code> PV4 axis range
+-<strong>elapsed_hours</strong>: <code class="docutils literal"><span class="pre">False</span></code> if PV1 is a ‘Date’, then plot elapsed hours
+-<strong>unit_m_4</strong>: <code class="docutils literal"><span class="pre">1</span></code> multiplier of the PV4 axis <span class="math">\(\alpha\)</span></p>
+</dd>
+</dl>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyCoda.dispCWI.dispCWI_DB">
+<em class="property">class </em><code class="descclassname">pyCoda.dispCWI.</code><code class="descname">dispCWI_DB</code><span class="sig-paren">(</span><em>param</em>, <em>DB</em>, <em>TS_DB</em>, <em>PV_full</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI.html#dispCWI_DB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI.dispCWI_DB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>This class handels the interactive ploting of CC data stored within
+a single database.</p>
+<dl class="method">
+<dt id="pyCoda.dispCWI.dispCWI_DB.wdw_lag_col">
+<code class="descname">wdw_lag_col</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI.html#dispCWI_DB.wdw_lag_col"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI.dispCWI_DB.wdw_lag_col" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts the wdw pos from DB column names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dispCWI.dispCWI_DB.CC_labels">
+<code class="descname">CC_labels</code><span class="sig-paren">(</span><em>tuples</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI.html#dispCWI_DB.CC_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI.dispCWI_DB.CC_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handels the assignment of figure titles and axis labels. Basic
+functionality, checks if variables is assigned in param, if not a
+a default is assigned.
+tuples: tuples of (lag, self.self.wdw_pos)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dispCWI.dispCWI_DB.num_in_str">
+<code class="descname">num_in_str</code><span class="sig-paren">(</span><em>num</em>, <em>string</em>, <em>pattern</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI.html#dispCWI_DB.num_in_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI.dispCWI_DB.num_in_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Match an exact numnber in a string based on a pattern</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dispCWI.dispCWI_DB.TS_plot_wdw">
+<code class="descname">TS_plot_wdw</code><span class="sig-paren">(</span><em>ax</em>, <em>wd_pos</em>, <em>unit_m</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI.html#dispCWI_DB.TS_plot_wdw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI.dispCWI_DB.TS_plot_wdw" title="Permalink to this definition">¶</a></dt>
+<dd><p>This private function handels the general plotting of the
+correlation window considered. for each window in wd_pos
+Inputs:
+——
+wd_pos: sample number of beginning of window
+TODO:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dispCWI.dispCWI_DB.plot_DB">
+<code class="descname">plot_DB</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI.html#dispCWI_DB.plot_DB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI.dispCWI_DB.plot_DB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate Interactive plot of DB</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyCoda.dispCWI.dispCWI2">
+<em class="property">class </em><code class="descclassname">pyCoda.dispCWI.</code><code class="descname">dispCWI2</code><span class="sig-paren">(</span><em>Database</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI.html#dispCWI2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI.dispCWI2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>This class is intended to handel the display of PV/CC data stored within
+a single HDF5 database file.</p>
+<dl class="method">
+<dt id="pyCoda.dispCWI.dispCWI2.plot_DB">
+<code class="descname">plot_DB</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI.html#dispCWI2.plot_DB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI.dispCWI2.plot_DB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate Interactive plot of Cross-Correlation data within standard
+database.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dispCWI.dispCWI2.CC_labels">
+<code class="descname">CC_labels</code><span class="sig-paren">(</span><em>tuples</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI.html#dispCWI2.CC_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI.dispCWI2.CC_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handels the assignment of figure titles and axis labels. Basic
+functionality, checks if variables is assigned in param, if not a
+a default is assigned.
+tuples: tuples of (lag, self.self.wdw_pos)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pycoda-dispcwi-db-module">
+<h2>pyCoda.dispCWI_DB module<a class="headerlink" href="#pycoda-dispcwi-db-module" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pyCoda.dispCWI_DB"></span><dl class="class">
+<dt id="pyCoda.dispCWI_DB.dispCWI_DB">
+<em class="property">class </em><code class="descclassname">pyCoda.dispCWI_DB.</code><code class="descname">dispCWI_DB</code><span class="sig-paren">(</span><em>param</em>, <em>DB</em>, <em>TS_DB</em>, <em>PV_full</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI_DB.html#dispCWI_DB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI_DB.dispCWI_DB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>This class handels the interactive ploting of CC data stored within
+a single database.</p>
+<dl class="method">
+<dt id="pyCoda.dispCWI_DB.dispCWI_DB.wdw_lag_col">
+<code class="descname">wdw_lag_col</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI_DB.html#dispCWI_DB.wdw_lag_col"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI_DB.dispCWI_DB.wdw_lag_col" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts the wdw pos from DB column names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dispCWI_DB.dispCWI_DB.CC_labels">
+<code class="descname">CC_labels</code><span class="sig-paren">(</span><em>tuples</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI_DB.html#dispCWI_DB.CC_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI_DB.dispCWI_DB.CC_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handels the assignment of figure titles and axis labels. Basic
+functionality, checks if variables is assigned in param, if not a
+a default is assigned.
+tuples: tuples of (lag, self.self.wdw_pos)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dispCWI_DB.dispCWI_DB.num_in_str">
+<code class="descname">num_in_str</code><span class="sig-paren">(</span><em>num</em>, <em>string</em>, <em>pattern</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI_DB.html#dispCWI_DB.num_in_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI_DB.dispCWI_DB.num_in_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Match an exact numnber in a string based on a pattern</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dispCWI_DB.dispCWI_DB.TS_plot_wdw">
+<code class="descname">TS_plot_wdw</code><span class="sig-paren">(</span><em>ax</em>, <em>wd_pos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI_DB.html#dispCWI_DB.TS_plot_wdw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI_DB.dispCWI_DB.TS_plot_wdw" title="Permalink to this definition">¶</a></dt>
+<dd><p>This private function handels the general plotting of the
+correlation window considered. for each window in wd_pos
+Inputs:
+——
+wd_pos: sample number of beginning of window
+TODO:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.dispCWI_DB.dispCWI_DB.plot_DB">
+<code class="descname">plot_DB</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/dispCWI_DB.html#dispCWI_DB.plot_DB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.dispCWI_DB.dispCWI_DB.plot_DB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate Interactive plot of DB</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pycoda-postprocess-module">
+<h2>pyCoda.postProcess module<a class="headerlink" href="#pycoda-postprocess-module" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pyCoda.postProcess"></span><p>Created on Mon Apr 24 16:17:07 2017</p>
+<p>&#64;author: rwilson</p>
+<dl class="class">
+<dt id="pyCoda.postProcess.post_utilities">
+<em class="property">class </em><code class="descclassname">pyCoda.postProcess.</code><code class="descname">post_utilities</code><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>A collection of post processing utility functions</p>
+<dl class="staticmethod">
+<dt id="pyCoda.postProcess.post_utilities.detect_most_linear">
+<em class="property">static </em><code class="descname">detect_most_linear</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>m</em>, <em>smooth=False</em>, <em>wdw_wdth=25</em>, <em>poly_ord=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.detect_most_linear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.detect_most_linear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the most linear portion of a line via
+Inputs:
+——
+x : Series</p>
+<blockquote>
+<div>y-axis array of values</div></blockquote>
+<dl class="docutils">
+<dt>y <span class="classifier-delimiter">:</span> <span class="classifier">Serues</span></dt>
+<dd>y-axis array of values</dd>
+</dl>
+<p>m : Length of most linear portion of line (x,y)
+smooth : bool</p>
+<blockquote>
+<div>Smooth the curve before search</div></blockquote>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.postProcess.post_utilities.detect_peaks">
+<em class="property">static </em><code class="descname">detect_peaks</code><span class="sig-paren">(</span><em>x</em>, <em>mph=None</em>, <em>mpd=1</em>, <em>threshold=0</em>, <em>edge='rising'</em>, <em>kpsh=False</em>, <em>valley=False</em>, <em>show=False</em>, <em>ax=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.detect_peaks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.detect_peaks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect peaks in data based on their amplitude and other features.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : 1D array_like</p>
+<blockquote>
+<div><p>data.</p>
+</div></blockquote>
+<p><strong>mph</strong> : {None, number}, optional (default = None)</p>
+<blockquote>
+<div><p>detect peaks that are greater than minimum peak height.</p>
+</div></blockquote>
+<p><strong>mpd</strong> : positive integer, optional (default = 1)</p>
+<blockquote>
+<div><p>detect peaks that are at least separated by minimum peak distance (in
+number of data).</p>
+</div></blockquote>
+<p><strong>threshold</strong> : positive number, optional (default = 0)</p>
+<blockquote>
+<div><p>detect peaks (valleys) that are greater (smaller) than <cite>threshold</cite>
+in relation to their immediate neighbors.</p>
+</div></blockquote>
+<p><strong>edge</strong> : {None, ‘rising’, ‘falling’, ‘both’}, optional (default = ‘rising’)</p>
+<blockquote>
+<div><p>for a flat peak, keep only the rising edge (‘rising’), only the
+falling edge (‘falling’), both edges (‘both’), or don’t detect a
+flat peak (None).</p>
+</div></blockquote>
+<p><strong>kpsh</strong> : bool, optional (default = False)</p>
+<blockquote>
+<div><p>keep peaks with same height even if they are closer than <cite>mpd</cite>.</p>
+</div></blockquote>
+<p><strong>valley</strong> : bool, optional (default = False)</p>
+<blockquote>
+<div><p>if True (1), detect valleys (local minima) instead of peaks.</p>
+</div></blockquote>
+<p><strong>show</strong> : bool, optional (default = False)</p>
+<blockquote>
+<div><p>if True (1), plot data in matplotlib figure.</p>
+</div></blockquote>
+<p><strong>ax</strong> : a matplotlib.axes.Axes instance, optional (default = None).</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ind</strong> : 1D array_like</p>
+<blockquote class="last">
+<div><p>indeces of the peaks in <cite>x</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The detection of valleys instead of peaks is performed internally by simply
+negating the data: <cite>ind_valleys = detect_peaks(-x)</cite></p>
+<p>The function can handle NaN’s</p>
+<p>See this IPython Notebook <a class="reference internal" href="#r112" id="id3">[R112]</a>.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="r112" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[R112]</td><td><em>(<a class="fn-backref" href="#id3">1</a>, <a class="fn-backref" href="#id4">2</a>)</em> <a class="reference external" href="http://nbviewer.ipython.org/github/demotu/BMC/blob/master/notebooks/DetectPeaks.ipynb">http://nbviewer.ipython.org/github/demotu/BMC/blob/master/notebooks/DetectPeaks.ipynb</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">detect_peaks</span> <span class="k">import</span> <span class="n">detect_peaks</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">[</span><span class="mi">60</span><span class="p">:</span><span class="mi">81</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># detect all peaks and plot data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ind</span> <span class="o">=</span> <span class="n">detect_peaks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="mi">5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span><span class="o">/</span><span class="mi">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># set minimum peak height = 0 and minimum peak distance = 20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">detect_peaks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mph</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mpd</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># set minimum peak distance = 2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">detect_peaks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mpd</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="mi">5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span><span class="o">/</span><span class="mi">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># detection of valleys instead of peaks</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">detect_peaks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mph</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mpd</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">valley</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># detect both edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">detect_peaks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># set threshold = 2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">detect_peaks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.postProcess.post_utilities.MLTWA_calc">
+<em class="property">static </em><code class="descname">MLTWA_calc</code><span class="sig-paren">(</span><em>TS_DB</em>, <em>after_FB</em>, <em>Ewdth=None</em>, <em>wd_shift=0</em>, <em>ref_trace=0</em>, <em>mph=None</em>, <em>mpd=None</em>, <em>threshold=0</em>, <em>R1_Sign=False</em>, <em>grad_period=-50</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.MLTWA_calc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.MLTWA_calc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply Multi Lapse-Time Window Analysis on the input database time
+-series. Additional parameters are calculated such as the B0 or ratio of
+R1 to R2 as well as their gradient difference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>TS_DB</strong> : DataFrame</p>
+<blockquote>
+<div><p>Time-series database in cronological order.</p>
+</div></blockquote>
+<p><strong>after_FB</strong> : DataFrame.index</p>
+<blockquote>
+<div><p>Index of <code class="docutils literal"><span class="pre">TS_DB</span></code> after which the S-wave max value will be found</p>
+</div></blockquote>
+<p><strong>Ewdth</strong> : list, optional (default = [len(TS_DB)//16,len(TS_DB)//16,len(TS_DB)//4]</p>
+<blockquote>
+<div><p>The first two energy window widths in sample points</p>
+</div></blockquote>
+<p><strong>wd_shift</strong> : int</p>
+<blockquote>
+<div><p>Shift parameter of the start of windows</p>
+</div></blockquote>
+<p><strong>ref_trace</strong> : int</p>
+<blockquote>
+<div><p>The trace to use as a reference for calculation of R2</p>
+</div></blockquote>
+<p><strong>mph</strong> : {None, number}, optional (default = None)</p>
+<blockquote>
+<div><p>detect peaks that are greater than minimum peak height.</p>
+</div></blockquote>
+<p><strong>mpd</strong> : positive integer, optional (default = 1)</p>
+<blockquote>
+<div><p>detect peaks that are at least separated by minimum peak distance (in
+number of data).</p>
+</div></blockquote>
+<p><strong>threshold</strong> : positive number, optional (default = 0)</p>
+<blockquote>
+<div><p>detect peaks (valleys) that are greater (smaller) than <cite>threshold</cite>
+in relation to their immediate neighbors.</p>
+</div></blockquote>
+<p><strong>R1_Sign</strong> : bool (Default False)</p>
+<blockquote>
+<div><p>Apply sign change to R1.</p>
+</div></blockquote>
+<p><strong>grad_period</strong> : int (Default False)</p>
+<blockquote>
+<div><p>The number of periods to use when calculating the gradient of ratios R1
+and R2.</p>
+</div></blockquote>
+<p><strong>verbose: bool, optional (default = False)</strong></p>
+<blockquote>
+<div><p>Provide a details output</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>DB_MLTWA</strong> : DataFrame</p>
+<blockquote>
+<div><p>Containing all of the MLTWA data with index equal to third
+expected Time column of the input <code class="docutils literal"><span class="pre">TS_DB</span></code>.</p>
+</div></blockquote>
+<p>dict_MLTWA: dictcontaining parameters pertaining to the MLTWA processing.</p>
+<blockquote>
+<div><p>-<strong>R1</strong>: Ratio of <code class="docutils literal"><span class="pre">log_10</span> <span class="pre">E_1(t_i)/</span> <span class="pre">E_3(t_i)</span></code>
+-<strong>R2</strong>: Ratio of <code class="docutils literal"><span class="pre">log_10</span> <span class="pre">E_1(t_u)/</span> <span class="pre">E_1(t_i)</span></code>
+-<strong>E1</strong>: Integrated energy early S-wave
+-<strong>E2</strong>: Integrated energy mid S-wave
+-<strong>E3</strong>: Integrated energy late S-wave
+-<strong>E_wdw_pos</strong>: list of start, mid, end of <code class="docutils literal"><span class="pre">E1,E2,E3</span></code>
+-<strong>idx_break</strong>: list detected peaks in search of the S-wave arrival</p>
+</div></blockquote>
+<p>verbose: bool, optional (default = False)</p>
+<blockquote class="last">
+<div><p>Provide a detailed output</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">postProcess</span> <span class="k">as</span> <span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">idx</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">post_utilities</span><span class="o">.</span><span class="n">MLTWA_calc</span><span class="p">(</span><span class="n">TScut_DB_in</span><span class="p">,</span> <span class="n">after_FB</span> <span class="o">=</span> <span class="mf">0.00008</span><span class="p">,</span>
+<span class="go">                                       wd_shift=-500, mph=None, mpd=12,</span>
+<span class="go">                                       threshold=0, verbose=True)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.postProcess.post_utilities.PV_segmentation">
+<em class="property">static </em><code class="descname">PV_segmentation</code><span class="sig-paren">(</span><em>PV_df</em>, <em>Segments</em>, <em>targets</em>, <em>indexName='index'</em>, <em>shiftCols=None</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.PV_segmentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.PV_segmentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a range of data parameterisation methods from segments of input
+data. Note, any row with a <code class="docutils literal"><span class="pre">nan</span></code> will be removed before segmentation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>PV_df</strong> : DataFrame</p>
+<blockquote>
+<div><p>Time-series database in cronological order.</p>
+</div></blockquote>
+<p><strong>Segments: list</strong></p>
+<blockquote>
+<div><p>A list of indicies at which between which the input <code class="docutils literal"><span class="pre">PV_df</span></code> will be
+segmented and paramterised.</p>
+</div></blockquote>
+<p><strong>targets: list</strong></p>
+<blockquote>
+<div><p>List of column names in <code class="docutils literal"><span class="pre">PV_df</span></code>.</p>
+</div></blockquote>
+<p><strong>indexName</strong> : Str (Default ‘index’)</p>
+<blockquote>
+<div><p>The index in which the <code class="docutils literal"><span class="pre">Segments</span></code> are defined.</p>
+</div></blockquote>
+<p><strong>shiftCols</strong> : list (Default = None)</p>
+<blockquote>
+<div><p>List of columns to begin as zero (The first value will be subtracted
+from all)</p>
+</div></blockquote>
+<p><strong>verbose: bool, optional (default = False)</strong></p>
+<blockquote>
+<div><p>Provide a detailed output</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dict_Segments: dictcontaining parameters for each segment</p>
+<blockquote>
+<div><p>-<strong>Sigma</strong>: Sigma of each segment
+-<strong>R2</strong>: R2 of each segment
+-<strong>Mean</strong>: mean of each segment
+-<strong>Skewedness</strong>: mean of each segment</p>
+</div></blockquote>
+<p>Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">postProcess</span> <span class="k">as</span> <span class="nn">pp</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seg_list</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">4</span><span class="p">,</span> <span class="mf">19.5</span><span class="p">],</span> <span class="p">[</span><span class="mf">21.74</span><span class="p">,</span> <span class="mf">37.2</span><span class="p">],</span> <span class="p">[</span><span class="mf">39.68</span><span class="p">,</span> <span class="mf">55.29</span><span class="p">]]</span> <span class="c1"># In Hours</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">DF_Segments</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">post_utilities</span><span class="o">.</span><span class="n">PV_segmentation</span><span class="p">(</span><span class="n">PV_df_in</span><span class="p">,</span> <span class="n">seg_list</span><span class="p">,</span>
+</pre></div>
+</div>
+<blockquote class="last">
+<div><p>targets = [‘Pore pressure| [MPa]’,’R1’,’R2’])</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.postProcess.post_utilities.TS_FBP">
+<em class="property">static </em><code class="descname">TS_FBP</code><span class="sig-paren">(</span><em>TS_DB</em>, <em>noiseWD</em>, <em>threshold=1</em>, <em>threshold_shift=0</em>, <em>mpd=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.TS_FBP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.TS_FBP" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is intended to perform first break picking</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>TS_DB</strong> : DataFrame</p>
+<blockquote>
+<div><p>Columnweise DataFrame of TS data, index of time expected</p>
+</div></blockquote>
+<p><strong>noiseWD</strong> : int</p>
+<blockquote>
+<div><p>Window width in TS_DB index which is expected to be only noise in
+number of sample points.</p>
+</div></blockquote>
+<p><strong>threshold</strong> : int/float</p>
+<blockquote>
+<div><p>Percentage of the noise standard deviation which will define the
+detection threshold.</p>
+</div></blockquote>
+<p><strong>threshold_shift</strong> : float</p>
+<blockquote>
+<div><p>A shift to the (threshold * noiseStd)</p>
+</div></blockquote>
+<p><strong>mpd</strong> : int</p>
+<blockquote>
+<div><p>Minimum poit distance in number of samples</p>
+</div></blockquote>
+<p><strong>verbose</strong> : bool</p>
+<blockquote>
+<div><p>If True, the interactive plotting of picks will be made</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>idx_break</strong> : int</p>
+<blockquote class="last">
+<div><p>index of the first break detection.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.postProcess.post_utilities.TS_interactive">
+<em class="property">static </em><code class="descname">TS_interactive</code><span class="sig-paren">(</span><em>TS_DB</em>, <em>idx=None</em>, <em>threshold=False</em>, <em>noiseWD=False</em>, <em>wdws=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.TS_interactive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.TS_interactive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interactive plot of time-series data with ability to plot detection
+parameters for analysis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>TS_DB</strong> : dataframe</p>
+<blockquote>
+<div><p>Database of all input time series in each columns</p>
+</div></blockquote>
+<p><strong>idx</strong> : int (default None)</p>
+<blockquote>
+<div><p>The index of the detected peak</p>
+</div></blockquote>
+<p><strong>threshold</strong> : list (default False)</p>
+<blockquote>
+<div><p>Thresholds for each trace in terms of amplitude</p>
+</div></blockquote>
+<p><strong>noiseWD</strong> : int (default False)</p>
+<blockquote>
+<div><p>The noise zeroed window length</p>
+</div></blockquote>
+<p><strong>wdws</strong> : list (default None)</p>
+<blockquote class="last">
+<div><p>A list of window index start stop positions e.g. [[sta, stp]…].</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.postProcess.post_utilities.CC_ch_drop">
+<code class="descname">CC_ch_drop</code><span class="sig-paren">(</span><em>CC_DB</em>, <em>channels</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.CC_ch_drop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.CC_ch_drop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drops channels from standard CCdata dataframe</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>CC_DB</strong> : dataframe</p>
+<blockquote>
+<div><p>Database containing in the first two levels src and rec numbers</p>
+</div></blockquote>
+<p><strong>channels</strong> : int (default None)</p>
+<blockquote class="last">
+<div><p>the channels to remove from the dataframe</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.postProcess.post_utilities.calcSNR">
+<code class="descname">calcSNR</code><span class="sig-paren">(</span><em>TSsurvey</em>, <em>Noise_channels</em>, <em>all_channels</em>, <em>wdws</em>, <em>noiseCutOff=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.calcSNR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.calcSNR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the channels which are above a certain SNR.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>TSsurvey</strong> : dataframe</p>
+<blockquote>
+<div><p>Single survey dataframe of traces</p>
+</div></blockquote>
+<p><strong>Noise_channels</strong> : list</p>
+<blockquote>
+<div><p>the channels on which the noise will be estimated</p>
+</div></blockquote>
+<p><strong>all_channels</strong> : list</p>
+<blockquote>
+<div><p>All channels numbers</p>
+</div></blockquote>
+<p><strong>wdws</strong> : list</p>
+<blockquote>
+<div><p>The windows in samples points at which the SNR is calculated</p>
+</div></blockquote>
+<p><strong>noiseCutOff: float</strong></p>
+<blockquote>
+<div><p>The threshold of SNR in Db to filter</p>
+</div></blockquote>
+<p><strong>Returns</strong></p>
+<p><strong>——-</strong></p>
+<p><strong>noiseyChannels</strong> : float</p>
+<blockquote class="last">
+<div><p>The noisey channels</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCoda.postProcess.post_utilities.smooth">
+<em class="property">static </em><code class="descname">smooth</code><span class="sig-paren">(</span><em>x</em>, <em>window_len=11</em>, <em>window='hanning'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.smooth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.smooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>smooth the data using a window with requested size.</p>
+<p>This method is based on the convolution of a scaled window with the signal.
+The signal is prepared by introducing reflected copies of the signal
+(with the window size) in both ends so that transient parts are minimized
+in the begining and end part of the output signal.</p>
+<dl class="docutils">
+<dt>input:</dt>
+<dd><p class="first">x: the input signal
+window_len: the dimension of the smoothing window; should be an odd integer
+window: the type of window from ‘flat’, ‘hanning’, ‘hamming’, ‘bartlett’, ‘blackman’</p>
+<blockquote class="last">
+<div>flat window will produce a moving average smoothing.</div></blockquote>
+</dd>
+<dt>output:</dt>
+<dd>the smoothed signal</dd>
+</dl>
+<p>example:</p>
+<p>t=linspace(-2,2,0.1)
+x=sin(t)+randn(len(t))*0.1
+y=smooth(x)</p>
+<p>see also:</p>
+<p>numpy.hanning, numpy.hamming, numpy.bartlett, numpy.blackman, numpy.convolve
+scipy.signal.lfilter</p>
+<p>TODO: the window parameter could be the window itself if an array instead of a string
+NOTE: length(output) != length(input), to correct this: return y[(window_len/2-1):-(window_len/2)] instead of just y.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyCoda.postProcess.postProcess">
+<em class="property">class </em><code class="descclassname">pyCoda.postProcess.</code><code class="descname">postProcess</code><span class="sig-paren">(</span><em>param</em>, <em>PV_df</em>, <em>CC</em>, <em>TS=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#postProcess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.postProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>This class is intended to handel post processing of a database of
+CC and PV data.</p>
+<dl class="method">
+<dt id="pyCoda.postProcess.postProcess.PV_CC_join">
+<code class="descname">PV_CC_join</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#postProcess.PV_CC_join"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.postProcess.PV_CC_join" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine both PV and CC data into a single dataset based on
+measurement number</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.postProcess.postProcess.TS_DB">
+<code class="descname">TS_DB</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#postProcess.TS_DB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.postProcess.TS_DB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert TS matrix into a DataFrame with axis index in time</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.postProcess.postProcess.postProcess_run">
+<code class="descname">postProcess_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#postProcess.postProcess_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.postProcess.postProcess_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform expected Post Processing</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pycoda-pre-process-module">
+<h2>pyCoda.pre_process module<a class="headerlink" href="#pycoda-pre-process-module" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pyCoda.pre_process"></span><p>Created on Wed Jan 11 13:06:31 2017</p>
+<p>&#64;author: rwilson</p>
+<dl class="class">
+<dt id="pyCoda.pre_process.frequency">
+<em class="property">class </em><code class="descclassname">pyCoda.pre_process.</code><code class="descname">frequency</code><span class="sig-paren">(</span><em>TSdata</em>, <em>fs</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/pre_process.html#frequency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.pre_process.frequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>A collection of functions for the inspection and processing of the
+frequency data. Written to take in a database of TSdata formate and filter in
+terms of frequency.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>TSdata</strong> : DataFrame</p>
+<blockquote>
+<div><p>A dataframe containing all time series data for frequency filtering.</p>
+</div></blockquote>
+<p class="last"><strong>fs</strong></p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyCoda.pre_process.frequency.TS_DB_filter">
+<code class="descname">TS_DB_filter</code><span class="sig-paren">(</span><em>lowcut</em>, <em>highcut</em>, <em>order</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/pre_process.html#frequency.TS_DB_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.pre_process.frequency.TS_DB_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the frequency filtering of the entire dataframe</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.pre_process.frequency.butter_bandpass">
+<code class="descname">butter_bandpass</code><span class="sig-paren">(</span><em>lowcut</em>, <em>highcut</em>, <em>order=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/pre_process.html#frequency.butter_bandpass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.pre_process.frequency.butter_bandpass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define the butterworth frequency filter window</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lowcut</strong> : float (Default None)</p>
+<blockquote>
+<div><p>Low cut Filter defining the lower cutoff frequency</p>
+</div></blockquote>
+<p><strong>highcut</strong> : float (Default None)</p>
+<blockquote>
+<div><p>High cut Filter defining the upper cutoff frequency</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">b, a: ndarray</p>
+<blockquote class="last">
+<div><p>Numerator (b) and denominator (a) polynomials of the IIR filter.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.pre_process.frequency.butter_bandpass_filter">
+<code class="descname">butter_bandpass_filter</code><span class="sig-paren">(</span><em>data</em>, <em>lowcut</em>, <em>highcut</em>, <em>order=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/pre_process.html#frequency.butter_bandpass_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.pre_process.frequency.butter_bandpass_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the butter bandpass filter to the data.</p>
+<p>data : array
+lowcut : float (Default None)</p>
+<blockquote>
+<div>Low cut Filter defining the lower cutoff frequency</div></blockquote>
+<dl class="docutils">
+<dt>highcut <span class="classifier-delimiter">:</span> <span class="classifier">float (Default None)</span></dt>
+<dd>High cut Filter defining the upper cutoff frequency</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">b, a: ndarray</p>
+<blockquote class="last">
+<div><p>Numerator (b) and denominator (a) polynomials of the IIR filter.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.pre_process.frequency.freq_filter_insp">
+<code class="descname">freq_filter_insp</code><span class="sig-paren">(</span><em>lowcut</em>, <em>highcut</em>, <em>Worder=6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/pre_process.html#frequency.freq_filter_insp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.pre_process.frequency.freq_filter_insp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inspect the frequency filter taper before application</p>
+<dl class="docutils">
+<dt>lowcut <span class="classifier-delimiter">:</span> <span class="classifier">float (Default None)</span></dt>
+<dd>Low cut Filter defining the lower cutoff frequency</dd>
+<dt>highcut <span class="classifier-delimiter">:</span> <span class="classifier">float (Default None)</span></dt>
+<dd>High cut Filter defining the upper cutoff frequency</dd>
+<dt>Worder <span class="classifier-delimiter">:</span> <span class="classifier">int (Default 6)</span></dt>
+<dd>The order of the butterworth filter</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.pre_process.frequency.TS_FS_interactive">
+<code class="descname">TS_FS_interactive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/pre_process.html#frequency.TS_FS_interactive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.pre_process.frequency.TS_FS_interactive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interactive plot of time-series data in the frequency spectrum.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyCoda.pre_process.preProcess">
+<em class="property">class </em><code class="descclassname">pyCoda.pre_process.</code><code class="descname">preProcess</code><span class="sig-paren">(</span><em>Database</em>, <em>newParam</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/pre_process.html#preProcess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.pre_process.preProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>This class performs various pre-processing operations on imported Time
+Series and Perturbation Vector information. The PVdata is loaded into memory
+with any modifications stored to the database at the end of processing.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>self.Database</strong> : str</p>
+<blockquote>
+<div><p>Defines a common hdf5 database name <code class="docutils literal"><span class="pre">Database.h5</span></code> including relative path</p>
+</div></blockquote>
+<p><strong>self.newParam</strong> : dict</p>
+<blockquote>
+<div><p>A dictionary of the most recent user input parameters</p>
+</div></blockquote>
+<p><strong>self.verbose</strong> : bool</p>
+<blockquote>
+<div><p>If <code class="docutils literal"><span class="pre">True</span></code> additional print to screen will occure</p>
+</div></blockquote>
+<p><strong>self.PVdata</strong> : DataFrame</p>
+<blockquote class="last">
+<div><p>Database of the PVdata found in self.Database</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyCoda.pre_process.preProcess.TSslice">
+<code class="descname">TSslice</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/pre_process.html#preProcess.TSslice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.pre_process.preProcess.TSslice" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECIATED
+The slicing is intended to truncate all TS information before FB
+and after the coda is noise dominated. Additionally, the removal of TS
+at the beginning and end of the experiment is possible thr STA_meas and
+END_meas. The PV dataframe is also sliced accordingly.
+Parameters
+———-
+Frome user defined param DataFrame</p>
+<dl class="docutils">
+<dt>TODO:</dt>
+<dd><ul class="first last simple">
+<li>write time matching def</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.pre_process.preProcess.TSgain">
+<code class="descname">TSgain</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/pre_process.html#preProcess.TSgain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.pre_process.preProcess.TSgain" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECIATED: Correct the input TS data for any acquisition gain. It is expected that
+a dataframe TShdrs is available which contains a column “Vertical gain”,
+the contents of which will be multiplied with each time series sample point.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>self.TSmtx: corrected for vertical gain applied during aqcuisiton.</strong></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.pre_process.preProcess.TS_t">
+<code class="descname">TS_t</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/pre_process.html#preProcess.TS_t"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.pre_process.preProcess.TS_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>REDUNDENT: This should be generated as the index of the TS data.
+Generates the corresponding time vector based on information found
+in the TS headers. If no data is found, then the time vector is tagged
+as representing measurement numbers</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>t:   Time vector in seconds</strong></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.pre_process.preProcess.PV_time_corr">
+<code class="descname">PV_time_corr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/pre_process.html#preProcess.PV_time_corr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.pre_process.preProcess.PV_time_corr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes either an existing column in the PV database and creates a new
+column <code class="docutils literal"><span class="pre">Time</span> <span class="pre">Stamp</span></code> containing the absolute timestamp for each datapoint,
+in sync with the absolute timestamp data stored within the TS data headers.
+Attributes are read in from the database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>self.PVdata</strong> : DataFrame</p>
+<blockquote class="last">
+<div><p>Database containing the PV data.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>It is expected that within the self.Database file the following attributes
+will be found.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>DB.attrs[‘PVstart_date_time’] <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>String of the absolute time of the first PV datapoint in sync
+with TS time.</dd>
+<dt>DB.attrs[‘PV_time_col’] <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>Name of time column to match in PV data.</dd>
+<dt>DB.attrs[‘PV_time_col_unit’] <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The time unit (Default = ‘D’), see pd.to_datetime</dd>
+</dl>
+</div></blockquote>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Determine the PV start date time from the PVdata</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">PV_time_col</span> <span class="o">=</span> <span class="s1">&#39;Time(Days)&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">shift</span> <span class="o">=</span> <span class="mf">71.3980</span> <span class="o">-</span> <span class="n">PV_data</span><span class="p">[</span><span class="s1">&#39;Time(Days)&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">PV_time_origin</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">TS_data</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span>
+<span class="gp">&gt;&gt;&gt; </span>                              <span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span>
+<span class="gp">&gt;&gt;&gt; </span>                              <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span> <span class="o">=</span> <span class="n">shift</span><span class="p">))</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.pre_process.preProcess.TS_PV_match">
+<code class="descname">TS_PV_match</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/pre_process.html#preProcess.TS_PV_match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.pre_process.preProcess.TS_PV_match" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECIATED: The time matching between TS and PV data for specific
+Olympus data
+type.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.pre_process.preProcess.CC_wdw">
+<code class="descname">CC_wdw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/pre_process.html#preProcess.CC_wdw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.pre_process.preProcess.CC_wdw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the number of windows of a certain lenght which fit within
+the TS, and outputs a list of start positions in terms of sample points</p>
+<p>The length of the TS data is read from the database.
+The <code class="docutils literal"><span class="pre">wdwPos</span></code> updated as saved to the attributes of the database.</p>
+<dl class="docutils">
+<dt>TODO:</dt>
+<dd>It would be better to read the attribues of the table, there is no need
+to read in the entire database.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.pre_process.preProcess.run_PP">
+<code class="descname">run_PP</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/pre_process.html#preProcess.run_PP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.pre_process.preProcess.run_PP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs Pre-processing as requested by the user, as defined in the
+attributes of the database.h5.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pycoda-pycker-module">
+<h2>pyCoda.pycker module<a class="headerlink" href="#pycoda-pycker-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pycoda-runcwi-module">
+<h2>pyCoda.runCWI module<a class="headerlink" href="#pycoda-runcwi-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pycoda-userinput-module">
+<h2>pyCoda.userInput module<a class="headerlink" href="#pycoda-userinput-module" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pyCoda.userInput"></span><p>Created on Thu Jan 12 13:37:48 2017</p>
+<p>&#64;author: rwilson</p>
+<dl class="class">
+<dt id="pyCoda.userInput.utilities">
+<em class="property">class </em><code class="descclassname">pyCoda.userInput.</code><code class="descname">utilities</code><a class="reference internal" href="_modules/pyCoda/userInput.html#utilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.userInput.utilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Collection of functions tools applicable to user interaction.</p>
+<dl class="staticmethod">
+<dt id="pyCoda.userInput.utilities.query_yes_no">
+<em class="property">static </em><code class="descname">query_yes_no</code><span class="sig-paren">(</span><em>question</em>, <em>default='yes'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/userInput.html#utilities.query_yes_no"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.userInput.utilities.query_yes_no" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ask a yes/no question via raw_input() and return their answer.</p>
+<p>“question” is a string that is presented to the user.
+“default” is the presumed answer if the user just hits &lt;Enter&gt;.</p>
+<blockquote>
+<div>It must be “yes” (the default), “no” or None (meaning
+an answer is required of the user).</div></blockquote>
+<p>The “answer” return value is True for “yes” or False for “no”.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyCoda.userInput.userInput">
+<em class="property">class </em><code class="descclassname">pyCoda.userInput.</code><code class="descname">userInput</code><span class="sig-paren">(</span><em>fileIn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/userInput.html#userInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.userInput.userInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>This class is intended to handle the direct input general information
+for the purpose of processing, display and documentation. A .txt file is
+expected with a basic, variable and value format. % comments are ignored.</p>
+<p>var = val % val can be string or numeric input</p>
+<p>All identified variables are saved into a dictionary of the format
+dic = {var1: val1, var2: val2 }</p>
+<p>This class is also intended to compare the initial user input info with the
+previous run, and return re_run as False if the same inputs are given.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fileIn  Location of user input txt file</strong></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<dl class="docutils">
+<dt>The accepted inputs are as follows:</dt>
+<dd><p class="first">Setup paramaters:
+import_raw : Request Raw data to be imported (Default: False)</p>
+<p>re_run : Force the reprocessing, even if no changes found in input file.</p>
+<p>import_dtype : The data type to import(bin_par, Shell_format, ‘CSIRO’.</p>
+<dl class="docutils">
+<dt>survey_type <span class="classifier-delimiter">:</span> <span class="classifier"><code class="docutils literal"><span class="pre">multiple</span></code> (Default) if multiple src/rec pairs in subfolder structure</span></dt>
+<dd>is expected. <code class="docutils literal"><span class="pre">single</span></code> if a single src/rec pair is expected with no
+subfolders.</dd>
+<dt>TSstart_date <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The start of TS acquistion in format YYYY-MM-DD. Only required if no
+absolute time data available in TS header information.</dd>
+</dl>
+<p>TSloc : location of folder/file containing the time series data.</p>
+<p>PVloc : location of folder/file containing the perturbation data.</p>
+<p>loadDB : If True, no attempt to reload raw data into database will be made</p>
+<p>——————- Pre-processing inputs  ——————-
+PVstart_date_time : (Default None) The time <code class="docutils literal"><span class="pre">YYYY-MM-DD</span> <span class="pre">HH:MM:SS.sssss</span></code></p>
+<blockquote>
+<div>the first PV measurement was made, in sync with TS time.</div></blockquote>
+<p>PV_time_col : (required) Name of time column to match in PV data</p>
+<dl class="docutils">
+<dt>PV_time_col_unit <span class="classifier-delimiter">:</span> <span class="classifier">(Default = ‘D’) the time unit of the PV column to match,</span></dt>
+<dd>see pd.to_datetime</dd>
+<dt>sampNo <span class="classifier-delimiter">:</span> <span class="classifier">The number of sample points in a single trace recording, only</span></dt>
+<dd>required as input if not found in TS header information.</dd>
+</dl>
+<p>sampFreq : The sampling frequence of TS data, [samp/sec]</p>
+<p>——————- Cross-correlation parameters ——————-
+sig : bool</p>
+<blockquote>
+<div>If True is given then a spectral significance test will be made for each
+correlation performed. This is an expensive calculation so will require
+considerable time to perform. See <code class="docutils literal"><span class="pre">cross-correlation</span></code></div></blockquote>
+<dl class="last docutils">
+<dt>lagOverlap <span class="classifier-delimiter">:</span> <span class="classifier">bool (Default True) UNDER DEVELOPMENT</span></dt>
+<dd>Allow overlap between rolling lag values (i.e. 1-3, 2-4). If set to
+<code class="docutils literal"><span class="pre">False</span></code>, only none overlapping lags will be calculated (e.g. 1-3, 3-5).</dd>
+<dt>Eng_ref <span class="classifier-delimiter">:</span> <span class="classifier">int (Default None)</span></dt>
+<dd>Indicating the trace/survey to which all subsequent relative energy calculations
+will be referenced to.</dd>
+<dt>STA_meas <span class="classifier-delimiter">:</span> <span class="classifier">int/str (Default False)</span></dt>
+<dd>The first survey to include in the correlation processing, if false
+then no start will be set. Note: only for <code class="docutils literal"><span class="pre">survey_type</span></code>
+multiple, a date string in the format YYYY-MM-DD HH:MM:sec.msec must be
+given, which corresponds to the survey folder number.</dd>
+<dt>sta_wdws <span class="classifier-delimiter">:</span> <span class="classifier">int (Optional)</span></dt>
+<dd>If <code class="docutils literal"><span class="pre">wdwPos</span></code> and <code class="docutils literal"><span class="pre">ww_ol</span></code> as given then the user can also define the
+start of the series of overlapping windows.</dd>
+<dt>end_wdws <span class="classifier-delimiter">:</span> <span class="classifier">int (Optional)</span></dt>
+<dd>If <code class="docutils literal"><span class="pre">wdwPos</span></code> and <code class="docutils literal"><span class="pre">ww_ol</span></code> as given then the user can also define the
+end of the series of overlapping windows.</dd>
+<dt>wdwPos <span class="classifier-delimiter">:</span> <span class="classifier">(int, Default = False) The start position of the windows in trace sample numbers,</span></dt>
+<dd>if more than one is provided then <code class="docutils literal"><span class="pre">ww</span></code> must be of equal length. If not
+provided then both <code class="docutils literal"><span class="pre">ww</span></code> and <code class="docutils literal"><span class="pre">ww_ol</span></code> should be given.</dd>
+<dt>ww <span class="classifier-delimiter">:</span> <span class="classifier">(int) Width of each window  in trace sample numbers,</span></dt>
+<dd>if more than one is provided then <code class="docutils literal"><span class="pre">wdwPos</span></code> must also be of equal length.</dd>
+<dt>ww_ol <span class="classifier-delimiter">:</span> <span class="classifier">(int) (Default False)</span></dt>
+<dd>The percentage window overlap. The max number of windows of
+<code class="docutils literal"><span class="pre">ww</span></code> lenght which fit within a trace will be calculated.
+This will be ignored if <code class="docutils literal"><span class="pre">wdwPos</span></code> is provided.</dd>
+<dt>taper <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Apply a tukey window taper to each correlation window</dd>
+<dt>taperAlpha <span class="classifier-delimiter">:</span> <span class="classifier">float (Default 0.1)</span></dt>
+<dd>The alpha of the window taper to be applied.</dd>
+<dt>CC_folder <span class="classifier-delimiter">:</span> <span class="classifier">(str, Default = ‘CCprocessed’)</span></dt>
+<dd><blockquote class="first">
+<div>The name of the folder within which the CC processed data will be saved.</div></blockquote>
+<p class="last">——————- Display parameters ——————-</p>
+</dd>
+<dt>disp_DB <span class="classifier-delimiter">:</span> <span class="classifier">bool (Default True)</span></dt>
+<dd>If set to true, some portion of the processed database will be plotted
+to screen at the end of the Class <code class="docutils literal"><span class="pre">runCWI</span></code>.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pyCoda.userInput.userInput.fread">
+<code class="descname">fread</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/userInput.html#userInput.fread"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.userInput.userInput.fread" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.userInput.userInput.is_number">
+<code class="descname">is_number</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/userInput.html#userInput.is_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.userInput.userInput.is_number" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.userInput.userInput.checkSetup">
+<code class="descname">checkSetup</code><span class="sig-paren">(</span><em>check</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/userInput.html#userInput.checkSetup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.userInput.userInput.checkSetup" title="Permalink to this definition">¶</a></dt>
+<dd><p>This functions checks the setup file to determine if any param have
+changed. If yes, the processing will be re-run, otherweise the saved
+datebases will be loaded. return True if change is detected, False if
+any critical param are found and None if only non-critical param change</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyCoda.userInput.userInput.sys">
+<code class="descname">sys</code><em class="property"> = &lt;module 'sys' (built-in)&gt;</em><a class="headerlink" href="#pyCoda.userInput.userInput.sys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="pyCoda"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pyCoda</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Reuben Zotz-wilson.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>
