@@ -1,0 +1,612 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyCoda.userInput &#8212; CWI 0 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyCoda.userInput</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Thu Jan 12 13:37:48 2017</span>
+
+<span class="sd">@author: rwilson</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<div class="viewcode-block" id="utilities"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.userInput.utilities">[docs]</a><span class="k">class</span> <span class="nc">utilities</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;Collection of functions tools applicable to user interaction.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="utilities.query_yes_no"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.userInput.utilities.query_yes_no">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">query_yes_no</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;yes&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Ask a yes/no question via raw_input() and return their answer.</span>
+
+<span class="sd">        &quot;question&quot; is a string that is presented to the user.</span>
+<span class="sd">        &quot;default&quot; is the presumed answer if the user just hits &lt;Enter&gt;.</span>
+<span class="sd">            It must be &quot;yes&quot; (the default), &quot;no&quot; or None (meaning</span>
+<span class="sd">            an answer is required of the user).</span>
+
+<span class="sd">        The &quot;answer&quot; return value is True for &quot;yes&quot; or False for &quot;no&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;yes&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;ye&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                 <span class="s2">&quot;no&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot; [y/n] &quot;</span>
+        <span class="k">elif</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span><span class="p">:</span>
+            <span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot; [Y/n] &quot;</span>
+        <span class="k">elif</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">&quot;no&quot;</span><span class="p">:</span>
+            <span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot; [y/N] &quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid default answer: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">default</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">question</span> <span class="o">+</span> <span class="n">prompt</span><span class="p">)</span>
+            <span class="n">choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">valid</span><span class="p">[</span><span class="n">default</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">valid</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">valid</span><span class="p">[</span><span class="n">choice</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Please respond with &#39;yes&#39; or &#39;no&#39; &quot;</span>
+                                 <span class="s2">&quot;(or &#39;y&#39; or &#39;n&#39;).</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="userInput"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.userInput.userInput">[docs]</a><span class="k">class</span> <span class="nc">userInput</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This class is intended to handle the direct input general information</span>
+<span class="sd">    for the purpose of processing, display and documentation. A .txt file is</span>
+<span class="sd">    expected with a basic, variable and value format. % comments are ignored.</span>
+
+<span class="sd">    var = val % val can be string or numeric input</span>
+
+<span class="sd">    All identified variables are saved into a dictionary of the format</span>
+<span class="sd">    dic = {var1: val1, var2: val2 }</span>
+
+<span class="sd">    This class is also intended to compare the initial user input info with the</span>
+<span class="sd">    previous run, and return re_run as False if the same inputs are given.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fileIn  Location of user input txt file</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The accepted inputs are as follows:</span>
+<span class="sd">        Setup paramaters:</span>
+<span class="sd">        import_raw : Request Raw data to be imported (Default: False)</span>
+
+<span class="sd">        re_run : Force the reprocessing, even if no changes found in input file.</span>
+
+<span class="sd">        import_dtype : The data type to import(bin_par, Shell_format, &#39;CSIRO&#39;.</span>
+
+<span class="sd">        survey_type : ``multiple`` (Default) if multiple src/rec pairs in subfolder structure</span>
+<span class="sd">            is expected. ``single`` if a single src/rec pair is expected with no</span>
+<span class="sd">            subfolders.</span>
+
+<span class="sd">        TSstart_date : str</span>
+<span class="sd">            The start of TS acquistion in format YYYY-MM-DD. Only required if no</span>
+<span class="sd">            absolute time data available in TS header information.</span>
+
+<span class="sd">        TSloc : location of folder/file containing the time series data.</span>
+
+<span class="sd">        PVloc : location of folder/file containing the perturbation data.</span>
+
+<span class="sd">        loadDB : If True, no attempt to reload raw data into database will be made</span>
+
+<span class="sd">        ------------------- Pre-processing inputs  -------------------</span>
+<span class="sd">        PVstart_date_time : (Default None) The time ``YYYY-MM-DD HH:MM:SS.sssss``</span>
+<span class="sd">            the first PV measurement was made, in sync with TS time.</span>
+
+<span class="sd">        PV_time_col : (required) Name of time column to match in PV data</span>
+
+<span class="sd">        PV_time_col_unit : (Default = &#39;D&#39;) the time unit of the PV column to match,</span>
+<span class="sd">            see pd.to_datetime</span>
+
+<span class="sd">        sampNo : The number of sample points in a single trace recording, only</span>
+<span class="sd">            required as input if not found in TS header information.</span>
+
+<span class="sd">        sampFreq : The sampling frequence of TS data, [samp/sec]</span>
+
+<span class="sd">        ------------------- Cross-correlation parameters -------------------</span>
+<span class="sd">        sig : bool</span>
+<span class="sd">            If True is given then a spectral significance test will be made for each</span>
+<span class="sd">            correlation performed. This is an expensive calculation so will require</span>
+<span class="sd">            considerable time to perform. See ``cross-correlation``</span>
+
+<span class="sd">        lagOverlap : bool (Default True) UNDER DEVELOPMENT</span>
+<span class="sd">            Allow overlap between rolling lag values (i.e. 1-3, 2-4). If set to</span>
+<span class="sd">            ``False``, only none overlapping lags will be calculated (e.g. 1-3, 3-5).</span>
+
+<span class="sd">        Eng_ref : int (Default None)</span>
+<span class="sd">            Indicating the trace/survey to which all subsequent relative energy calculations</span>
+<span class="sd">            will be referenced to.</span>
+
+<span class="sd">        STA_meas : int/str (Default False)</span>
+<span class="sd">            The first survey to include in the correlation processing, if false</span>
+<span class="sd">            then no start will be set. Note: only for ``survey_type``</span>
+<span class="sd">            multiple, a date string in the format YYYY-MM-DD HH:MM:sec.msec must be</span>
+<span class="sd">            given, which corresponds to the survey folder number.</span>
+
+<span class="sd">        sta_wdws : int (Optional)</span>
+<span class="sd">            If ``wdwPos`` and ``ww_ol`` as given then the user can also define the</span>
+<span class="sd">            start of the series of overlapping windows.</span>
+
+<span class="sd">        end_wdws : int (Optional)</span>
+<span class="sd">            If ``wdwPos`` and ``ww_ol`` as given then the user can also define the</span>
+<span class="sd">            end of the series of overlapping windows.</span>
+
+<span class="sd">        wdwPos : (int, Default = False) The start position of the windows in trace sample numbers,</span>
+<span class="sd">            if more than one is provided then ``ww`` must be of equal length. If not</span>
+<span class="sd">            provided then both ``ww`` and ``ww_ol`` should be given.</span>
+
+<span class="sd">        ww : (int) Width of each window  in trace sample numbers,</span>
+<span class="sd">            if more than one is provided then ``wdwPos`` must also be of equal length.</span>
+
+<span class="sd">        ww_ol : (int) (Default False)</span>
+<span class="sd">            The percentage window overlap. The max number of windows of</span>
+<span class="sd">            ``ww`` lenght which fit within a trace will be calculated.</span>
+<span class="sd">            This will be ignored if ``wdwPos`` is provided.</span>
+
+<span class="sd">        taper : bool</span>
+<span class="sd">            Apply a tukey window taper to each correlation window</span>
+
+<span class="sd">        taperAlpha : float (Default 0.1)</span>
+<span class="sd">            The alpha of the window taper to be applied.</span>
+
+<span class="sd">        CC_folder : (str, Default = &#39;CCprocessed&#39;)</span>
+<span class="sd">            The name of the folder within which the CC processed data will be saved.</span>
+
+<span class="sd">         ------------------- Display parameters -------------------</span>
+<span class="sd">        disp_DB : bool (Default True)</span>
+<span class="sd">            If set to true, some portion of the processed database will be plotted</span>
+<span class="sd">            to screen at the end of the Class ``runCWI``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileIn</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fileIn</span> <span class="o">=</span> <span class="n">fileIn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="userInput.fread"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.userInput.userInput.fread">[docs]</a>    <span class="k">def</span> <span class="nf">fread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># Conversion of string True or False values to booleans</span>
+        <span class="k">def</span> <span class="nf">str_to_bool</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="s1">&#39;True&#39;</span><span class="p">:</span>
+                 <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">s</span> <span class="o">==</span> <span class="s1">&#39;False&#39;</span><span class="p">:</span>
+                 <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                 <span class="k">return</span> <span class="n">s</span>
+
+        <span class="n">usrIn</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileIn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+                <span class="n">var</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>  <span class="c1"># Remove whitespace</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">str_to_bool</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="c1"># Convert to bool if possible</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_number</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">is_integer</span><span class="p">():</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+                <span class="n">usrIn</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="c1"># Catch empty dic keys</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">usrIn</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="kc">None</span>
+
+        <span class="c1"># Allocate recently imported user defined param</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="n">usrIn</span>
+
+        <span class="c1"># ---------------- Allocate default param ----------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefaults</span><span class="p">()</span>
+
+        <span class="c1"># perform basic input data checks</span>
+
+        <span class="c1"># Check if and changes are found in param file only if not set by user as</span>
+        <span class="c1"># True</span>
+        <span class="n">re_run</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;re_run&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">re_run</span><span class="p">:</span>
+
+            <span class="n">db_folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;TSloc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_DB&#39;</span>  <span class="c1"># &#39;database&#39;</span>
+            <span class="n">usrIn_Old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_pkl</span><span class="p">(</span><span class="n">db_folder</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="o">+</span><span class="s1">&#39;paramInt.txt&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">usrIn_Old</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">re_run</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkSetup</span><span class="p">(</span><span class="n">usrIn_Old</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">re_run</span> <span class="o">=</span> <span class="kc">True</span>
+
+             <span class="c1"># If false of not existing make folder and store param file</span>
+            <span class="k">if</span> <span class="n">re_run</span> <span class="ow">or</span> <span class="n">re_run</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">db_folder</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">db_folder</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_to_pkl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">,</span> <span class="n">db_folder</span><span class="o">+</span><span class="s1">&#39;/paramInt.txt&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">usrIn</span><span class="p">,</span> <span class="n">re_run</span></div>
+
+    <span class="k">def</span> <span class="nf">_to_pkl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Save pickel files</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;w+b&#39;</span><span class="p">)</span>
+
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_from_pkl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Load pickel files</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+            <span class="n">obj_dict</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">obj_dict</span>
+        <span class="k">except</span>  <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="userInput.is_number"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.userInput.userInput.is_number">[docs]</a>    <span class="k">def</span> <span class="nf">is_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">unicodedata</span>
+            <span class="n">unicodedata</span><span class="o">.</span><span class="n">numeric</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="k">def</span> <span class="nf">_setDefaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Set the default values if not specified by the user</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;import_raw&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;import_raw&#39;</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">--------- WARNING ---------&#39;</span><span class="p">)</span>
+                <span class="n">question</span> <span class="o">=</span> <span class="s1">&#39;* Parameter import_raw was set to True, this will &#39;</span><span class="o">+</span> \
+                <span class="s1">&#39;remove any existing Database.h5 files found! </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span> \
+                <span class="s1">&#39;Are you sure you want to continue ?&#39;</span>
+                <span class="n">answer</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">query_yes_no</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;yes&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">answer</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">SystemExit</span>
+
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;import_raw&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Import raw data&#39;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;survey_type&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;survey_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;multiple&#39;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;re_run&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;re_run&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;import_dtype&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;import_dtype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;bin_par&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Import datatype defaulted to bin_par&#39;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;TSstart_date&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;TSstart_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;unix&#39;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV_time_col&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Critical parameter PV_time_col not found </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;Please define this in the setup file.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">SystemExit</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV_time_col_unit&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV_time_col_unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ns&#39;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PVstart_date_time&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PVstart_date_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;unix&#39;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV_file_hdr_rows&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV_file_hdr_rows&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;disp_DB&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;disp_DB&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;wdwPos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;ww_ol&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;ww_ol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;sta_wdws&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;sta_wdws&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;end_wdws&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;end_wdws&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;STA_meas&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;survey_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;multiple&#39;</span> <span class="ow">and</span>
+                <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;STA_meas&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">)):</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;STA_meas must be a string when survey_type==multiple&#39;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;STA_meas&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;END_meas&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;survey_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;multiple&#39;</span> <span class="ow">and</span>
+                <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;END_meas&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">)):</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;END_meas must be a string when survey_type==multiple&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;END_meas&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;loadDB&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;loadDB&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;Eng_ref&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;Eng_ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;taper&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;taper&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;taperAlpha&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;taperAlpha&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_folder&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_folder&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;CCprocessed&#39;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;lagOverlap&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;lagOverlap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;CC_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;fixed&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;lagOverlap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;stress_strain&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;stress_strain&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;stress_strain_confined&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;stress_strain_confined&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;rename_dic&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;rename_dic&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;rename_dic&#39;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;rename_dic&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;LLLength&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;LLLength&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;FBP&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;FBP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;TS_samp_dt&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;TS_samp_dt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;TS_file_tmatch&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;TS_file_tmatch&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;sig&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;sig&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV1&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV2&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># If does not exist then set to False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;PV2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Install some input processing</span>
+        <span class="k">for</span> <span class="n">NAME</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;CC_ref&#39;</span><span class="p">,</span> <span class="s1">&#39;wdwPos&#39;</span><span class="p">,</span> <span class="s1">&#39;ww&#39;</span><span class="p">,</span><span class="s1">&#39;PV_file_hdr_rows&#39;</span><span class="p">]:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="n">NAME</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="n">NAME</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="n">NAME</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="n">NAME</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="n">NAME</span><span class="p">]]</span> <span class="c1"># ensure is a list</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;The input variable&#39;</span><span class="p">,</span><span class="n">NAME</span><span class="p">,</span><span class="s1">&#39;should either be a&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;single numeric value or a comma separated&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;input of lag values x1,x2,x3,..etc&#39;</span><span class="p">)</span>
+
+    <span class="c1"># def _inputCheck(self):</span>
+
+
+<div class="viewcode-block" id="userInput.checkSetup"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.userInput.userInput.checkSetup">[docs]</a>    <span class="k">def</span> <span class="nf">checkSetup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; This functions checks the setup file to determine if any param have</span>
+<span class="sd">        changed. If yes, the processing will be re-run, otherweise the saved</span>
+<span class="sd">        datebases will be loaded. return True if change is detected, False if</span>
+<span class="sd">        any critical param are found and None if only non-critical param change</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">def</span> <span class="nf">dict_compare</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">):</span>
+            <span class="n">d1_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">d1</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">d2_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">d2</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">intersect_keys</span> <span class="o">=</span> <span class="n">d1_keys</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">d2_keys</span><span class="p">)</span>
+            <span class="n">added</span> <span class="o">=</span> <span class="n">d1_keys</span> <span class="o">-</span> <span class="n">d2_keys</span>
+            <span class="n">removed</span> <span class="o">=</span> <span class="n">d2_keys</span> <span class="o">-</span> <span class="n">d1_keys</span>
+            <span class="n">modified</span> <span class="o">=</span> <span class="p">{</span><span class="n">o</span> <span class="p">:</span> <span class="p">(</span><span class="n">d1</span><span class="p">[</span><span class="n">o</span><span class="p">],</span> <span class="n">d2</span><span class="p">[</span><span class="n">o</span><span class="p">])</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">intersect_keys</span> <span class="k">if</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">d1</span><span class="p">[</span><span class="n">o</span><span class="p">]</span> <span class="o">!=</span> <span class="n">d2</span><span class="p">[</span><span class="n">o</span><span class="p">])}</span>
+            <span class="c1"># same = set(o for o in intersect_keys if np.all(d1[o] == d2[o]))</span>
+
+            <span class="n">crit_param</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ww&#39;</span><span class="p">,</span> <span class="s1">&#39;ww_ol&#39;</span><span class="p">,</span> <span class="s1">&#39;CC_type&#39;</span><span class="p">,</span> <span class="s1">&#39;CC_ref&#39;</span><span class="p">]</span>
+            <span class="n">crit_mod</span> <span class="o">=</span> <span class="p">[</span><span class="n">d1</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="n">d2</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">crit_param</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">added</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">removed</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">modified</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="nb">sum</span><span class="p">(</span><span class="n">crit_mod</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+
+
+        <span class="k">return</span> <span class="ow">not</span> <span class="n">dict_compare</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">,</span> <span class="n">check</span><span class="p">)</span></div>
+    <span class="kn">import</span> <span class="nn">sys</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Reuben Zotz-wilson.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>
