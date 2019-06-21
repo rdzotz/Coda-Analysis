@@ -4,8 +4,11 @@
    contain the root `toctree` directive.
 
 Welcome to pyCoda's documentation!
-===============================
+==================================
 
+
+Package Contents
+----------------
 .. toctree::
    :maxdepth: 2
 

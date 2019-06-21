@@ -80,8 +80,8 @@
     <span class="sd">&#39;&#39;&#39; A collection of post processing utility functions</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
-<div class="viewcode-block" id="post_utilities.detect_most_linear"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.detect_most_linear">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">detect_most_linear</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">smooth</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">wdw_wdth</span> <span class="o">=</span> <span class="mi">25</span><span class="p">,</span> <span class="n">poly_ord</span><span class="o">=</span><span class="mi">3</span> <span class="p">):</span>
+
+<div class="viewcode-block" id="post_utilities.detect_most_linear"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.detect_most_linear">[docs]</a>    <span class="k">def</span> <span class="nf">detect_most_linear</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">smooth</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">wdw_wdth</span> <span class="o">=</span> <span class="mi">25</span><span class="p">,</span> <span class="n">poly_ord</span><span class="o">=</span><span class="mi">3</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Finds the most linear portion of a line via</span>
 <span class="sd">        Inputs:</span>
 <span class="sd">        ------</span>
@@ -146,7 +146,7 @@
 
         <span class="k">return</span> <span class="p">(</span><span class="n">L_end</span><span class="p">,</span> <span class="n">x_fit</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
 
-    <span class="nd">@staticmethod</span>
+
     <span class="k">def</span> <span class="nf">_yield_search</span><span class="p">(</span><span class="n">DF</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Search for the yield point</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -171,8 +171,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;Yield_p&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Yield_p</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">newParam</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span>
 
-<div class="viewcode-block" id="post_utilities.detect_peaks"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.detect_peaks">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">detect_peaks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mph</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mpd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="s1">&#39;rising&#39;</span><span class="p">,</span>
+
+<div class="viewcode-block" id="post_utilities.detect_peaks"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.detect_peaks">[docs]</a>    <span class="k">def</span> <span class="nf">detect_peaks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mph</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mpd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="s1">&#39;rising&#39;</span><span class="p">,</span>
                  <span class="n">kpsh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">valley</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;Detect peaks in data based on their amplitude and other features.</span>
@@ -337,8 +337,8 @@
 
         <span class="k">return</span> <span class="n">ind</span></div>
 
-<div class="viewcode-block" id="post_utilities.MLTWA_calc"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.MLTWA_calc">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">MLTWA_calc</span><span class="p">(</span><span class="n">TS_DB</span><span class="p">,</span> <span class="n">after_FB</span><span class="p">,</span> <span class="n">Ewdth</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">wd_shift</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+
+<div class="viewcode-block" id="post_utilities.MLTWA_calc"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.MLTWA_calc">[docs]</a>    <span class="k">def</span> <span class="nf">MLTWA_calc</span><span class="p">(</span><span class="n">TS_DB</span><span class="p">,</span> <span class="n">after_FB</span><span class="p">,</span> <span class="n">Ewdth</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">wd_shift</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
                    <span class="n">ref_trace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="n">mph</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mpd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">R1_Sign</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                    <span class="n">grad_period</span><span class="o">=-</span><span class="mi">50</span><span class="p">,</span>
                    <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -484,8 +484,8 @@
 
         <span class="k">return</span> <span class="n">DB_MLTWA</span><span class="p">,</span> <span class="n">dict_MLTWA</span><span class="p">,</span> <span class="p">(</span><span class="n">ts_slider</span><span class="p">,</span> <span class="n">hdl</span><span class="p">,</span> <span class="n">hdl_break</span><span class="p">,</span> <span class="n">hdl_thsh</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="post_utilities.PV_segmentation"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.PV_segmentation">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">PV_segmentation</span><span class="p">(</span><span class="n">PV_df</span><span class="p">,</span> <span class="n">Segments</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">indexName</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">,</span>
+
+<div class="viewcode-block" id="post_utilities.PV_segmentation"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.PV_segmentation">[docs]</a>    <span class="k">def</span> <span class="nf">PV_segmentation</span><span class="p">(</span><span class="n">PV_df</span><span class="p">,</span> <span class="n">Segments</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">indexName</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">,</span>
                         <span class="n">shiftCols</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Apply a range of data parameterisation methods from segments of input</span>
 <span class="sd">        data. Note, any row with a ``nan`` will be removed before segmentation.</span>
@@ -562,8 +562,8 @@
         <span class="n">df_out</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df_out</span></div>
 
-<div class="viewcode-block" id="post_utilities.TS_FBP"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.TS_FBP">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">TS_FBP</span><span class="p">(</span><span class="n">TS_DB</span><span class="p">,</span> <span class="n">noiseWD</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">threshold_shift</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mpd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="post_utilities.TS_FBP"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.TS_FBP">[docs]</a>    <span class="k">def</span> <span class="nf">TS_FBP</span><span class="p">(</span><span class="n">TS_DB</span><span class="p">,</span> <span class="n">noiseWD</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">threshold_shift</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mpd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;This function is intended to perform first break picking</span>
 
 <span class="sd">        Parameters</span>
@@ -623,8 +623,8 @@
         <span class="n">df_FBP</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;FBP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx_break</span>
         <span class="k">return</span> <span class="n">df_FBP</span><span class="p">,</span> <span class="p">(</span><span class="n">ts_slider</span><span class="p">,</span> <span class="n">hdl</span><span class="p">,</span> <span class="n">hdl_break</span><span class="p">,</span> <span class="n">hdl_thsh</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="post_utilities.TS_interactive"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.TS_interactive">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">TS_interactive</span><span class="p">(</span><span class="n">TS_DB</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">noiseWD</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+
+<div class="viewcode-block" id="post_utilities.TS_interactive"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.TS_interactive">[docs]</a>    <span class="k">def</span> <span class="nf">TS_interactive</span><span class="p">(</span><span class="n">TS_DB</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">noiseWD</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                        <span class="n">wdws</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Interactive plot of time-series data with ability to plot detection</span>
 <span class="sd">        parameters for analysis.</span>
@@ -742,32 +742,41 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">ts_slider</span><span class="p">,</span> <span class="n">hdl</span><span class="p">,</span> <span class="n">hdl_break</span><span class="p">,</span> <span class="n">hdl_thsh</span></div>
 
-<div class="viewcode-block" id="post_utilities.CC_ch_drop"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.CC_ch_drop">[docs]</a>    <span class="k">def</span> <span class="nf">CC_ch_drop</span><span class="p">(</span><span class="n">CC_DB</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+<div class="viewcode-block" id="post_utilities.CC_ch_drop"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.CC_ch_drop">[docs]</a>    <span class="k">def</span> <span class="nf">CC_ch_drop</span><span class="p">(</span><span class="n">CC_DB</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;raise&#39;</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Drops channels from standard CCdata dataframe</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        CC_DB : dataframe</span>
 <span class="sd">            Database containing in the first two levels src and rec numbers</span>
-<span class="sd">        channels : int (default None)</span>
-<span class="sd">            the channels to remove from the dataframe</span>
-<span class="sd">                &#39;&#39;&#39;</span>
-
+<span class="sd">        channels : int (default =  None)</span>
+<span class="sd">            the channels to remove from the dataframe, either a list of channels</span>
+<span class="sd">            in which case both source and receivers will be dropped, or a list of</span>
+<span class="sd">            channel pairs in which case only the defined pairs will be dropped.</span>
+<span class="sd">        errors : str (dfault = &#39;raise&#39;)</span>
+<span class="sd">            Raise error in attempted drop does not exist, &#39;ignore&#39; to surpress</span>
+<span class="sd">            the error.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">chan</span> <span class="ow">in</span> <span class="n">channels</span><span class="p">:</span>
-                <span class="n">CC_DB</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">chan</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="n">CC_DB</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">chan</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">CC_DB</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">chan</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span>
+                <span class="n">CC_DB</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">chan</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">srcDrop</span> <span class="o">=</span> <span class="p">[</span><span class="n">ch</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">channels</span><span class="p">]</span>
             <span class="n">recDrop</span> <span class="o">=</span> <span class="p">[</span><span class="n">ch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">channels</span><span class="p">]</span>
 
-            <span class="n">CC_DB_drop_idx</span> <span class="o">=</span> <span class="n">CC_DB</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">srcDrop</span><span class="p">,</span> <span class="n">recDrop</span><span class="p">,</span>
-                                        <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">srcDrop</span><span class="p">)),</span> <span class="p">:]</span><span class="o">.</span><span class="n">index</span>
-            <span class="n">CC_DB</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">CC_DB_drop_idx</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+            <span class="n">CC_DB</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_arrays</span><span class="p">([</span><span class="n">srcDrop</span><span class="p">,</span> <span class="n">recDrop</span><span class="p">]),</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<span class="c1">#            fn = CC_DB.index.get_level_values</span>
+<span class="c1">#            CC_DB = CC_DB[~(fn(0).isin(As) | fn(1).isin(Bs))]</span>
+<span class="c1">#</span>
+<span class="c1">#            for src, rec in zip(srcDrop, recDrop):</span>
+<span class="c1">#                CC_DB_drop_idx = CC_DB.loc[(src, rec, slice(None)), :].index</span>
+<span class="c1">#                CC_DB.drop(CC_DB_drop_idx, inplace=True, errors=errors)</span>
 
 
-<div class="viewcode-block" id="post_utilities.calcSNR"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.calcSNR">[docs]</a>    <span class="k">def</span> <span class="nf">calcSNR</span><span class="p">(</span><span class="n">TSsurvey</span><span class="p">,</span> <span class="n">Noise_channels</span><span class="p">,</span> <span class="n">all_channels</span><span class="p">,</span> <span class="n">wdws</span><span class="p">,</span> <span class="n">noiseCutOff</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="post_utilities.calcSNR"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.calcSNR">[docs]</a>    <span class="k">def</span> <span class="nf">calcSNR</span><span class="p">(</span><span class="n">TSsurvey</span><span class="p">,</span> <span class="n">Noise_channels</span><span class="p">,</span> <span class="n">all_channels</span><span class="p">,</span> <span class="n">wdws</span><span class="p">,</span> <span class="n">noiseCutOff</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inspect</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Determines the channels which are above a certain SNR.</span>
 
 <span class="sd">        Parameters</span>
@@ -782,6 +791,8 @@
 <span class="sd">            The windows in samples points at which the SNR is calculated</span>
 <span class="sd">        noiseCutOff: float</span>
 <span class="sd">            The threshold of SNR in Db to filter</span>
+<span class="sd">        inspect: bool (default = False)</span>
+<span class="sd">            Inspect the traces which are noted as noise.</span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        noiseyChannels : float</span>
@@ -800,6 +811,10 @@
 
         <span class="n">NoiseTraces</span> <span class="o">=</span>  <span class="n">TSsurvey</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">traceMask</span><span class="p">]</span>
 
+        <span class="k">if</span> <span class="n">inspect</span><span class="p">:</span>
+            <span class="n">post_utilities</span><span class="o">.</span><span class="n">TS_interactive</span><span class="p">(</span><span class="n">NoiseTraces</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-------- Calculate SNR for each window --------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">wdws_num</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])]</span> <span class="k">for</span> <span class="n">wd</span> <span class="ow">in</span> <span class="n">wdws</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">wd</span> <span class="ow">in</span> <span class="n">wdws_num</span><span class="p">:</span>
@@ -809,17 +824,18 @@
                                           <span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">SNR</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">SNR</span><span class="p">,</span> <span class="n">temp</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">NameError</span><span class="p">,</span> <span class="ne">UnboundLocalError</span><span class="p">):</span>
                 <span class="n">SNR</span> <span class="o">=</span> <span class="n">temp</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">SNR</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+            <span class="n">SNR</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">SNR</span><span class="p">)</span>
 
         <span class="n">noisyCh</span> <span class="o">=</span> <span class="n">SNR</span><span class="p">[</span><span class="n">SNR</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">left</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">noiseCutOff</span><span class="p">)]</span><span class="o">.</span>\
             <span class="n">index</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">noisyCh</span><span class="p">,</span> <span class="n">SNR</span><span class="p">,</span> <span class="n">NoiseTraces</span></div>
 
 
-
-<div class="viewcode-block" id="post_utilities.smooth"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.smooth">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">smooth</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">window_len</span> <span class="o">=</span> <span class="mi">11</span><span class="p">,</span> <span class="n">window</span> <span class="o">=</span> <span class="s1">&#39;hanning&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="post_utilities.smooth"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.smooth">[docs]</a>    <span class="k">def</span> <span class="nf">smooth</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">window_len</span> <span class="o">=</span> <span class="mi">11</span><span class="p">,</span> <span class="n">window</span> <span class="o">=</span> <span class="s1">&#39;hanning&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;smooth the data using a window with requested size.</span>
 
 <span class="sd">        This method is based on the convolution of a scaled window with the signal.</span>
@@ -874,7 +890,40 @@
             <span class="n">w</span><span class="o">=</span><span class="nb">eval</span><span class="p">(</span><span class="s1">&#39;np.&#39;</span><span class="o">+</span><span class="n">window</span><span class="o">+</span><span class="s1">&#39;(window_len)&#39;</span><span class="p">)</span>
 
         <span class="n">y</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">w</span><span class="o">/</span><span class="n">w</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span><span class="n">s</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span></div></div>
+        <span class="k">return</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="post_utilities.PV_time_shift"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.post_utilities.PV_time_shift">[docs]</a>    <span class="k">def</span> <span class="nf">PV_time_shift</span><span class="p">(</span><span class="n">PVdata</span><span class="p">,</span> <span class="n">PV_time_col</span><span class="p">,</span> <span class="n">PV_time_col_unit</span><span class="p">,</span> <span class="n">PVstart_date_time</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Adjusts the Time Stamp column in the PVdata frame.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        PVdata : DataFrame</span>
+<span class="sd">            The dataframe on which operations are performed</span>
+<span class="sd">        PV_time_col : str</span>
+<span class="sd">            The name of the PV time column to be processed.</span>
+<span class="sd">        PV_time_col_unit : str</span>
+<span class="sd">            Unit of the time column ``PV_time_col``.</span>
+<span class="sd">        PVstart_date_time : str</span>
+<span class="sd">            The YYYY-MM-DD ..etc string defining the origin of the ``PV_time_col``.</span>
+
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Determine the origin time of the PVdata</span>
+<span class="sd">        &gt;&gt;&gt; origin = pd.to_datetime(&#39;20180212180703&#39;) - pd.Timedelta(43.6725, unit=&#39;D&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; # Shift the PVdata to the new origin</span>
+<span class="sd">        &gt;&gt;&gt; pp.post_utilities.PV_time_shift(PVdata, &#39;Time(Days)&#39;, &#39;D&#39;, origin)</span>
+<span class="sd">        &gt;&gt;&gt; # Save the new PVdata back to the HDF5 database</span>
+<span class="sd">        &gt;&gt;&gt; dt.utilities.DB_pd_data_save(&#39;Ultrasonic_data_DB/Database.h5&#39;, &#39;PVdata&#39;, PVdata)</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Create new Time Stamp column in PVdata</span>
+        <span class="n">PVdata</span><span class="p">[</span><span class="s1">&#39;Time Stamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                <span class="n">PVdata</span><span class="p">[</span><span class="n">PV_time_col</span><span class="p">],</span>
+                <span class="n">unit</span><span class="o">=</span><span class="n">PV_time_col_unit</span><span class="p">,</span>
+                <span class="n">origin</span> <span class="o">=</span> <span class="n">PVstart_date_time</span><span class="p">)</span></div></div>
+
 
 
 <div class="viewcode-block" id="postProcess"><a class="viewcode-back" href="../../pyCoda.html#pyCoda.postProcess.postProcess">[docs]</a><span class="k">class</span> <span class="nc">postProcess</span><span class="p">:</span>
