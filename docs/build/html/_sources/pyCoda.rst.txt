@@ -1,5 +1,5 @@
-pyCoda package
-==============
+pyCoda
+======
 
 Submodules
 ----------

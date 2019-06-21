@@ -8,3 +8,9 @@
 source
 /docs/source/
 /docs/build/
+
+# Compiled files
+*.pyc 
+
+# folders
+pyCWD/__pycache__/
