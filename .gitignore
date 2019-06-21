@@ -11,6 +11,7 @@ source
 
 # Compiled files
 *.pyc 
+*.spyproject/
 
 # folders
 pyCWD/__pycache__/
