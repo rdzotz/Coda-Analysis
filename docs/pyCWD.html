@@ -1,0 +1,988 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyCWD &#8212; CWI 0 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="pyCoda" href="pyCoda.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pyCoda.html" title="pyCoda"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" accesskey="U">pyCoda</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pyCoda.html"
+                        title="previous chapter">pyCoda</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pycwd">
+<h1>pyCWD<a class="headerlink" href="#pycwd" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pyCWD.CWD">
+<span id="pycwd-cwd-module"></span><h2>pyCWD.CWD module<a class="headerlink" href="#module-pyCWD.CWD" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mon Jun  4 14:42:02 2018</p>
+<p>&#64;author: rwilson</p>
+<dl class="class">
+<dt id="pyCWD.CWD.utilities">
+<em class="property">class </em><code class="descclassname">pyCWD.CWD.</code><code class="descname">utilities</code><a class="reference internal" href="_modules/pyCWD/CWD.html#utilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.utilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Some helper functions</p>
+<dl class="method">
+<dt id="pyCWD.CWD.utilities.src_rec_pairs">
+<code class="descname">src_rec_pairs</code><span class="sig-paren">(</span><em>channels</em>, <em>exclude=None</em>, <em>reciprocity=False</em>, <em>randSample=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#utilities.src_rec_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.utilities.src_rec_pairs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a list of source receiver pairs for all excluding a certain
+channels.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>channels</strong> : list</p>
+<blockquote>
+<div><p>list of channels from which src rec pairs should be generated</p>
+</div></blockquote>
+<p><strong>exclude</strong> : list (Default = None)</p>
+<blockquote>
+<div><p>list of channels which should be excluded from the list of channels</p>
+</div></blockquote>
+<p><strong>reciprocity</strong> : bool (Default = False)</p>
+<blockquote>
+<div><p>Include reciprocal pairs.</p>
+</div></blockquote>
+<p><strong>randSample</strong> : int (Default = None)</p>
+<blockquote>
+<div><p>Extract a random subset from the list of length <code class="docutils literal"><span class="pre">randSample</span></code></p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>src_rec</strong> : list</p>
+<blockquote class="last">
+<div><p>list of unique source receiver pairs</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.utilities.read_channelPos">
+<code class="descname">read_channelPos</code><span class="sig-paren">(</span><em>file</em>, <em>dimensions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#utilities.read_channelPos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.utilities.read_channelPos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in csv containing each channel position. Currently expecting that
+the channel position csv is of a specific type and needs shifting to bottom
+zeroed coord. system.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>file</strong> : str</p>
+<blockquote>
+<div><p>Location of csv containing the channel locations</p>
+</div></blockquote>
+<p><strong>dimensions</strong> : dict</p>
+<blockquote>
+<div><p>The <code class="docutils literal"><span class="pre">height</span></code> of the mesh.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dfChan</strong> : DataFrame</p>
+<blockquote class="last">
+<div><p>Database of each channel location</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.utilities.HDF5_data_save">
+<code class="descname">HDF5_data_save</code><span class="sig-paren">(</span><em>HDF5File</em>, <em>group</em>, <em>name</em>, <em>data</em>, <em>attrb={'attr': 0}</em>, <em>ReRw='w'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#utilities.HDF5_data_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.utilities.HDF5_data_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves data into a hdf5 database, if data name already exists, then an
+attempt to overwrite the data will be made</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>HDF5File</strong> : str</p>
+<blockquote>
+<div><p>Relative location of database</p>
+</div></blockquote>
+<p><strong>group</strong> : str</p>
+<blockquote>
+<div><p>The expected group name</p>
+</div></blockquote>
+<p><strong>name</strong> : str</p>
+<blockquote>
+<div><p>The name of the data to be saved within group</p>
+</div></blockquote>
+<p><strong>attrb</strong> : dict</p>
+<blockquote>
+<div><p>attribute dictionary to store along with the database.</p>
+</div></blockquote>
+<p><strong>ReRw</strong> : str (Default = ‘w’)</p>
+<blockquote class="last">
+<div><p>The read/write format</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.utilities.HDF5_data_read">
+<code class="descname">HDF5_data_read</code><span class="sig-paren">(</span><em>HDF5File</em>, <em>group</em>, <em>name</em>, <em>ReRw='r'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#utilities.HDF5_data_read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.utilities.HDF5_data_read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves data into a hdf5 database</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>HDF5File</strong> : str</p>
+<blockquote>
+<div><p>Relative location of database</p>
+</div></blockquote>
+<p><strong>group</strong> : str</p>
+<blockquote>
+<div><p>The expected group name</p>
+</div></blockquote>
+<p><strong>attrb</strong> : tuple/list</p>
+<blockquote>
+<div><p>attribute to store along with the database.</p>
+</div></blockquote>
+<p><strong>ReRw</strong> : str (Default = ‘w’)</p>
+<blockquote>
+<div><p>The read/write format</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dset</strong> : ()</p>
+<blockquote class="last">
+<div><p>Data contained within group/name</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.utilities.HDF5_attri_read">
+<code class="descname">HDF5_attri_read</code><span class="sig-paren">(</span><em>HDF5File</em>, <em>group</em>, <em>name</em>, <em>ReRw='r'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#utilities.HDF5_attri_read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.utilities.HDF5_attri_read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read keys and attributes from hdf5 database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>HDF5File</strong> : str</p>
+<blockquote>
+<div><p>Relative location of database</p>
+</div></blockquote>
+<p><strong>group</strong> : str</p>
+<blockquote>
+<div><p>The expected group name</p>
+</div></blockquote>
+<p><strong>attrb</strong> : tuple/list</p>
+<blockquote>
+<div><p>attribute to store along with the database.</p>
+</div></blockquote>
+<p><strong>ReRw</strong> : str (Default = ‘w’)</p>
+<blockquote>
+<div><p>The read/write format</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dic</strong> : dict</p>
+<blockquote class="last">
+<div><p>A dictionary of all the attributes stored within the group/name.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.utilities.WindowTcent">
+<code class="descname">WindowTcent</code><span class="sig-paren">(</span><em>TS</em>, <em>wdws</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#utilities.WindowTcent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.utilities.WindowTcent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the centre of each correlation window in time from the input
+time-series database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>TS</strong> : float</p>
+<blockquote>
+<div><p>Sampling period</p>
+</div></blockquote>
+<p><strong>wdws</strong> : list(str)</p>
+<blockquote class="last">
+<div><p>Containing the windows range in sample points separated by -</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.utilities.DiffRegress">
+<code class="descname">DiffRegress</code><span class="sig-paren">(</span><em>Tseries</em>, <em>dfChan</em>, <em>Emaxt0</em>, <em>plotOut=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#utilities.DiffRegress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.utilities.DiffRegress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform linear regression to fit the 1D diffusion equation to an input
+time series. The output of this function is an estimation of the
+diffusivity and dissipation. (P. Anguonda et. al. 2001)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>Tseries</strong> : array-like</p>
+<blockquote>
+<div><p>The input time series</p>
+</div></blockquote>
+<p><strong>dfChan</strong> : DataFrame</p>
+<blockquote>
+<div><p>Containing the channel positsion columns x, y, z</p>
+</div></blockquote>
+<p><strong>Emaxt0</strong> : int</p>
+<blockquote>
+<div><p>The index corresponding to the arrival time (onset of) maximum energy</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>popt[1]</strong> : float</p>
+<blockquote>
+<div><p>The diffusitivty determined from the least squared fit.
+Units depends upon input t and z units check units</p>
+</div></blockquote>
+<p><strong>popt[2]</strong> : float</p>
+<blockquote class="last">
+<div><p>The Dissipation</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.utilities.src_recNo">
+<code class="descname">src_recNo</code><span class="sig-paren">(</span><em>CCdata</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#utilities.src_recNo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.utilities.src_recNo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the source receiver paris within CCdata, excluding common pairs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>CCdata</strong> : dataframe</p>
+<blockquote>
+<div><p>CCdata dataframe</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>src_recNo</strong> : list</p>
+<blockquote class="last">
+<div><p>List of the source receiver numbers</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.utilities.traceAttributes">
+<code class="descname">traceAttributes</code><span class="sig-paren">(</span><em>SurveyDB</em>, <em>Col</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#utilities.traceAttributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.utilities.traceAttributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract a single trace and its attributes from single survey dataframe,
+into a dictionary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>TStrace</strong> : DataFrame</p>
+<blockquote>
+<div><p>Containing all traces for a single survey.</p>
+</div></blockquote>
+<p><strong>Col</strong> : int</p>
+<blockquote>
+<div><p>The column to extract from the database.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">traceDict: dict</p>
+<blockquote class="last">
+<div><p>Containing the trace along with all header information.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.utilities.d_obs_time">
+<code class="descname">d_obs_time</code><span class="sig-paren">(</span><em>CCdata</em>, <em>src_rec</em>, <em>lag</em>, <em>window</em>, <em>parameter='CC'</em>, <em>staTime=None</em>, <em>stopTime=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#utilities.d_obs_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.utilities.d_obs_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct the d_obs dataframe over time from the input CCdata, for a
+select list of source-receiver pairs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>CCdata</strong> : dataframe</p>
+<blockquote>
+<div><p>CCdata dataframe</p>
+</div></blockquote>
+<p><strong>src_rec</strong> : list(tuples)</p>
+<blockquote>
+<div><p>A list of tuples for each source receiver pair.</p>
+</div></blockquote>
+<p><strong>lag</strong> : list(tuples)</p>
+<blockquote>
+<div><p>The lag value from which the extraction is made.</p>
+</div></blockquote>
+<p><strong>window</strong> : str/list(str)</p>
+<blockquote>
+<div><p>string of windows or list of str of windows.</p>
+</div></blockquote>
+<p><strong>parameter</strong> : str (Default=’CC’)</p>
+<blockquote>
+<div><p>Parameter from which to extract from the dataframe</p>
+</div></blockquote>
+<p><strong>staTime</strong> : str</p>
+<blockquote>
+<div><p>The start time from which <code class="docutils literal"><span class="pre">d_obs</span></code> is extracted</p>
+</div></blockquote>
+<p><strong>stopTime</strong> : str</p>
+<blockquote>
+<div><p>The stop time before which <code class="docutils literal"><span class="pre">d_obs</span></code> is extracted.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>d_obs_time</strong> : dataframe</p>
+<blockquote class="last">
+<div><p>dataframe containing the in each row the d_obs vector for all requested
+source-receiver pairs, increasing with time.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.utilities.measNorange">
+<code class="descname">measNorange</code><span class="sig-paren">(</span><em>CCdata</em>, <em>staTime</em>, <em>endTime</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#utilities.measNorange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.utilities.measNorange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the measurement survey number between given time interval.
+This function is intended to allow the user to quickly determine the measurement
+number range of interest, thereby allowing the reporcessing of the raw data
+over this region only. This requires that the user passes a CCdata which
+represents the entire raw dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>CCdata</strong> : dataframe</p>
+<blockquote>
+<div><p>CCdata dataframe</p>
+</div></blockquote>
+<p><strong>staTime</strong> : str</p>
+<blockquote>
+<div><p>The start time of the interval/.</p>
+</div></blockquote>
+<p><strong>endTime</strong> : str</p>
+<blockquote>
+<div><p>The start time of the interval/.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>None</strong> : tuple</p>
+<blockquote class="last">
+<div><p>Measurement survey numbers within the range given.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.utilities.surveyNorange">
+<code class="descname">surveyNorange</code><span class="sig-paren">(</span><em>TSsurveys</em>, <em>staTime</em>, <em>endTime</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#utilities.surveyNorange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.utilities.surveyNorange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the survey number between given time interval.
+This function is intended to allow the user to quickly determine the survey
+number range of interest, thereby allowing the reporcessing of the raw data
+over this region only. This requires that the user passes a CCdata which
+represents the entire raw dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>TSsurveys</strong> : list</p>
+<blockquote>
+<div><p>The survey folder numbers</p>
+</div></blockquote>
+<p><strong>staTime</strong> : str</p>
+<blockquote>
+<div><p>The start time of the interval/.</p>
+</div></blockquote>
+<p><strong>endTime</strong> : str</p>
+<blockquote>
+<div><p>The start time of the interval/.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>None</strong> : tuple</p>
+<blockquote class="last">
+<div><p>Measurement survey numbers within the range given.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.utilities.Data_on_mesh">
+<code class="descname">Data_on_mesh</code><span class="sig-paren">(</span><em>mesh_obj</em>, <em>data</em>, <em>loc=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#utilities.Data_on_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.utilities.Data_on_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Place data onto the mesh, and store each mesh file in subfolder.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>mesh_obj</strong> : mesh.object</p>
+<blockquote>
+<div><p>mesh object as generated by the class mesh, containing the mesh as well
+as the functions for setting and saving that mesh.</p>
+</div></blockquote>
+<p><strong>data</strong> : array</p>
+<blockquote>
+<div><p>Data containing mesh data stored in rows for each time step in columns.
+Separate mesh file will be generated for each <code class="docutils literal"><span class="pre">n</span></code> column.</p>
+</div></blockquote>
+<p><strong>loc</strong> : str (Default = ‘’)</p>
+<blockquote class="last">
+<div><p>Location to which the output vtu files will be saved.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.utilities.inversionSetup">
+<code class="descname">inversionSetup</code><span class="sig-paren">(</span><em>mesh_param</em>, <em>channelPos</em>, <em>noise_chan</em>, <em>drop_ch</em>, <em>noiseCutOff</em>, <em>database</em>, <em>CCdataTBL</em>, <em>Emaxt0</em>, <em>TS_idx</em>, <em>inversion_param</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#utilities.inversionSetup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.utilities.inversionSetup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run function intended to cluster the steps required to setup the
+inversion mesh and the associated sensitivity kernels. If the mesh_param
+dictionary key “makeMSH” is true, a new mesh will be constructed,
+otherweise an attempt to load it from disk will be made.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyCWD.CWD.decorrTheory">
+<em class="property">class </em><code class="descclassname">pyCWD.CWD.</code><code class="descname">decorrTheory</code><span class="sig-paren">(</span><em>src_rec</em>, <em>channels</em>, <em>X_b</em>, <em>t</em>, <em>param</em>, <em>mesh_obj=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#decorrTheory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.decorrTheory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Calculate the theoretical decorrelation ceofficient between each source
+receiver pair, based on the Code-Wave Diffusion method (Rossetto2011).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>src_rec</strong> : list(tuples)</p>
+<blockquote>
+<div><p>List of each source-receiver pair.</p>
+</div></blockquote>
+<p><strong>channels</strong> : DataFrame</p>
+<blockquote>
+<div><p>Index of channel numbers and the corresponding x,y,z (columns) positions
+corresponding to the ‘src’ and corresponding ‘rec’ numbers. Units should be
+according to the physical parameters of <code class="docutils literal"><span class="pre">D</span></code> and <code class="docutils literal"><span class="pre">sigma</span></code>.</p>
+</div></blockquote>
+<p><strong>X_b</strong> : array(x,y,z)</p>
+<blockquote>
+<div><p>Location coords of perturbation within model domain in SI units.</p>
+</div></blockquote>
+<p><strong>t</strong> : float or list(float)</p>
+<blockquote>
+<div><p>Centre time of the correlation windows with which the comparison is to be made.</p>
+</div></blockquote>
+<p><strong>param</strong> : dict</p>
+<blockquote>
+<div><p>Expected parameters of medium, for example <code class="docutils literal"><span class="pre">D</span></code> (diffusion coefficient) and
+<code class="docutils literal"><span class="pre">sigma</span></code> (scattering cross-section).</p>
+</div></blockquote>
+<p><strong>mesh_obj</strong> : object</p>
+<blockquote>
+<div><p>Mesh object generated from the <code class="docutils literal"><span class="pre">mesh</span></code> class.</p>
+</div></blockquote>
+<p><strong>srRx_df</strong> : DataFrame</p>
+<blockquote>
+<div><p>Calculated based on the input <code class="docutils literal"><span class="pre">src_rec</span></code>, <code class="docutils literal"><span class="pre">channels</span></code>, and <code class="docutils literal"><span class="pre">X_b</span></code> data.
+Multi-index df of s,r, and R, and Kt columns for each src, rec, tetraNo.</p>
+</div></blockquote>
+<p><strong>G</strong> : np.array</p>
+<blockquote class="last">
+<div><p>Matrix G of row.No = len(src_rec) * len(t).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyCWD.CWD.decorrTheory.Kt_run">
+<code class="descname">Kt_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#decorrTheory.Kt_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.decorrTheory.Kt_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run sequence of functions to produce the required inputs for inversion.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.decorrTheory.Kt">
+<code class="descname">Kt</code><span class="sig-paren">(</span><em>t_no=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#decorrTheory.Kt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.decorrTheory.Kt" title="Permalink to this definition">¶</a></dt>
+<dd><p>The theoretical decorrelation coefficient between a single source-receiver
+pair.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>t_no</strong> : int (Default=0)</p>
+<blockquote class="last">
+<div><p>The time at which the kernel is calculated</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The ‘_b’ notation signifies a vector in cartesian coordinates</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.decorrTheory.Kt_mat">
+<code class="descname">Kt_mat</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#decorrTheory.Kt_mat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.decorrTheory.Kt_mat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct the kernel matrix or rows for each source/receiver pair and
+columns for each tet. cell centre.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.decorrTheory.src_rec_srR">
+<code class="descname">src_rec_srR</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#decorrTheory.src_rec_srR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.decorrTheory.src_rec_srR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the corresponding <code class="docutils literal"><span class="pre">s</span></code>, <code class="docutils literal"><span class="pre">r</span></code>, and <code class="docutils literal"><span class="pre">R</span></code> for all source
+receiver pairs found in <code class="docutils literal"><span class="pre">self.src_rec</span></code>.</p>
+<p>s = <a href="#id1"><span class="problematic" id="id2">|S_b-X_b|</span></a>
+r = <a href="#id3"><span class="problematic" id="id4">|r_b-X_b|</span></a>
+R = <a href="#id5"><span class="problematic" id="id6">|S_b-r_b|</span></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.decorrTheory.K_on_mesh">
+<code class="descname">K_on_mesh</code><span class="sig-paren">(</span><em>loc=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#decorrTheory.K_on_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.decorrTheory.K_on_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Place each source-receiver kernel onto the mesh and save to file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>loc</strong> : str (Default = ‘’)</p>
+<blockquote class="last">
+<div><p>Location to which the output vtu files will be saved.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyCWD.CWD.decorrInversion">
+<em class="property">class </em><code class="descclassname">pyCWD.CWD.</code><code class="descname">decorrInversion</code><span class="sig-paren">(</span><em>G</em>, <em>d_obs</em>, <em>L_0</em>, <em>L_c</em>, <em>sigma_m</em>, <em>cell_cents</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#decorrInversion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.decorrInversion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Perform the inversion(Rossetto2011).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>G</strong> : np.array</p>
+<blockquote>
+<div><p>Matrix containing each sensitivity kernel stored roweise for each mesh cell
+stored columnweise.</p>
+</div></blockquote>
+<p><strong>d_obs</strong> : np.array</p>
+<blockquote>
+<div><p>Data vector or length equal to the number or source/receiver pairs by the
+number of windows implemented.</p>
+</div></blockquote>
+<p><strong>L_0</strong> : float</p>
+<blockquote>
+<div><p>Should correspond to the size of a model cell.</p>
+</div></blockquote>
+<p><strong>L_c</strong> : float</p>
+<blockquote>
+<div><p>The correlation distance between cells</p>
+</div></blockquote>
+<p><strong>sigma_m</strong> : float</p>
+<blockquote>
+<div><p>The standard deviation of the model cells</p>
+</div></blockquote>
+<p><strong>cell_cents</strong> : float</p>
+<blockquote class="last">
+<div><p>The correlation distance between cells</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyCWD.CWD.decorrInversion.paramUpdate">
+<code class="descname">paramUpdate</code><span class="sig-paren">(</span><em>V_0</em>, <em>f_0</em>, <em>factor=8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#decorrInversion.paramUpdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.decorrInversion.paramUpdate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the L_0 of material parameters. output in [mm]
+Paerameters
+———–
+V_0 : float</p>
+<blockquote>
+<div>Velocity of the bulk material [m/s]</div></blockquote>
+<dl class="docutils">
+<dt>f_0 <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The dominante frequency of the wavefield [Hz]</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyCWD.CWD.decorrInversion.C_M_speed">
+<em class="property">static </em><code class="descname">C_M_speed</code><span class="sig-paren">(</span><em>vecNorm</em>, <em>G</em>, <em>sigma_m</em>, <em>L_c</em>, <em>L_0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#decorrInversion.C_M_speed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.decorrInversion.C_M_speed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write jitted function for increasing the speed of L_curve operations</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyCWD.CWD.decorrInversion.inv_Lcurve">
+<code class="descname">inv_Lcurve</code><a class="reference internal" href="_modules/pyCWD/CWD.html#decorrInversion.inv_Lcurve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.decorrInversion.inv_Lcurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>The L-curve dedicated incersion jit’ed for increased speed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.decorrInversion.invTuning">
+<code class="descname">invTuning</code><span class="sig-paren">(</span><em>L_crange</em>, <em>sigma_mrange</em>, <em>runs</em>, <em>d_obs_idx=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#decorrInversion.invTuning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.decorrInversion.invTuning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the L-curve trade-off turning base of free param L_0 and sigma_m</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>L_0range</strong> : tuple</p>
+<blockquote>
+<div><p>Range of L_0 parameters (min, max, num).</p>
+</div></blockquote>
+<p><strong>sigma_mrange</strong> : tuple</p>
+<blockquote>
+<div><p>Range of sigma_m parameters (min, max, num).</p>
+</div></blockquote>
+<p><strong>runs</strong> : int</p>
+<blockquote>
+<div><p>The number of ramdom samples extracted from each tuning param</p>
+</div></blockquote>
+<p><strong>d_obs_idx</strong> : int</p>
+<blockquote class="last">
+<div><p>The index of the d_obs step on which turning is performed</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyCWD.CWD.decorrInversion.inv">
+<code class="descname">inv</code><a class="reference internal" href="_modules/pyCWD/CWD.html#decorrInversion.inv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.decorrInversion.inv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimation of the model parameters, for each time-step found in d_obs,
+where each row of ‘d_obs’ contains a single time step.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>d_obs</strong> : array</p>
+<blockquote>
+<div><p>rows of observed data at each time-step</p>
+</div></blockquote>
+<p><strong>G</strong> : array</p>
+<blockquote>
+<div><p>Sensntivity matrix G</p>
+</div></blockquote>
+<p><strong>C_M</strong> : array</p>
+<blockquote>
+<div><p>Covarience matrix of the model param</p>
+</div></blockquote>
+<p><strong>m_prior</strong> : array</p>
+<blockquote>
+<div><p>Prior model param</p>
+</div></blockquote>
+<p><strong>m_tildes</strong> : array</p>
+<blockquote>
+<div><p>empty matrix into which each time-step generated model param is stored
+along the columns.</p>
+</div></blockquote>
+<p><strong>error_thresh</strong> : float.32</p>
+<blockquote>
+<div><p>The error threashold below which the inversion resultes are accepted</p>
+</div></blockquote>
+<p><strong>no_interation</strong> : int</p>
+<blockquote>
+<div><p>The max. number of repeat inversion steps.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>m_tildes</strong> : array</p>
+<blockquote>
+<div><p>The model response from each of the time-step inversions with rows: of
+the number of model cells and columns: of the number of time-steps.</p>
+</div></blockquote>
+<p><strong>rms</strong> : float</p>
+<blockquote class="last">
+<div><p>The root-mean-square diference after inforcing the positivity constraint.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.CWD.decorrInversion.invRun">
+<code class="descname">invRun</code><span class="sig-paren">(</span><em>L_c=None</em>, <em>sigma_m=None</em>, <em>Database='CWD_Inversion.h5'</em>, <em>m_tildes=None</em>, <em>error_thresh=100.0</em>, <em>no_iteration=10</em>, <em>chunk=False</em>, <em>d_obs_time=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/CWD.html#decorrInversion.invRun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.CWD.decorrInversion.invRun" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overhead inversion function to perform time-lapse inversion operations
+for each time-step in parallel</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>L_c</strong> : float (default = None)</p>
+<blockquote>
+<div><p>Define the final L_c to use during the entire inversion</p>
+</div></blockquote>
+<p><strong>sigma_m</strong> : float (default = None)</p>
+<blockquote>
+<div><p>Define the final sigma_m to use during the entire inversion</p>
+</div></blockquote>
+<p><strong>Database</strong> : h5 object</p>
+<blockquote>
+<div><p>The database to which all inversion related param are stored.</p>
+</div></blockquote>
+<p><strong>m_tildes</strong> : floats (default = None)</p>
+<blockquote>
+<div><p>model space vector</p>
+</div></blockquote>
+<p><strong>error_thresh</strong> : float.32 (default = 100.0)</p>
+<blockquote>
+<div><p>The error threashold below which the inversion resultes are accepted</p>
+</div></blockquote>
+<p><strong>no_interation</strong> : int (default = 10)</p>
+<blockquote>
+<div><p>The max. number of repeat inversion steps enforcing non-negative cond.</p>
+</div></blockquote>
+<p><strong>chunk</strong> : bool or int (default = False)</p>
+<blockquote>
+<div><p>Defines the t-step chunks which to perform the inversion. This is
+intended to reduce the RAM requirements when many time-steps given.</p>
+</div></blockquote>
+<p><strong>d_obs_time</strong> : array[str] (default = None)</p>
+<blockquote class="last">
+<div><p>The time corresponding to each inversion, should be equal to the number of rows in
+<code class="docutils literal"><span class="pre">self.d_obs</span></code>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyCWD.mesh">
+<span id="pycoda-mesh-module"></span><h2>pyCoda.mesh module<a class="headerlink" href="#module-pyCWD.mesh" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mon Jun  4 11:19:57 2018</p>
+<p>&#64;author: rwilson</p>
+<dl class="class">
+<dt id="pyCWD.mesh.mesher">
+<em class="property">class </em><code class="descclassname">pyCWD.mesh.</code><code class="descname">mesher</code><span class="sig-paren">(</span><em>mesh_param</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/mesh.html#mesher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.mesh.mesher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Mesh generator class using pygmsh to gmsh code.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>mesh_param</strong> : dict</p>
+<blockquote>
+<div><p>Expected parameters defining the mesh, char_len, height, radius</p>
+</div></blockquote>
+<p><strong>cell_data</strong> : dict</p>
+<blockquote>
+<div><p>Contains line, tetra, triangle, vertex ‘gmsh:physical’ and
+‘gmsh:geometrical’.</p>
+</div></blockquote>
+<p><strong>cells</strong> : dict</p>
+<blockquote>
+<div><p>Contains line, tetra, triangle, vertex of the point indicies as defined in
+<code class="docutils literal"><span class="pre">points</span></code>.</p>
+</div></blockquote>
+<p><strong>points</strong> : array(float)</p>
+<blockquote class="last">
+<div><p>Matrix of xyz coords for each point in the mesh domain</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<dl class="docutils">
+<dt>Understanding the mesh structure</dt>
+<dd><p class="first">Points are a list of each point or verticies in x,y,z positions.
+cell_data[‘tetra’][‘gmsh:physical’] : the physical values of each  tetra
+* cell[‘tetra’] : list of lists of each tetrahedral verticies index referencing to</p>
+<blockquote class="last">
+<div><dl class="docutils">
+<dt>the coords inside the points.                                [points[i1],</dt>
+<dd>points[i2],
+points[i3],
+points[i4]]</dd>
+</dl>
+</div></blockquote>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pyCWD.mesh.mesher.meshIt">
+<code class="descname">meshIt</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/mesh.html#mesher.meshIt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.mesh.mesher.meshIt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produces the mesh.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.mesh.mesher.saveMesh">
+<code class="descname">saveMesh</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/mesh.html#mesher.saveMesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.mesh.mesher.saveMesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the mesh to file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
+<blockquote class="last">
+<div><p>Name of the mesh file saved to the current directory.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.mesh.mesher.setCellsVal">
+<code class="descname">setCellsVal</code><span class="sig-paren">(</span><em>cell_values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/mesh.html#mesher.setCellsVal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.mesh.mesher.setCellsVal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set each cell physical value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>cell_values</strong> : array/list</p>
+<blockquote class="last">
+<div><p>physical values of each tetra cell within the mesh domain in order
+corresponding to <code class="docutils literal"><span class="pre">points</span></code>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.mesh.mesher.meshOjtoDisk">
+<code class="descname">meshOjtoDisk</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/mesh.html#mesher.meshOjtoDisk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.mesh.mesher.meshOjtoDisk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the entire mesh object to disk</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCWD.mesh.mesher.meshOjfromDisk">
+<code class="descname">meshOjfromDisk</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCWD/mesh.html#mesher.meshOjfromDisk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCWD.mesh.mesher.meshOjfromDisk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the entire mesh object to disk</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pyCoda.html" title="pyCoda"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CWI 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pyCoda</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Reuben Zotz-wilson.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>

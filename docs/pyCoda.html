@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pyCoda package &#8212; CWI 0 documentation</title>
+    <title>pyCoda &#8212; CWI 0 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -24,6 +24,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pyCWD" href="pyCWD.html" />
     <link rel="prev" title="pyCoda" href="modules.html" /> 
   </head>
   <body>
@@ -37,6 +38,9 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
+          <a href="pyCWD.html" title="pyCWD"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
           <a href="modules.html" title="pyCoda"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">CWI 0 documentation</a> &#187;</li>
@@ -48,6 +52,9 @@
   <h4>Previous topic</h4>
   <p class="topless"><a href="modules.html"
                         title="previous chapter">pyCoda</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pyCWD.html"
+                        title="next chapter">pyCWD</a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -66,8 +73,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pycoda-package">
-<h1>pyCoda package<a class="headerlink" href="#pycoda-package" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="pycoda">
+<h1>pyCoda<a class="headerlink" href="#pycoda" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
@@ -1192,9 +1199,9 @@ TODO:</p>
 <em class="property">class </em><code class="descclassname">pyCoda.postProcess.</code><code class="descname">post_utilities</code><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A collection of post processing utility functions</p>
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pyCoda.postProcess.post_utilities.detect_most_linear">
-<em class="property">static </em><code class="descname">detect_most_linear</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>m</em>, <em>smooth=False</em>, <em>wdw_wdth=25</em>, <em>poly_ord=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.detect_most_linear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.detect_most_linear" title="Permalink to this definition">¶</a></dt>
+<code class="descname">detect_most_linear</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>m</em>, <em>smooth=False</em>, <em>wdw_wdth=25</em>, <em>poly_ord=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.detect_most_linear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.detect_most_linear" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds the most linear portion of a line via
 Inputs:
 ——
@@ -1211,9 +1218,9 @@ smooth : bool</p>
 <div>Smooth the curve before search</div></blockquote>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pyCoda.postProcess.post_utilities.detect_peaks">
-<em class="property">static </em><code class="descname">detect_peaks</code><span class="sig-paren">(</span><em>x</em>, <em>mph=None</em>, <em>mpd=1</em>, <em>threshold=0</em>, <em>edge='rising'</em>, <em>kpsh=False</em>, <em>valley=False</em>, <em>show=False</em>, <em>ax=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.detect_peaks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.detect_peaks" title="Permalink to this definition">¶</a></dt>
+<code class="descname">detect_peaks</code><span class="sig-paren">(</span><em>x</em>, <em>mph=None</em>, <em>mpd=1</em>, <em>threshold=0</em>, <em>edge='rising'</em>, <em>kpsh=False</em>, <em>valley=False</em>, <em>show=False</em>, <em>ax=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.detect_peaks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.detect_peaks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Detect peaks in data based on their amplitude and other features.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1314,9 +1321,9 @@ negating the data: <cite>ind_valleys = detect_peaks(-x)</cite></p>
 </div>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pyCoda.postProcess.post_utilities.MLTWA_calc">
-<em class="property">static </em><code class="descname">MLTWA_calc</code><span class="sig-paren">(</span><em>TS_DB</em>, <em>after_FB</em>, <em>Ewdth=None</em>, <em>wd_shift=0</em>, <em>ref_trace=0</em>, <em>mph=None</em>, <em>mpd=None</em>, <em>threshold=0</em>, <em>R1_Sign=False</em>, <em>grad_period=-50</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.MLTWA_calc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.MLTWA_calc" title="Permalink to this definition">¶</a></dt>
+<code class="descname">MLTWA_calc</code><span class="sig-paren">(</span><em>TS_DB</em>, <em>after_FB</em>, <em>Ewdth=None</em>, <em>wd_shift=0</em>, <em>ref_trace=0</em>, <em>mph=None</em>, <em>mpd=None</em>, <em>threshold=0</em>, <em>R1_Sign=False</em>, <em>grad_period=-50</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.MLTWA_calc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.MLTWA_calc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply Multi Lapse-Time Window Analysis on the input database time
 -series. Additional parameters are calculated such as the B0 or ratio of
 R1 to R2 as well as their gradient difference.</p>
@@ -1405,9 +1412,9 @@ expected Time column of the input <code class="docutils literal"><span class="pr
 </div>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pyCoda.postProcess.post_utilities.PV_segmentation">
-<em class="property">static </em><code class="descname">PV_segmentation</code><span class="sig-paren">(</span><em>PV_df</em>, <em>Segments</em>, <em>targets</em>, <em>indexName='index'</em>, <em>shiftCols=None</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.PV_segmentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.PV_segmentation" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PV_segmentation</code><span class="sig-paren">(</span><em>PV_df</em>, <em>Segments</em>, <em>targets</em>, <em>indexName='index'</em>, <em>shiftCols=None</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.PV_segmentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.PV_segmentation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply a range of data parameterisation methods from segments of input
 data. Note, any row with a <code class="docutils literal"><span class="pre">nan</span></code> will be removed before segmentation.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1468,9 +1475,9 @@ from all)</p>
 </table>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pyCoda.postProcess.post_utilities.TS_FBP">
-<em class="property">static </em><code class="descname">TS_FBP</code><span class="sig-paren">(</span><em>TS_DB</em>, <em>noiseWD</em>, <em>threshold=1</em>, <em>threshold_shift=0</em>, <em>mpd=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.TS_FBP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.TS_FBP" title="Permalink to this definition">¶</a></dt>
+<code class="descname">TS_FBP</code><span class="sig-paren">(</span><em>TS_DB</em>, <em>noiseWD</em>, <em>threshold=1</em>, <em>threshold_shift=0</em>, <em>mpd=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.TS_FBP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.TS_FBP" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function is intended to perform first break picking</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1514,9 +1521,9 @@ detection threshold.</p>
 </table>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pyCoda.postProcess.post_utilities.TS_interactive">
-<em class="property">static </em><code class="descname">TS_interactive</code><span class="sig-paren">(</span><em>TS_DB</em>, <em>idx=None</em>, <em>threshold=False</em>, <em>noiseWD=False</em>, <em>wdws=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.TS_interactive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.TS_interactive" title="Permalink to this definition">¶</a></dt>
+<code class="descname">TS_interactive</code><span class="sig-paren">(</span><em>TS_DB</em>, <em>idx=None</em>, <em>threshold=False</em>, <em>noiseWD=False</em>, <em>wdws=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.TS_interactive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.TS_interactive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interactive plot of time-series data with ability to plot detection
 parameters for analysis.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1551,7 +1558,7 @@ parameters for analysis.</p>
 
 <dl class="method">
 <dt id="pyCoda.postProcess.post_utilities.CC_ch_drop">
-<code class="descname">CC_ch_drop</code><span class="sig-paren">(</span><em>CC_DB</em>, <em>channels</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.CC_ch_drop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.CC_ch_drop" title="Permalink to this definition">¶</a></dt>
+<code class="descname">CC_ch_drop</code><span class="sig-paren">(</span><em>CC_DB</em>, <em>channels=None</em>, <em>errors='raise'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.CC_ch_drop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.CC_ch_drop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Drops channels from standard CCdata dataframe</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1561,9 +1568,16 @@ parameters for analysis.</p>
 <blockquote>
 <div><p>Database containing in the first two levels src and rec numbers</p>
 </div></blockquote>
-<p><strong>channels</strong> : int (default None)</p>
+<p><strong>channels</strong> : int (default =  None)</p>
+<blockquote>
+<div><p>the channels to remove from the dataframe, either a list of channels
+in which case both source and receivers will be dropped, or a list of
+channel pairs in which case only the defined pairs will be dropped.</p>
+</div></blockquote>
+<p><strong>errors</strong> : str (dfault = ‘raise’)</p>
 <blockquote class="last">
-<div><p>the channels to remove from the dataframe</p>
+<div><p>Raise error in attempted drop does not exist, ‘ignore’ to surpress
+the error.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -1573,7 +1587,7 @@ parameters for analysis.</p>
 
 <dl class="method">
 <dt id="pyCoda.postProcess.post_utilities.calcSNR">
-<code class="descname">calcSNR</code><span class="sig-paren">(</span><em>TSsurvey</em>, <em>Noise_channels</em>, <em>all_channels</em>, <em>wdws</em>, <em>noiseCutOff=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.calcSNR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.calcSNR" title="Permalink to this definition">¶</a></dt>
+<code class="descname">calcSNR</code><span class="sig-paren">(</span><em>TSsurvey</em>, <em>Noise_channels</em>, <em>all_channels</em>, <em>wdws</em>, <em>noiseCutOff=0</em>, <em>inspect=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.calcSNR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.calcSNR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines the channels which are above a certain SNR.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1599,6 +1613,10 @@ parameters for analysis.</p>
 <blockquote>
 <div><p>The threshold of SNR in Db to filter</p>
 </div></blockquote>
+<p><strong>inspect: bool (default = False)</strong></p>
+<blockquote>
+<div><p>Inspect the traces which are noted as noise.</p>
+</div></blockquote>
 <p><strong>Returns</strong></p>
 <p><strong>——-</strong></p>
 <p><strong>noiseyChannels</strong> : float</p>
@@ -1611,9 +1629,9 @@ parameters for analysis.</p>
 </table>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pyCoda.postProcess.post_utilities.smooth">
-<em class="property">static </em><code class="descname">smooth</code><span class="sig-paren">(</span><em>x</em>, <em>window_len=11</em>, <em>window='hanning'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.smooth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.smooth" title="Permalink to this definition">¶</a></dt>
+<code class="descname">smooth</code><span class="sig-paren">(</span><em>x</em>, <em>window_len=11</em>, <em>window='hanning'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.smooth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.smooth" title="Permalink to this definition">¶</a></dt>
 <dd><p>smooth the data using a window with requested size.</p>
 <p>This method is based on the convolution of a scaled window with the signal.
 The signal is prepared by introducing reflected copies of the signal
@@ -1639,6 +1657,45 @@ y=smooth(x)</p>
 scipy.signal.lfilter</p>
 <p>TODO: the window parameter could be the window itself if an array instead of a string
 NOTE: length(output) != length(input), to correct this: return y[(window_len/2-1):-(window_len/2)] instead of just y.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCoda.postProcess.post_utilities.PV_time_shift">
+<code class="descname">PV_time_shift</code><span class="sig-paren">(</span><em>PVdata</em>, <em>PV_time_col</em>, <em>PV_time_col_unit</em>, <em>PVstart_date_time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCoda/postProcess.html#post_utilities.PV_time_shift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCoda.postProcess.post_utilities.PV_time_shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjusts the Time Stamp column in the PVdata frame.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>PVdata</strong> : DataFrame</p>
+<blockquote>
+<div><p>The dataframe on which operations are performed</p>
+</div></blockquote>
+<p><strong>PV_time_col</strong> : str</p>
+<blockquote>
+<div><p>The name of the PV time column to be processed.</p>
+</div></blockquote>
+<p><strong>PV_time_col_unit</strong> : str</p>
+<blockquote>
+<div><p>Unit of the time column <code class="docutils literal"><span class="pre">PV_time_col</span></code>.</p>
+</div></blockquote>
+<p><strong>PVstart_date_time</strong> : str</p>
+<blockquote class="last">
+<div><p>The YYYY-MM-DD ..etc string defining the origin of the <code class="docutils literal"><span class="pre">PV_time_col</span></code>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Determine the origin time of the PVdata</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">origin</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;20180212180703&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="mf">43.6725</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Shift the PVdata to the new origin</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pp</span><span class="o">.</span><span class="n">post_utilities</span><span class="o">.</span><span class="n">PV_time_shift</span><span class="p">(</span><span class="n">PVdata</span><span class="p">,</span> <span class="s1">&#39;Time(Days)&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save the new PVdata back to the HDF5 database</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dt</span><span class="o">.</span><span class="n">utilities</span><span class="o">.</span><span class="n">DB_pd_data_save</span><span class="p">(</span><span class="s1">&#39;Ultrasonic_data_DB/Database.h5&#39;</span><span class="p">,</span> <span class="s1">&#39;PVdata&#39;</span><span class="p">,</span> <span class="n">PVdata</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -1845,6 +1902,9 @@ any critical param are found and None if only non-critical param change</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="pyCWD.html" title="pyCWD"
+             >next</a> |</li>
         <li class="right" >
           <a href="modules.html" title="pyCoda"
              >previous</a> |</li>
