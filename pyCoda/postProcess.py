@@ -680,32 +680,41 @@ class post_utilities:
         plt.show()
         return ts_slider, hdl, hdl_break, hdl_thsh
 
-    def CC_ch_drop(CC_DB, channels):
+    def CC_ch_drop(CC_DB, channels=None, errors='raise'):
         '''Drops channels from standard CCdata dataframe
 
         Parameters
         ----------
         CC_DB : dataframe
             Database containing in the first two levels src and rec numbers
-        channels : int (default None)
-            the channels to remove from the dataframe
-                '''
-
+        channels : int (default =  None)
+            the channels to remove from the dataframe, either a list of channels
+            in which case both source and receivers will be dropped, or a list of
+            channel pairs in which case only the defined pairs will be dropped.
+        errors : str (dfault = 'raise')
+            Raise error in attempted drop does not exist, 'ignore' to surpress
+            the error.
+        '''
 
         if isinstance(channels[0], int):
             for chan in channels:
-                CC_DB.drop(chan, axis=0, level=0, inplace=True)
-                CC_DB.drop(chan, axis=0, level=1, inplace=True)
+                CC_DB.drop(chan, axis=0, level=0, inplace=True, errors=errors)
+                CC_DB.drop(chan, axis=0, level=1, inplace=True, errors=errors)
         else:
             srcDrop = [ch[0] for ch in channels]
             recDrop = [ch[1] for ch in channels]
 
-            CC_DB_drop_idx = CC_DB.loc[(srcDrop, recDrop,
-                                        [slice(None)]*len(srcDrop)), :].index
-            CC_DB.drop(CC_DB_drop_idx, inplace=True)
+            CC_DB.drop(pd.MultiIndex.from_arrays([srcDrop, recDrop]), inplace=True)
+
+#            fn = CC_DB.index.get_level_values
+#            CC_DB = CC_DB[~(fn(0).isin(As) | fn(1).isin(Bs))]
+#
+#            for src, rec in zip(srcDrop, recDrop):
+#                CC_DB_drop_idx = CC_DB.loc[(src, rec, slice(None)), :].index
+#                CC_DB.drop(CC_DB_drop_idx, inplace=True, errors=errors)
 
 
-    def calcSNR(TSsurvey, Noise_channels, all_channels, wdws, noiseCutOff=0):
+    def calcSNR(TSsurvey, Noise_channels, all_channels, wdws, noiseCutOff=0, inspect=False):
         '''Determines the channels which are above a certain SNR.
 
         Parameters
@@ -720,6 +729,8 @@ class post_utilities:
             The windows in samples points at which the SNR is calculated
         noiseCutOff: float
             The threshold of SNR in Db to filter
+        inspect: bool (default = False)
+            Inspect the traces which are noted as noise.
         Returns
         -------
         noiseyChannels : float
@@ -738,6 +749,10 @@ class post_utilities:
 
         NoiseTraces =  TSsurvey.loc[:, traceMask]
 
+        if inspect:
+            post_utilities.TS_interactive(NoiseTraces)
+            plt.pause(10)
+
         print('-------- Calculate SNR for each window --------\n')
         wdws_num = [ [int(wd.split('-')[0]), int(wd.split('-')[1])] for wd in wdws]
         for wd in wdws_num:
@@ -747,8 +762,11 @@ class post_utilities:
                                           mean().pow(1/2).mean())
             try:
                 SNR = pd.concat([SNR, temp], axis=1)
-            except NameError:
+            except (NameError, UnboundLocalError):
                 SNR = temp
+
+        if isinstance(SNR, pd.Series):
+            SNR = pd.DataFrame(SNR)
 
         noisyCh = SNR[SNR.mean(axis=1).between(left=-np.inf, right=noiseCutOff)].\
             index.droplevel(level=[2, 3, 4, 5, 6, 7, 8, 9]).unique().values.tolist()
