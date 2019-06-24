@@ -1107,7 +1107,8 @@ class decorrInversion():
 
 
     def invRun(self, L_c=None, sigma_m=None, Database='CWD_Inversion.h5', m_tildes=None,
-               error_thresh=100.0, no_iteration=10, chunk=False, d_obs_time=None):
+               error_thresh=100.0, no_iteration=10, chunk=False, d_obs_time=None,
+               down_sample=None):
         '''Overhead inversion function to perform time-lapse inversion operations
         for each time-step in parallel
 
@@ -1131,6 +1132,9 @@ class decorrInversion():
         d_obs_time : array[str] (default = None)
             The time corresponding to each inversion, should be equal to the number of rows in
             ``self.d_obs``.
+        down_sample : int (default = None)
+            Reduce the number of times steps in the inversion an integer (e.g. every 2nd time step).
+            The intended use case is where computational time is an issue.
         '''
 
         # Update the tuning param (if provided) and ensure dtype
@@ -1151,33 +1155,42 @@ class decorrInversion():
         self._vecNorm()
         self._C_M()
 
+        # Determine the t-steps to be performed
+        if down_sample:
+            d_obs = self.d_obs[0::down_sample, :]
+            d_obs_time = d_obs_time[0::down_sample]
+        else:
+            d_obs = self.d_obs
+
         # Define prior model
-        m_prior = np.zeros([self.G.shape[1], self.d_obs.shape[0]],
+        m_prior = np.zeros([self.G.shape[1], d_obs.shape[0]],
                            dtype=np.float32)
 
         if m_tildes is None:
-            m_tildes = np.zeros([self.G.shape[1], self.d_obs.shape[0]],
+            m_tildes = np.zeros([self.G.shape[1], d_obs.shape[0]],
                                 dtype=np.float32)
 
         if chunk:
             print('\n----------- Begin chuncked Inversion -----------')
-            tsteps = self.d_obs.shape[0]
+            tsteps = d_obs.shape[0]
             wholes = tsteps//chunk
+
+            remainder = tsteps - wholes*chunk
 
             if chunk > tsteps:
                 raise ValueError('In input chunk = %g is greater than the number of time steps: %g'
                                  % (chunk, tsteps))
 
             if remainder:
-                chunks = [wholes]*chunk +[remainder]
+                chunks = [wholes]*chunk + [remainder]
             else:
                 chunks = [wholes]*chunk
 
             step = 0
             for idx, ch in enumerate(chunks):
-                print(idx, "from %g - to %g " %(step, step+ch ))
+                print(idx, "from %g - to %g" % (step, step+ch))
 
-                m_tildes, rms = self.inv(self.d_obs[step:step+ch, :],
+                m_tildes, rms = self.inv(d_obs[step:step+ch, :],
                                          self.G, self.C_M, m_prior, m_tildes,
                                          error_thresh, no_iteration)
 
@@ -1186,11 +1199,11 @@ class decorrInversion():
                          'Times': d_obs_time[step:step+ch]}
                 utilities.HDF5_data_save(Database, 'Inversion', 'm_tildes'+str(step), m_tildes,
                                          attrb=attrb, ReRw='r+')
-                step+= ch
+                step += ch
 
         else:
             print('\n----------- Begin Inversion -----------')
-            m_tildes, rms = self.inv(self.d_obs, self.G, self.C_M, m_prior, m_tildes,
+            m_tildes, rms = self.inv(d_obs, self.G, self.C_M, m_prior, m_tildes,
                                      error_thresh, no_iteration)
             # Store the data to the database along wtih some attributes
             attrb = {'L_c': L_c, 'sigma_m': sigma_m, 'rms_max': rms, 'Times': d_obs_time}
