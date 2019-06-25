@@ -1116,8 +1116,9 @@ class decorrInversion():
         ----------
         L_c : float (default = None)
             Define the final L_c to use during the entire inversion
-        sigma_m : float (default = None)
-            Define the final sigma_m to use during the entire inversion
+        sigma_m : float/kist(floats) (default = None)
+            Define the final sigma_m to use during the entire inversion. If list is given Multiple
+            inversions will be run for each sigma_m for all time-steps.
         Database : h5 object
             The database to which all inversion related param are stored.
         m_tildes : floats (default = None)
@@ -1129,7 +1130,7 @@ class decorrInversion():
         chunk : bool or int (default = False)
             Defines the t-step chunks which to perform the inversion. This is
             intended to reduce the RAM requirements when many time-steps given.
-        d_obs_time : array[str] (default = None)
+        d_obs_time : list[str]/array[str] (default = None)
             The time corresponding to each inversion, should be equal to the number of rows in
             ``self.d_obs``.
         down_sample : int (default = None)
@@ -1143,8 +1144,12 @@ class decorrInversion():
         else:
             self.L_c = np.float32(self.L_c)
 
-        if sigma_m:
-            self.sigma_m = np.float32(sigma_m)
+        if isinstance(sigma_m,list):
+            sigma_m = np.float32(sigma_m)
+            self.sigma_m = sigma_m[0]
+        elif sigma_m:
+            sigma_m = np.float32(sigma_m)
+            self.sigma_m = sigma_m
         else:
             self.sigma_m = np.float32(self.sigma_m)
 
@@ -1195,18 +1200,30 @@ class decorrInversion():
                                          error_thresh, no_iteration)
 
                 # Store the data to the database along wtih some attributes
-                attrb = {'L_c': L_c, 'sigma_m': sigma_m, 'rms_max': rms, 'tstep': step,
+                attrb = {'L_c': self.L_c, 'sigma_m': self.sigma_m, 'rms_max': rms, 'tstep': step,
                          'Times': d_obs_time[step:step+ch]}
                 utilities.HDF5_data_save(Database, 'Inversion', 'm_tildes'+str(step), m_tildes,
                                          attrb=attrb, ReRw='r+')
                 step += ch
+
+        elif isinstance(sigma_m, list):  # perform for multiple sigma
+            print('\n----------- Begin Inversion for Multiple sigma_m -----------')
+            for sigmam in sigma_m:
+                self.sigma_m = sigmam
+                self._C_M()
+                m_tildes, rms = self.inv(d_obs, self.G, self.C_M, m_prior, m_tildes,
+                                         error_thresh, no_iteration)
+                # Store the data to the database along wtih some attributes
+                attrb = {'L_c': self.L_c, 'sigma_m': self.sigma_m, 'rms_max': rms, 'Times': d_obs_time}
+                utilities.HDF5_data_save(Database, 'Inversion', 'm_tildes'+str(sigmam), m_tildes,
+                                         attrb=attrb, ReRw='r+')
 
         else:
             print('\n----------- Begin Inversion -----------')
             m_tildes, rms = self.inv(d_obs, self.G, self.C_M, m_prior, m_tildes,
                                      error_thresh, no_iteration)
             # Store the data to the database along wtih some attributes
-            attrb = {'L_c': L_c, 'sigma_m': sigma_m, 'rms_max': rms, 'Times': d_obs_time}
+            attrb = {'L_c': self.L_c, 'sigma_m': self.sigma_m, 'rms_max': rms, 'Times': d_obs_time}
             utilities.HDF5_data_save(Database, 'Inversion', 'm_tildes', m_tildes,
                                      attrb=attrb, ReRw='r+')
 
