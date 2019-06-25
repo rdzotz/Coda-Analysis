@@ -12,8 +12,13 @@ The basic structure of the raw input data is a series of recorded Time-Series (T
 pyCWD:
 The implementaiton of Coda-Wave Decorrelation as described in "Imaging multiple local changes in heterogeneous media with diffuse waves, Planes et. al. 2015". This module takes as input the processed correlation coefficients for differnet time windows within the coda. Currently this package is set up to perform the inversion on a 3D cylindrical mesh. 
 
+Documentation
+-------------
+The docstring generated documentation can be found below:
 
-A basic workflow tutorial will be provided shortly
+https://rdzotz.github.io/Coda-Analysis/
+
+Basic workflow tutorials will follow shortly. 
 
 Citing Coda Analysis
 --------------------
