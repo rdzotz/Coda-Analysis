@@ -3,14 +3,13 @@ Coda Analysis
 
 Introduction
 ------------
-
 Coda Analysis, is a collection of python code intended for the processing of the coda or diffuse portion of recorded waveforms. The package currently consists of two modules;
 
 pyCoda:
-The basic structure of the raw input data is a series of recorded Time-Series (TSdata), and the corresponding time-matched Perturbation Vectors (PVdata). The intended application of this package of code is for the monitoring of changes in material properties due to some perturbation.
+The basic structure of the raw input data is a series of recorded Time-Series (TSdata), and the corresponding time-matched Perturbation Vectors (PVdata). The intended application of this package of code is for the monitoring of changes in material properties due to some perturbation. Time-windowed normalised cross-correlation, and the associated lag values are an example of the type of processing functions available. 
 
 pyCWD:
-The implementaiton of Coda-Wave Decorrelation as described in "Imaging multiple local changes in heterogeneous media with diffuse waves, Planes et. al. 2015". This module takes as input the processed correlation coefficients for differnet time windows within the coda. Currently this package is set up to perform the inversion on a 3D cylindrical mesh. 
+The implementaiton of Coda-Wave Decorrelation as described in "Imaging multiple local changes in heterogeneous media with diffuse waves, Planes et. al. 2015". This module takes as input the processed correlation coefficients for differnet time windows within the coda, from multiple source-receiver pairs. Currently this package is set up to perform the inversion on a cylindrical mesh. 
 
 Documentation
 -------------
