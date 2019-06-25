@@ -18,8 +18,10 @@ A basic workflow tutorial will be provided shortly
 Citing Coda Analysis
 --------------------
 
-If you use the modules contained within the package Coda Analysis, please cite the current release as
-[![DOI](https://zenodo.org/badge/192512410.svg)](https://zenodo.org/badge/latestdoi/192512410)
+If you use the modules contained within the package Coda Analysis, please cite the current release as;
+
+.. image:: https://zenodo.org/badge/192512410.svg
+   :target: https://zenodo.org/badge/latestdoi/192512410
 
 Author
 ------
