@@ -15,6 +15,12 @@ The implementaiton of Coda-Wave Decorrelation as described in "Imaging multiple 
 
 A basic workflow tutorial will be provided shortly
 
+Citing Coda Analysis
+--------------------
+
+If you use the modules contained within the package Coda Analysis, please cite the current release as
+[![DOI](https://zenodo.org/badge/192512410.svg)](https://zenodo.org/badge/latestdoi/192512410)
+
 Author
 ------
 
