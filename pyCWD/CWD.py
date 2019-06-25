@@ -1117,8 +1117,9 @@ class decorrInversion():
         L_c : float (default = None)
             Define the final L_c to use during the entire inversion
         sigma_m : float/kist(floats) (default = None)
-            Define the final sigma_m to use during the entire inversion. If list is given Multiple
-            inversions will be run for each sigma_m for all time-steps.
+            Define the final sigma_m to use during the entire inversion. If list is given multiple
+            inversions will be run for all time-step for each sigma_m given. Currently this
+            freature is not compatible when ``chunk`` is true.
         Database : h5 object
             The database to which all inversion related param are stored.
         m_tildes : floats (default = None)
