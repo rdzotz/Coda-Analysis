@@ -1303,14 +1303,14 @@ class decorrInversion():
                 self.sigma_m = sigmam
                 self.L_c = Lc
                 print('sigma m: %g' % sigmam)
-                print('L_c m: %g' % Lc)
+                print('L_c : %g' % Lc)
                 self._C_M()
                 m_tildes, rms = self.inv(d_obs, self.G, self.C_M, m_prior, m_tildes,
                                          error_thresh, no_iteration)
 
                 # Store the data to the database along wtih some attributes
                 attrb = {'L_c': self.L_c, 'sigma_m': self.sigma_m, 'rms_max': rms, 'Times': d_obs_time}
-                utilities.HDF5_data_save(Database, 'Inversion', 'm_tildes'+str(sigmam), m_tildes,
+                utilities.HDF5_data_save(Database, 'Inversion', 'm_tildes'+str(sigmam)+str(Lc), m_tildes,
                                          attrb=attrb, ReRw='r+')
 
         else:
