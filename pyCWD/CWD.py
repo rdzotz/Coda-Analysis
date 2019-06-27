@@ -492,8 +492,9 @@ class utilities():
         channelPos : str
             Location of the csv contraining the channel positions, same units as
             provided in the ``mesh_param``
-        noise_chan : list
-            Channels which are pure noise, and will be used to determine the SNR
+        noise_chan : list/None
+            Channels which are pure noise, and will be used to determine the SNR.
+            if ``None`` is given no attempt to calculate the SNR will be made.
         drop_ch : list
             Channels which should be dropped. Pass ``None`` or ``False`` to skip.
         noiseCutOff : float (Default=10.91)
@@ -558,15 +559,15 @@ class utilities():
         wdws_cent = utilities.WindowTcent(TS, wdws)
 
         # Remove noisy channels
-        noiseyChannels, SNR, NoiseTraces = pp.\
+        if noise_chan:
+            noiseyChannels, SNR, NoiseTraces = pp.\
                                            post_utilities.\
                                            calcSNR(TSsurvey,
                                                    noise_chan,
                                                    dfChan.index.values,
                                                    wdws,
                                                    noiseCutOff, inspect=verbose)
-
-        pp.post_utilities.CC_ch_drop(CCdata, noiseyChannels, errors='ignore')
+            pp.post_utilities.CC_ch_drop(CCdata, noiseyChannels, errors='ignore')
 
         if drop_ch:
             pp.post_utilities.CC_ch_drop(CCdata, drop_ch, errors='ignore')
@@ -619,7 +620,8 @@ class utilities():
         # ------------------- Calculate initial tuning param -------------------#
         print('\n-------- Initial turning parameters --------')
         inversion_param['lambda_0'] = inversion_param['c'] / inversion_param['f_0']
-        inversion_param['L_0'] = 8 * inversion_param['lambda_0']  # Planes 2015
+        if 'L_0' not in inversion_param.keys():
+            inversion_param['L_0'] = 8 * inversion_param['lambda_0']  # Planes 2015
 
         print('lambda_0 = %g' % inversion_param['lambda_0'] )
         print('L_0 = %g' % inversion_param['L_0'])
@@ -639,6 +641,61 @@ class utilities():
         return {'CCdata' :CCdata, 'src_rec' : src_rec, 'dfChan' : dfChan,
                 'd_obs' : d_obs, 'wdws': wdws, 'cell_cents': clyMesh.cell_cent,
                 **inversion_param}
+
+    def inv_on_mesh(mesh_param, hdf5File):
+        '''Read in all the ``m_tilde`` groups within the provided hdf5 database file and places them
+        onto the vtu mesh. of multiple groups are found then each will be saved into a different
+        folder. Each folder will contain the inversion results for each time step
+
+        Parameters:
+        -----------
+        mesh_param : dict
+            The height, radius, char_len, makeMSH (bool) of the mesh
+        hdf5File : str
+            The name and relative location of the database containing all inversion results.
+        '''
+
+        import postProcess as pp
+        import mesh as msh
+        import data as dt
+
+
+        # Load the mesh
+        clyMesh = msh.mesher(mesh_param)    # Declare the class
+        clyMesh = clyMesh.meshOjfromDisk()  # Read the mesh from disk
+
+        # Load in the model param
+        groups = dt.utilities.DB_group_names(hdf5File, 'Inversion')
+        m_tildes_groups = [s for s in groups if "m_tildes" in s]
+
+        for folder in m_tildes_groups:
+
+            # Read in the inversion
+            m_tilde = cwd.utilities.HDF5_data_read(hdf5File, 'Inversion', folder)
+
+            # Place onto mesh
+            cwd.utilities.Data_on_mesh(clyMesh, m_tilde, 'inv_'+folder+'/' )
+
+    def l1_residual(hdf5File, someInts):
+        '''Write function that calculates the l1 norm and residual from each m_tilde inversion.
+        Should include ability to plot the resulting L_curve, and append new results to a database
+
+
+        Parameters:
+        -----------
+        hdf5File : dict
+            The name and relative location of the database containing all inversion results.
+        someInts : str
+            The ....
+        '''
+
+        # Calculate the l1 norm
+        l1[idx] = np.sum(np.abs(m_tilde))
+
+        # Calculate the residual error
+        ErrorR[idx] = np.sqrt(np.sum((d_obs - G.dot(m_tilde))**2))
+
+
 
 class decorrTheory():
     '''Calculate the theoretical decorrelation ceofficient between each source
@@ -929,7 +986,9 @@ class decorrInversion():
     @staticmethod
     @njit(parallel=True, fastmath=True)
     def inv_Lcurve(d_obs, G, C_M):
-        '''The L-curve dedicated incersion jit'ed for increased speed.
+        '''The L-curve dedicated incersion jit'ed for increased speed. Note, this function
+        does not store the output inversion model, and for large number ``C_M`` matrix RAM
+        will become an issue.
         '''
 
         # Itterater over set of turning param
@@ -1055,7 +1114,7 @@ class decorrInversion():
         '''
 
 
-        n = d_obs.shape[0]                      # Number of tim-steps
+        n = d_obs.shape[0]                      # Number of time-steps
         mshape = m_tildes.shape                 # Shape of mtildes [No.cells, dobs]
 
         # Flattened array for positivity constraint enforcement
@@ -1108,18 +1167,23 @@ class decorrInversion():
 
     def invRun(self, L_c=None, sigma_m=None, Database='CWD_Inversion.h5', m_tildes=None,
                error_thresh=100.0, no_iteration=10, chunk=False, d_obs_time=None,
-               down_sample=None):
+               down_sample=None, runs=50):
         '''Overhead inversion function to perform time-lapse inversion operations
         for each time-step in parallel
 
         Parameters
         ----------
-        L_c : float (default = None)
-            Define the final L_c to use during the entire inversion
-        sigma_m : float/kist(floats) (default = None)
+        L_c : float/list(floats)/tuple (default = None)
+            Define the final ``L_c`` to use during the entire inversion. If list is given multiple
+            inversions will be run for all time-step for each ``L_c`` given. Currently this
+            freature is not compatible when ``chunk`` is true. If ``L_c`` is a list, then
+            ``sigma_m`` must be a list of equal lenght. If a tuple is provided, a range of values
+            between ``L_c[0]`` and ``L_c[1]`` every ``L_c[2]``  will be calculated.
+        sigma_m : float/list(floats)/tuple (default = None)
             Define the final sigma_m to use during the entire inversion. If list is given multiple
             inversions will be run for all time-step for each sigma_m given. Currently this
-            freature is not compatible when ``chunk`` is true.
+            freature is not compatible when ``chunk`` is true. If a tuple is provided, a range of values
+            between ``sigma_m[0]`` and ``sigma_m[1]`` every ``sigma_m[2]``  will be calculated.
         Database : h5 object
             The database to which all inversion related param are stored.
         m_tildes : floats (default = None)
@@ -1137,18 +1201,42 @@ class decorrInversion():
         down_sample : int (default = None)
             Reduce the number of times steps in the inversion an integer (e.g. every 2nd time step).
             The intended use case is where computational time is an issue.
+        runs : int (default = 50)
+            The number of random combinations of ``L_c`` and ``sigma_m`` turning param runs.
         '''
 
+        # ------------------ SETUP PARAM. ------------------
+
         # Update the tuning param (if provided) and ensure dtype
-        if L_c:
-            self.L_c = np.float32(L_c)
+        if isinstance(sigma_m, tuple) and isinstance(L_c, tuple):
+            # Establish the range of each and randomly sample
+            L_c_s = np.linspace(L_c[0], L_c[1], L_c[2])
+            L_c = np.random.choice(L_c_s, runs)
+
+            sigma_m_s = np.linspace(sigma_m[0], sigma_m[1], sigma_m[2])
+            sigma_m = np.random.choice(sigma_m_s, runs)
+
+
+        # Deal with only one list(float) and one float
+        if isinstance(sigma_m, list) and not isinstance(L_c, list) and L_c:
+            L_c = [L_c]*len(sigma_m)
+
+        if isinstance(L_c, list) and not isinstance(sigma_m, list) and sigma_m:
+            sigma_m = [sigma_m]*len(L_c)
+
+        if isinstance(L_c, list):
+            L_c = np.float32(L_c)
+            self.L_c = L_c[0]
+        elif L_c is not None:
+            L_c = np.float32(L_c)
+            self.L_c = L_c
         else:
             self.L_c = np.float32(self.L_c)
 
-        if isinstance(sigma_m,list):
+        if isinstance(sigma_m, list):
             sigma_m = np.float32(sigma_m)
             self.sigma_m = sigma_m[0]
-        elif sigma_m:
+        elif sigma_m is not None:
             sigma_m = np.float32(sigma_m)
             self.sigma_m = sigma_m
         else:
@@ -1156,10 +1244,6 @@ class decorrInversion():
 
         error_thresh = np.float32(error_thresh)
         no_iteration = int(no_iteration)
-
-        # Re-calculate the covariance model matrix
-        self._vecNorm()
-        self._C_M()
 
         # Determine the t-steps to be performed
         if down_sample:
@@ -1176,8 +1260,14 @@ class decorrInversion():
             m_tildes = np.zeros([self.G.shape[1], d_obs.shape[0]],
                                 dtype=np.float32)
 
+        self._vecNorm()
+
+        #  ------------------ Begin ------------------
         if chunk:
             print('\n----------- Begin chuncked Inversion -----------')
+            # Re-calculate the covariance model matrix
+            self._C_M()
+
             tsteps = d_obs.shape[0]
             wholes = tsteps//chunk
 
@@ -1207,13 +1297,17 @@ class decorrInversion():
                                          attrb=attrb, ReRw='r+')
                 step += ch
 
-        elif isinstance(sigma_m, list):  # perform for multiple sigma
-            print('\n----------- Begin Inversion for Multiple sigma_m -----------')
-            for sigmam in sigma_m:
+        elif sigma_m.shape or L_c.shape:  # perform for multiple sigma
+            print('\n----------- Begin Inversion for Multiple sigma_m or L_c -----------')
+            for sigmam, Lc in zip(sigma_m, L_c):
                 self.sigma_m = sigmam
+                self.L_c = Lc
+                print('sigma m: %g' % sigmam)
+                print('L_c m: %g' % Lc)
                 self._C_M()
                 m_tildes, rms = self.inv(d_obs, self.G, self.C_M, m_prior, m_tildes,
                                          error_thresh, no_iteration)
+
                 # Store the data to the database along wtih some attributes
                 attrb = {'L_c': self.L_c, 'sigma_m': self.sigma_m, 'rms_max': rms, 'Times': d_obs_time}
                 utilities.HDF5_data_save(Database, 'Inversion', 'm_tildes'+str(sigmam), m_tildes,
