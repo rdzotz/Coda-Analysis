@@ -671,10 +671,10 @@ class utilities():
         for folder in m_tildes_groups:
 
             # Read in the inversion
-            m_tilde = cwd.utilities.HDF5_data_read(hdf5File, 'Inversion', folder)
+            m_tilde = utilities.HDF5_data_read(hdf5File, 'Inversion', folder)
 
             # Place onto mesh
-            cwd.utilities.Data_on_mesh(clyMesh, m_tilde, 'inv_'+folder+'/' )
+            utilities.Data_on_mesh(clyMesh, m_tilde, 'inv_'+folder+'/' )
 
     def l1_residual(hdf5File, someInts):
         '''Write function that calculates the l1 norm and residual from each m_tilde inversion.
@@ -694,6 +694,62 @@ class utilities():
 
         # Calculate the residual error
         ErrorR[idx] = np.sqrt(np.sum((d_obs - G.dot(m_tilde))**2))
+
+
+    def inv_plot_tsteps(invFolders, zslice_pos=1):
+        '''Creates plot of each time-step from different inversion results, for all inversion
+        folders found within root directory.
+
+
+        Parameters:
+        -----------
+        invFolders : str
+            The name of the inversion folders to match e.g. ``inv_m_tildes*/``
+        sliceOrthog : bool (default=True)
+            Perform orthogonal slicing of the mesh.
+        '''
+
+        import pyvista as pv
+        from pyvista import examples
+        import numpy as np
+        import matplotlib.pyplot as plt
+        import glob
+        from os.path import join
+
+        print('The inversion folder to be plotted are:\n', invFolders)
+
+        # Read in a list of inversion results
+        invFolders = glob.glob(invFolders)
+
+        for invfolder in invFolders:
+
+            invinFolder = glob.glob(invfolder+"*.vtu")
+            meshes = [pv.read(inv) for inv in invinFolder]
+
+            plot_rows = int(len(meshes))
+
+            # Slice each mesh
+            slices = [mesh.slice_orthogonal(x=None, y=None, z=zslice_pos) for mesh in meshes]
+
+            p = pv.Plotter(shape=(plot_rows, 2), border=False, off_screen=True)
+
+            p.add_text(invfolder)
+
+            for time, _ in enumerate(meshes):
+                print('Time:',time)
+
+                p.subplot(0, time)
+                p.add_mesh(slices[time], cmap='hot', lighting=True, stitle='Time slice %g' % time)
+                p.view_isometric()
+
+                p.subplot(1, time)
+                p.add_mesh(meshes[time], cmap='hot', lighting=True, stitle='Time core %g' % time)
+                p.view_isometric()
+
+            p.screenshot(invfolder.split('/')[0]+".png")
+
+
+
 
 
 
@@ -1310,7 +1366,7 @@ class decorrInversion():
 
                 # Store the data to the database along wtih some attributes
                 attrb = {'L_c': self.L_c, 'sigma_m': self.sigma_m, 'rms_max': rms, 'Times': d_obs_time}
-                utilities.HDF5_data_save(Database, 'Inversion', 'm_tildes'+str(sigmam)+str(Lc), m_tildes,
+                utilities.HDF5_data_save(Database, 'Inversion', 'm_tildes'+str(sigmam)+"_"+str(Lc), m_tildes,
                                          attrb=attrb, ReRw='r+')
 
         else:
