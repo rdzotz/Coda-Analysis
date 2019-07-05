@@ -12,6 +12,21 @@ import meshio
 import numpy as np
 import pickle
 
+class utilities():
+    '''A collection of functions for interacting with the mesh object
+    '''
+
+    def meshOjfromDisk(meshObjectPath='cly.Mesh'):
+        '''Read the entire mesh object from disk.
+
+        Parameters
+        ----------
+        meshObjectPath : str (default='cly.Mesh')
+        '''
+        with open(meshObjectPath, 'rb') as clyMesh_file:
+            return pickle.load(clyMesh_file)
+
+
 class mesher():
     '''Mesh generator class using pygmsh to gmsh code.
 
@@ -123,6 +138,9 @@ class mesher():
 
     def meshOjfromDisk(self):
         '''Save the entire mesh object to disk
+        TODO
+        ----
+            Should likely depreciate this function and simply use that stored in the utility class
         '''
         with open('cly.Mesh', 'rb') as clyMesh_file:
             return pickle.load(clyMesh_file)

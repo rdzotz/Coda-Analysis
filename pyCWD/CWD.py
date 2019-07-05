@@ -485,8 +485,8 @@ class utilities():
         dictionary key "makeMSH" is true, a new mesh will be constructed,
         otherweise an attempt to load it from disk will be made.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         mesh_param : dict
             The height, radius, char_len, makeMSH (bool) of the mesh
         channelPos : str
@@ -513,11 +513,13 @@ class utilities():
             c "velocity of the core". If sigma is provided than the value
             determined from diffusion regression will be overwritten.
             lag "The lag value (fixed or rolling) intended to feed into ``d_obs``
+            calcKernels "If true calculate the sens. kernels, otherweise skip and database won't be
+            overwritten."
         verbose : Bool (default = False)
             True for the most verbose output to screen.
 
-        Returns:
-        --------
+        Returns
+        -------
         CWD_Inversion.h5 : hdf5 database
             The output G matrix holding all sensntivity kernels for each src/rec
             pair are written to the database for use in the inversion.
@@ -596,15 +598,16 @@ class utilities():
                                                    inversion_param['sigma'],
                                                    inversion_param['c']))
 
-        # decorrelation ceofficient for each tet centre, each src/rec
-        Kth = decorrTheory(src_rec, dfChan, clyMesh.cell_cent,
-                           wdws_cent, inversion_param, clyMesh)
+        if 'calcKernels' in inversion_param.keys() and inversion_param['calcKernels']:
+            # decorrelation ceofficient for each tet centre, each src/rec
+            Kth = decorrTheory(src_rec, dfChan, clyMesh.cell_cent,
+                               wdws_cent, inversion_param, clyMesh)
 
-        # Generate the required kernel matrix for inversion
-        Kth.Kt_run()
+            # Generate the required kernel matrix for inversion
+            Kth.Kt_run()
 
-        # Place the kernels on the mesh
-        Kth.K_on_mesh()
+            # Place the kernels on the mesh
+            Kth.K_on_mesh()
 
         # ------------------- determine d_obs -------------------#
         d_obs = utilities.d_obs_time(CCdata, src_rec, inversion_param['lag'],
@@ -642,7 +645,7 @@ class utilities():
                 'd_obs' : d_obs, 'wdws': wdws, 'cell_cents': clyMesh.cell_cent,
                 **inversion_param}
 
-    def inv_on_mesh(mesh_param, hdf5File):
+    def inv_on_mesh(hdf5File):
         '''Read in all the ``m_tilde`` groups within the provided hdf5 database file and places them
         onto the vtu mesh. of multiple groups are found then each will be saved into a different
         folder. Each folder will contain the inversion results for each time step
@@ -661,8 +664,8 @@ class utilities():
 
 
         # Load the mesh
-        clyMesh = msh.mesher(mesh_param)    # Declare the class
-        clyMesh = clyMesh.meshOjfromDisk()  # Read the mesh from disk
+#        clyMesh = msh.mesher(mesh_param)    # Declare the class
+        clyMesh = msh.utilities.meshOjfromDisk()  # Read the mesh from disk
 
         # Load in the model param
         groups = dt.utilities.DB_group_names(hdf5File, 'Inversion')
@@ -681,8 +684,8 @@ class utilities():
         Should include ability to plot the resulting L_curve, and append new results to a database
 
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         hdf5File : dict
             The name and relative location of the database containing all inversion results.
         someInts : str
@@ -696,17 +699,27 @@ class utilities():
         ErrorR[idx] = np.sqrt(np.sum((d_obs - G.dot(m_tilde))**2))
 
 
-    def inv_plot_tsteps(invFolders, zslice_pos=1):
+    def inv_plot_tsteps(hdf5File, zslice_pos=1, subplot=True, plotcore=False):
         '''Creates plot of each time-step from different inversion results, for all inversion
         folders found within root directory.
 
 
-        Parameters:
-        -----------
-        invFolders : str
-            The name of the inversion folders to match e.g. ``inv_m_tildes*/``
+        Parameters
+        ----------
+        hdf5File : str
+            The hdf5 file from which each inversion result will be read
+        mesh_param : str
+            The hdf5 file from which each inversion result will be read
         sliceOrthog : bool (default=True)
             Perform orthogonal slicing of the mesh.
+        subplot : bool (default=True)
+            Place all time-steps on single subplot, else each time step will be placed on an
+            individual figure.
+        plotcore : bool (default=False)
+            Plot the core surface
+
+        Notes
+        -----
         '''
 
         import pyvista as pv
@@ -715,43 +728,97 @@ class utilities():
         import matplotlib.pyplot as plt
         import glob
         from os.path import join
+        import mesh as msh
+        import data as dt
 
-        print('The inversion folder to be plotted are:\n', invFolders)
+#        print('The inversion folder to be plotted are:\n', invFolders)
 
-        # Read in a list of inversion results
-        invFolders = glob.glob(invFolders)
+        # Load mesh object
+        clyMesh = msh.utilities.meshOjfromDisk()
+
+        # Load in the model param
+        groups = dt.utilities.DB_group_names(hdf5File, 'Inversion')
+        invFolders = [s for s in groups if "m_tildes" in s]
 
         for invfolder in invFolders:
 
-            invinFolder = glob.glob(invfolder+"*.vtu")
-            meshes = [pv.read(inv) for inv in invinFolder]
+#            invinFolder = glob.glob(invfolder+"*.vtu")
+#            meshes = [pv.read(inv) for inv in invinFolder]
 
-            plot_rows = int(len(meshes))
+            m_tildes = utilities.HDF5_data_read(hdf5File, 'Inversion', invfolder)
+
+            # Load in the attributes,
+            attri = utilities.HDF5_attri_read(hdf5File, 'Inversion', invfolder)
+
+            # TODO:
+            # Plot the standard attribute common to all , and then update the time for each
+            attri['Times'] = [time.decode('UTF-8') for time in attri['Times']]
+
+
+            plot_rows = m_tildes.shape[1]
+
+            # Create mesh for each time-step
+            meshes = []
+            for time, m_tilde in enumerate(m_tildes.T):
+
+                # The apply data to the mesh
+                clyMesh.setCellsVal(m_tilde)
+#                clyMesh.cell_data['tetra']['gmsh:physical'] = m_tilde[1]
+                clyMesh.saveMesh('baseMesh')
+
+                # Load in base mesh
+                meshes.append(pv.read('baseMesh.vtu'))
+
+#                meshes['mesh'+str(time)] = baseMesh
+#                meshes['slice'+str(time)] = baseMesh.slice_orthogonal(x=None, y=None, z=zslice_pos)
+
+
+#
+
+            all_dataRange = (min([mesh.get_data_range()[0] for mesh in meshes]),
+                 max([mesh.get_data_range()[1] for mesh in meshes]))
 
             # Slice each mesh
             slices = [mesh.slice_orthogonal(x=None, y=None, z=zslice_pos) for mesh in meshes]
 
-            p = pv.Plotter(shape=(plot_rows, 2), border=False, off_screen=True)
 
-            p.add_text(invfolder)
+            col = 2 if plotcore else 1
 
-            for time, _ in enumerate(meshes):
-                print('Time:',time)
+            if subplot:
+                p = pv.Plotter(shape=(plot_rows, col), border=False, off_screen=True)
+                p.add_text(invfolder)
 
-                p.subplot(0, time)
-                p.add_mesh(slices[time], cmap='hot', lighting=True, stitle='Time slice %g' % time)
-                p.view_isometric()
+                for time, _ in enumerate(m_tildes.T):
+                    print('Time:',time)
 
-                p.subplot(1, time)
-                p.add_mesh(meshes[time], cmap='hot', lighting=True, stitle='Time core %g' % time)
-                p.view_isometric()
+                    p.subplot(0, time)
+                    p.add_mesh(slices[time], cmap='hot', lighting=True,
+                                      stitle='Time  %g' % time)
+                    p.view_isometric()
 
-            p.screenshot(invfolder.split('/')[0]+".png")
+                    if plotcore:
+                        p.subplot(1, time)
+                        p.add_mesh(slices[time], cmap='hot', lighting=True,
+                                          stitle='Time  %g' % time)
+                        p.view_isometric()
 
+                p.screenshot(invfolder.split('/')[0]+".png")
 
-
-
-
+            else:
+                for time, _ in enumerate(m_tildes.T):
+                    p = pv.Plotter(border=False, off_screen=True)
+                    p.add_text('Time: %s\n L_c: %g\n sigma_m: %g\n rms_max: %g' \
+                               % (attri['Times'][time],
+                                  attri['L_c'],
+                                  attri['sigma_m'],
+                                  attri['rms_max']),
+                               font_size=12)
+                    p.add_text(str(time), position=(10,10))
+                    p.add_mesh(slices[time], cmap='hot', lighting=True,
+                                        stitle='Time  %g' % time,
+                                        clim=all_dataRange,
+                                        scalar_bar_args=dict(vertical=True))
+                    p.screenshot(invfolder.split('/')[0]+'_'+str(time)+".png")
 
 class decorrTheory():
     '''Calculate the theoretical decorrelation ceofficient between each source
