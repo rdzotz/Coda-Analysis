@@ -28,7 +28,6 @@ class dispUtilities:
     ''' A collection of functions which may be useful for certain display types
     '''
 
-    @staticmethod
     def multi_wdw(param, DB, TS, lag, PV, multi_plot = None,
                   PV1 = None, PV2 = None):
         ''' Inteneded to the display of multiple correlation windows on a single
@@ -176,7 +175,6 @@ class dispUtilities:
 
         return hdl_cc, ax3
 
-    @staticmethod
     def dispCWI_pres(param, DB, TS, ccPlot_list,
                      PV_full=None, PV1=None, PV2=None, PV3=None,
                      PV4 = None, plot_dic={}):
@@ -445,9 +443,9 @@ class dispUtilities:
                                                       )
         plt.show()
 
-    @staticmethod
+
     def _TS_plot_wdw(param, ax, TS, wd_pos, wd_lbl, wd_style='Annotate'):
-        ''' This private function handels the general plotting of the
+        '''Private function handels the general plotting of the
         correlation window considered.
 
         Parameters
@@ -505,9 +503,8 @@ class dispUtilities:
             verticalalignment='center',
             fontsize=10, color='black')
 
-    @staticmethod
     def _TS_plot(ax, x_TS, TS, param):
-        ''' This private function handels the general plotting of TS info,
+        '''Private function handels the general plotting of TS info,
         taking as input a dataframe with index takes as the time vector
         '''
 
@@ -523,6 +520,18 @@ class dispUtilities:
         hdl.set_linewidth(0.5)
 
         return hdl, unit_m
+
+    def PVdata_plot(PVdb, x, y):
+        '''General plotting of the PV dataset.
+
+        TODO
+        ----
+        Expand the plotting function to induce annotaiton
+        '''
+
+        PVdb.plot(x=x, y=y)
+
+
 
 class dispCWI_DB:
     ''' This class handels the interactive ploting of CC data stored within

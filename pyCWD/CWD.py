@@ -662,7 +662,6 @@ class utilities():
         import mesh as msh
         import data as dt
 
-
         # Load the mesh
 #        clyMesh = msh.mesher(mesh_param)    # Declare the class
         clyMesh = msh.utilities.meshOjfromDisk()  # Read the mesh from disk
@@ -763,6 +762,7 @@ class utilities():
 
                 # The apply data to the mesh
                 clyMesh.setCellsVal(m_tilde)
+
 #                clyMesh.cell_data['tetra']['gmsh:physical'] = m_tilde[1]
                 clyMesh.saveMesh('baseMesh')
 
