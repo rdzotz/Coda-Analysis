@@ -360,7 +360,7 @@ class userInput:
             self.param['STA_meas']
             if (self.param['survey_type'] == 'multiple' and
                 not isinstance(self.param['STA_meas'], str)):
-                sys.exit('STA_meas must be a string when survey_type==multiple')
+                sys.exit('STA_meas must be a date string when survey_type==multiple)
 
         except KeyError:
             # If does not exist then set to True

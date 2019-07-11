@@ -1290,7 +1290,7 @@ class decorrInversion():
 
     def invRun(self, L_c=None, sigma_m=None, Database='CWD_Inversion.h5', m_tildes=None,
                error_thresh=100.0, no_iteration=10, chunk=False, d_obs_time=None,
-               down_sample=None, runs=50):
+               t_range=None, down_sample=None, runs=50):
         '''Overhead inversion function to perform time-lapse inversion operations
         for each time-step in parallel
 
@@ -1320,7 +1320,9 @@ class decorrInversion():
             intended to reduce the RAM requirements when many time-steps given.
         d_obs_time : list[str]/array[str] (default = None)
             The time corresponding to each inversion, should be equal to the number of rows in
-            ``self.d_obs``.
+            ``self.d_obs``, and the formate should be ``bytes_ object``.
+        t_range : tuple(str,str) (default = None)
+            The start and stop between which the inversion should run.
         down_sample : int (default = None)
             Reduce the number of times steps in the inversion an integer (e.g. every 2nd time step).
             The intended use case is where computational time is an issue.
@@ -1369,9 +1371,20 @@ class decorrInversion():
         no_iteration = int(no_iteration)
 
         # Determine the t-steps to be performed
-        if down_sample:
+
+        if down_sample and t_range: # Downsampel and cut time range
+            d_obs_time_decode = [pd.to_datetime(time.decode('UTF8')) for time in  d_obs_time]
+            mask = [(time > t_range[0]) and (time <t_range[1]) for time in d_obs_time_decode]
+            d_obs = self.d_obs[mask, :]
+            d_obs = d_obs[0::down_sample, :]
+            d_obs_time = d_obs_time[0::down_sample]
+        elif down_sample: # Just downsample
             d_obs = self.d_obs[0::down_sample, :]
             d_obs_time = d_obs_time[0::down_sample]
+        elif t_range: # Just cut time range
+            d_obs_time_decode = [pd.to_datetime(time.decode('UTF8')) for time in  d_obs_time]
+            mask = [(time > t_range[0]) and (time <t_range[1]) for time in d_obs_time_decode]
+            d_obs = self.d_obs[mask, :]
         else:
             d_obs = self.d_obs
 
