@@ -18,6 +18,8 @@ from numba import njit
 from numba import prange
 import os
 import shutil
+import gc
+
 
 class utilities():
     ''' Some helper functions
@@ -85,7 +87,6 @@ class utilities():
 
         # Shift coords to mesh bottom zeroed
         dfChan.z = dfChan.z + np.abs(dfChan.z.min()) + dimensions['height']/2 - np.abs(dfChan.z.min())
-
 
         print('Channel Positions:\n', [(dfChan.iloc[i].x, dfChan.iloc[i].y, dfChan.iloc[i].z)
                 for i in range(dfChan.shape[0])])
@@ -698,7 +699,8 @@ class utilities():
         ErrorR[idx] = np.sqrt(np.sum((d_obs - G.dot(m_tilde))**2))
 
 
-    def inv_plot_tsteps(hdf5File, zslice_pos=1, subplot=True, plotcore=False):
+    def inv_plot_tsteps(hdf5File, zslice_pos=1, subplot=True, plotcore=False, PV_plot_dict=None,
+                        ):
         '''Creates plot of each time-step from different inversion results, for all inversion
         folders found within root directory.
 
@@ -716,7 +718,9 @@ class utilities():
             individual figure.
         plotcore : bool (default=False)
             Plot the core surface
-
+        PV_plot_dict : dict (default=None)
+            Dictionary containing dict(database='loc_database', y_data='name_ydata'). If given
+            a small plot will of the PVdata over time, with the current time annotated.
         Notes
         -----
         '''
@@ -729,8 +733,14 @@ class utilities():
         from os.path import join
         import mesh as msh
         import data as dt
+        from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+        import data as dt
 
-#        print('The inversion folder to be plotted are:\n', invFolders)
+
+        if PV_plot_dict:
+            PVdata = dt.utilities.DB_pd_data_load(PV_plot_dict['database'], 'PVdata')
+            PVdata.index = pd.to_datetime(PVdata['Time Stamp'])
+            os.makedirs('figs',exist_ok=True)
 
         # Load mesh object
         clyMesh = msh.utilities.meshOjfromDisk()
@@ -806,6 +816,7 @@ class utilities():
 
             else:
                 for time, _ in enumerate(m_tildes.T):
+
                     p = pv.Plotter(border=False, off_screen=True)
                     p.add_text('Time: %s\n L_c: %g\n sigma_m: %g\n rms_max: %g' \
                                % (attri['Times'][time],
@@ -818,7 +829,76 @@ class utilities():
                                         stitle='Time  %g' % time,
                                         clim=all_dataRange,
                                         scalar_bar_args=dict(vertical=True))
-                    p.screenshot(invfolder.split('/')[0]+'_'+str(time)+".png")
+                    file_name = invfolder.split('/')[0]+'_'+str(time)+".png"
+
+                    p.screenshot(file_name)
+
+
+                    if PV_plot_dict:
+                        idx_near = PVdata.index[PVdata.index.get_loc(attri['Times'][time],
+                                                                     method='nearest')]
+                        y_time = PVdata[PV_plot_dict['y_data']].loc[idx_near]
+
+                        img = plt.imread(file_name)
+                        fig, ax = plt.subplots()
+                        x = PVdata['Time Stamp']
+                        y = PVdata[PV_plot_dict['y_data']]
+                        ax.imshow(img, interpolation='none')
+                        ax.axis('off')
+                        axins = inset_axes(ax, width="20%", height="20%", loc=3, borderpad=2)
+                        axins.plot(x, y, '--', linewidth=0.5, color='white')
+                        axins.grid('off')
+
+                        # Set some style
+                        axins.patch.set_alpha(0.5)
+                        axins.tick_params(labelleft=False, labelbottom=False)
+                        axins.set_xlabel("time", fontsize=8)
+                        axins.xaxis.label.set_color('white')
+                        axins.tick_params(axis='x', colors='white')
+
+                        axins.yaxis.label.set_color('white')
+                        axins.tick_params(axis='y', colors='white')
+
+                        # Vertical line point
+                        axins.scatter(x=idx_near, y=y_time, color='white')
+
+                        fig.savefig(os.path.join('figs',file_name),
+                                    bbox_inches = 'tight',
+                                    pad_inches = 0,
+                                    dpi = 'figure')
+                        plt.close()
+
+
+    def PV_INV_Plot(hdf5File, zslice_pos=1, subplot=True, plotcore=False):
+        '''Comparision between the inversion results and the associated stress.
+
+
+        Parameters
+        ----------
+        hdf5File : str
+            The hdf5 file from which each inversion result will be read
+        mesh_param : str
+            The hdf5 file from which each inversion result will be read
+        sliceOrthog : bool (default=True)
+            Perform orthogonal slicing of the mesh.
+        subplot : bool (default=True)
+            Place all time-steps on single subplot, else each time step will be placed on an
+            individual figure.
+        plotcore : bool (default=False)
+            Plot the core surface
+
+        Notes
+        -----
+        '''
+
+        import pyvista as pv
+        from pyvista import examples
+        import numpy as np
+        import matplotlib.pyplot as plt
+        import glob
+        from os.path import join
+        import mesh as msh
+        import data as dt
 
 class decorrTheory():
     '''Calculate the theoretical decorrelation ceofficient between each source
@@ -1146,7 +1226,6 @@ class decorrInversion():
         found then C_M will be calculated for each.
         '''
 
-
         if isinstance(self.L_c, np.ndarray) and isinstance(self.sigma_m, np.ndarray):
             vecNorm = self.vecNorm.astype(np.float32)
             G = self.G
@@ -1432,6 +1511,7 @@ class decorrInversion():
                 utilities.HDF5_data_save(Database, 'Inversion', 'm_tildes'+str(step), m_tildes,
                                          attrb=attrb, ReRw='r+')
                 step += ch
+                gc.collect()
 
         elif sigma_m.shape or L_c.shape:  # perform for multiple sigma
             print('\n----------- Begin Inversion for Multiple sigma_m or L_c -----------')
@@ -1448,13 +1528,16 @@ class decorrInversion():
                 attrb = {'L_c': self.L_c, 'sigma_m': self.sigma_m, 'rms_max': rms, 'Times': d_obs_time}
                 utilities.HDF5_data_save(Database, 'Inversion', 'm_tildes'+str(sigmam)+"_"+str(Lc), m_tildes,
                                          attrb=attrb, ReRw='r+')
+                gc.collect()
 
         else:
             print('\n----------- Begin Inversion -----------')
+            self._C_M()
             m_tildes, rms = self.inv(d_obs, self.G, self.C_M, m_prior, m_tildes,
                                      error_thresh, no_iteration)
             # Store the data to the database along wtih some attributes
             attrb = {'L_c': self.L_c, 'sigma_m': self.sigma_m, 'rms_max': rms, 'Times': d_obs_time}
             utilities.HDF5_data_save(Database, 'Inversion', 'm_tildes', m_tildes,
                                      attrb=attrb, ReRw='r+')
+            gc.collect()
 
