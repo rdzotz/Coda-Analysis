@@ -570,7 +570,7 @@ class utilities():
                                                    dfChan.index.values,
                                                    wdws,
                                                    noiseCutOff, inspect=verbose)
-            pp.post_utilities.CC_ch_drop(CCdata, noiseyChannels, errors='ignore')
+            CCdata = pp.post_utilities.CC_ch_drop(CCdata, noiseyChannels, errors='ignore')
 
         if drop_ch:
             pp.post_utilities.CC_ch_drop(CCdata, drop_ch, errors='ignore')
@@ -644,6 +644,7 @@ class utilities():
         # Store various info in dict
         return {'CCdata' :CCdata, 'src_rec' : src_rec, 'dfChan' : dfChan,
                 'd_obs' : d_obs, 'wdws': wdws, 'cell_cents': clyMesh.cell_cent,
+                'noiseyChannels': noiseyChannels,
                 **inversion_param}
 
     def inv_on_mesh(hdf5File):

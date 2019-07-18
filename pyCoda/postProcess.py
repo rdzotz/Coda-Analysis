@@ -704,7 +704,13 @@ class post_utilities:
             srcDrop = [ch[0] for ch in channels]
             recDrop = [ch[1] for ch in channels]
 
-            CC_DB.drop(pd.MultiIndex.from_arrays([srcDrop, recDrop]), inplace=True)
+#            CC_DB.drop(pd.MultiIndex.from_arrays([srcDrop, recDrop]), inplace=True)
+
+            m = pd.MultiIndex.from_arrays([srcDrop,recDrop])
+
+            CC_DB = CC_DB[~CC_DB.reset_index(level=2, drop=True).index.isin(m)]
+
+        return CC_DB
 
 #            fn = CC_DB.index.get_level_values
 #            CC_DB = CC_DB[~(fn(0).isin(As) | fn(1).isin(Bs))]
