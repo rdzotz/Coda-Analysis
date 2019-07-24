@@ -133,6 +133,29 @@ class utilities():
                     print('Key:', key,'| item:', item)
                     dset.attrs[key] = item
 
+
+    def HDF5_data_del(HDF5File, group, names):
+        '''Deletes data from a hdf5 database within some group.
+
+        Parameters
+        ----------
+        HDF5File : str
+            Relative location of database
+        group : str
+            The expected group name
+        names : str
+            The names of the data groups to be deleted from ``group``
+        '''
+
+        with h5py.File(HDF5File, 'a') as f:
+            for name in names:
+                try:
+                    path = os.path.join(group,name)
+                    del f[path]
+                except KeyError:
+                    print(name, "was not in", group)
+
+
     def HDF5_data_read(HDF5File, group, name, ReRw='r'):
         '''Saves data into a hdf5 database
 
@@ -353,8 +376,8 @@ class utilities():
                    pd.to_datetime(stopTime))
             CCdata = CCdata.copy().loc[mask]
 
-        # Time index for each survey based on first src_rec pair.
-        time_index = pd.to_datetime(CCdata.loc[([src_rec[0][0]], [src_rec[0][1]]),
+        # Time index for each survey based on second src_rec pair.
+        time_index = pd.to_datetime(CCdata.loc[([src_rec[1][0]], [src_rec[1][1]]),
                                                (lag, window[0], parameter)].
                                     unstack(level=[0, 1]).index)
 
@@ -516,6 +539,7 @@ class utilities():
             lag "The lag value (fixed or rolling) intended to feed into ``d_obs``
             calcKernels "If true calculate the sens. kernels, otherweise skip and database won't be
             overwritten."
+            wdws_sta "remove the first n windows from the inversion d_obs data, default = 0"
         verbose : Bool (default = False)
             True for the most verbose output to screen.
 
@@ -532,7 +556,15 @@ class utilities():
         import mesh as msh
         import data as dt
 
-        # ------------------- Mesh the cylinder -------------------#
+        # ------------------- Apply Defaults -------------------#
+        default_dict = dict(sigma = None, wdws_sta = 0)
+        for k, v in default_dict.items():
+            try:
+                inversion_param[k]
+            except KeyError:
+                inversion_param[k] = v
+
+        # ------------------- Mesh the Inversion Space -------------------#
         if mesh_param['makeMSH']:
             clyMesh = msh.mesher(mesh_param)    # Declare the class
             clyMesh.meshIt()                    # Create the mesh
@@ -558,7 +590,7 @@ class utilities():
 
         # Calculate the window centre of each window in time
         TS = TSsurvey.columns.get_level_values('TSamp').unique().tolist()[0]
-        wdws = CCdata.columns.get_level_values('window').unique().tolist()
+        wdws = CCdata.columns.get_level_values('window').unique().tolist()[inversion_param['wdws_sta']:]
         wdws_cent = utilities.WindowTcent(TS, wdws)
 
         # Remove noisy channels
@@ -571,6 +603,8 @@ class utilities():
                                                    wdws,
                                                    noiseCutOff, inspect=verbose)
             CCdata = pp.post_utilities.CC_ch_drop(CCdata, noiseyChannels, errors='ignore')
+        else:
+            noiseyChannels = None
 
         if drop_ch:
             pp.post_utilities.CC_ch_drop(CCdata, drop_ch, errors='ignore')
@@ -1312,8 +1346,7 @@ class decorrInversion():
 
         TODO
         ----
-        Impletment the subiteration process by which the negative change value are
-        progresivly removed. This should be possible on the entire inversion set.
+
         '''
 
 
@@ -1333,7 +1366,7 @@ class decorrInversion():
 
         # TODO: ATTEMPT TO BACK IMPLETMENT TO GET CONDITIONS WORKING
 
-        while iteration <= no_iteration:
+        while iteration <= no_iteration or rms >= error_thresh:
             iteration += 1
             for idx in range(n):
                 #cwd_inv = cwd.decorrInversion(G, d_obs[idx], L_0, L_c, sigma_m, cell_cent, verbose=True)
