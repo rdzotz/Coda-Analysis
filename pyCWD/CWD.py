@@ -761,7 +761,6 @@ class utilities():
         '''
 
         import pyvista as pv
-        from pyvista import examples
         import numpy as np
         import matplotlib.pyplot as plt
         import glob
@@ -904,36 +903,215 @@ class utilities():
                         plt.close()
 
 
-    def PV_INV_Plot(hdf5File, zslice_pos=1, subplot=True, plotcore=False):
-        '''Comparision between the inversion results and the associated stress.
-
+    def PV_INV_plot_final(hdf5File, fracture=None, trim=True, cbarLim=None,
+                          t_steps=None, PV_plot_dict=None, plane_vectors=([0.5,0.5,0],[0,0.5,0.5]),
+                          ):
+        '''Intended for the creation of final images for publications. Includes the output of white
+        space trimed png's and the a csv database of perturbation data corresponding to each
+        time-step.
 
         Parameters
         ----------
         hdf5File : str
             The hdf5 file from which each inversion result will be read
-        mesh_param : str
-            The hdf5 file from which each inversion result will be read
-        sliceOrthog : bool (default=True)
-            Perform orthogonal slicing of the mesh.
-        subplot : bool (default=True)
-            Place all time-steps on single subplot, else each time step will be placed on an
-            individual figure.
-        plotcore : bool (default=False)
-            Plot the core surface
-
+        fracture : object (default=None)
+            Aligned pyvista mesh object to be included into each time-step plot.
+        trim : bool (default=True)
+            Trim white space from each png produced.
+        cbarLim : tuple (default=None)
+            Fix the global colour bar limits (min, max),
+        t_steps : list (default=None)
+            Select timesteps to display. Produces a filtered PV_INV database of a selection of tsteps
+        PV_plot_dict : dict (default=None)
+            Dictionary containing dict(database='loc_database', PVcol='name_ydata') defining the
+            location of the raw input database and the PV data col.
+        plane_vectors : tuple(list(), list()) (default=([0.5,0.5,0],[0,0.5,0.5]))
+            two non-parallel vectors defining plane through mesh. ([x,y,z], [x,y,z])
         Notes
         -----
         '''
 
         import pyvista as pv
-        from pyvista import examples
-        import numpy as np
         import matplotlib.pyplot as plt
-        import glob
-        from os.path import join
         import mesh as msh
+        import CWD as cwd
         import data as dt
+
+
+        def staggered_list(l1, l2):
+
+            l3 = [None]*(len(l1)+len(l2))
+            l3[::2] = l1
+            l3[1::2] = l2
+
+            return l3
+
+        # Load in the model param
+        groups = dt.utilities.DB_group_names(hdf5File, 'Inversion')
+        invfolder = [s for s in groups if "m_tildes" in s][0]
+
+        # Extract out the m tildes
+        m_tildes = cwd.utilities.HDF5_data_read(hdf5File, 'Inversion', invfolder)
+
+        # Load in the attributes,
+        attri = cwd.utilities.HDF5_attri_read(hdf5File, 'Inversion', invfolder)
+        attri['Times'] = [time.decode('UTF-8') for time in attri['Times']]
+
+        # Make output folder
+        folder = 'final_figures'
+        os.makedirs(folder, exist_ok=True)
+
+        # Load mesh
+        clyMesh = msh.utilities.meshOjfromDisk()
+
+        # Save the base mesh
+        clyMesh.setCellsVal(m_tildes.T[4])
+        clyMesh.saveMesh('baseMesh')
+
+        # Read in base mesh
+        inversions = pv.read('baseMesh.vtu')
+
+        # Deal with padded zeros
+        pad = np.argwhere(inversions.cell_arrays['gmsh:physical']>0)[0][0]
+
+        all_dataRange = [0,0]
+        # Add each time-step to the mesh and determine the data range
+        for time, m_tilde in enumerate(m_tildes.T):
+            inversions.cell_arrays['time%g' % time] = np.pad(m_tilde, (pad, 0), 'constant')
+
+            if inversions.cell_arrays['time%g' % time].min() < all_dataRange[0]:
+                all_dataRange[0] = inversions.cell_arrays['time%g' % time].min()
+
+            if inversions.cell_arrays['time%g' % time].max() > all_dataRange[1]:
+                all_dataRange[1] = inversions.cell_arrays['time%g' % time].max()
+
+        if cbarLim:
+            all_dataRange=cbarLim
+
+        # Calculate slice through mesh
+#        v1 = [-10,18,0]
+#        v2 = [inversions.bounds[0]-inversions.bounds[1], 0, 65]
+        v = np.cross(plane_vectors[0], plane_vectors[1])
+        v_hat = v / (v**2).sum()**0.5
+
+        # Plot data to disk
+        slice_y = inversions.slice(normal='y')
+        frac_y = fracture.slice(normal='y')
+        frac_slice = inversions.slice(normal=v_hat, origin=(inversions.bounds[1],0,2))
+
+        # Perform save for each t-step
+        for time, _ in enumerate(m_tildes.T):
+            for idx, view in enumerate([slice_y, frac_slice]):
+                p = pv.Plotter(border=False, off_screen=False)
+                # p.add_text('Time: %s\n L_c: %g\n sigma_m: %g\n rms_max: %g' \
+                #            % (attri['Times'][time],
+                #               attri['L_c'],
+                #               attri['sigma_m'],
+                #               attri['rms_max']),
+                #            font_size=12)
+                # p.add_text(str(time), position=(10,10))
+                p.add_mesh(view, cmap='hot', lighting=True,
+                                    stitle='Time  %g' % time,
+                                    scalars=view.cell_arrays['time%g' % time],
+                                    clim=all_dataRange,
+                                    scalar_bar_args=dict(vertical=True))
+                p.add_mesh(frac_y, lighting=True)
+                if idx ==0:
+                    p.view_xz(negative=True)
+                elif idx==1:
+                    p.view_vector(v_hat)
+
+                p.remove_scalar_bar()
+                p.set_background("white")
+
+                file_name = os.path.join(folder, invfolder)+'_view%g_%g.png' % (idx, time)
+                p.screenshot(file_name)
+
+        # Make colorbar
+        p = pv.Plotter(border=False, off_screen=False)
+        p.add_mesh(slice_y, cmap='hot', lighting=True,
+                                stitle='Time  %g' % time,
+                                scalars=slice_y.cell_arrays['time0'],
+                                clim=all_dataRange,
+                                scalar_bar_args=dict(vertical=False,
+                                                     position_x=0.2,
+                                                     position_y=0,
+                                                     color='black'))
+        p.view_xz(negative=True)
+        p.screenshot(os.path.join(folder, 'cbar.png'))
+
+        if trim:
+            utilities.whiteSpaceTrim(folderName=folder, file_match=invfolder+'*.png')
+
+        if PV_plot_dict:
+                PVdata = dt.utilities.DB_pd_data_load(PV_plot_dict['database'], 'PVdata')
+                PVdata['refIndex'] = PVdata.index
+                PVdata['hours'] = pd.to_timedelta(PVdata['Time Stamp']-PVdata['Time Stamp'][0]). \
+                                        dt.total_seconds()/3600
+                PVdata.index = pd.to_datetime(PVdata['Time Stamp'])
+
+                idx_near = [ PVdata.index[PVdata.index.get_loc(idx, method='nearest')] for
+                                          idx in  attri['Times']]
+
+                y_time = PVdata[[PV_plot_dict['PVcol'],'refIndex','hours']].loc[idx_near].reset_index()
+                y_time.to_csv(os.path.join(folder, 'PV_INV.csv'))
+                if t_steps:
+                    y_time = y_time.loc[t_steps].reset_index()
+                    y_time.index += 1
+                    y_time.to_csv(os.path.join(folder, 'PV_INV_select.csv'), index_label='t_index')
+
+                    view1 =  [os.path.join(folder, invfolder)+'_view%g_%g.png' % (idx, time)
+                                             for idx, time in itertools.product([0], t_steps)]
+
+                    view2 = [os.path.join(folder, invfolder)+'_view%g_%g.png' % (idx, time)
+                                             for idx, time in itertools.product([1], t_steps)]
+                    m_tildes_str1 = ','.join(view1)
+                    m_tildes_str2 = ','.join(view2)
+                    with open(os.path.join(folder,'PV_INV_select.tex'), "w") as file:
+                        file.write("\\newcommand{\TimesA}{%s}\n" % ','.join(staggered_list(view1,
+                                                                                  view2)))
+                        file.write("\\newcommand{\TimesB}{%s}\n" % m_tildes_str1)
+                        file.write("\\newcommand{\TimesC}{%s}\n" % m_tildes_str2)
+                        file.write("\\newcommand{\cmin}{%s}\n" % all_dataRange[0])
+                        file.write("\\newcommand{\cmax}{%s}\n" % all_dataRange[1])
+
+                PVdata[[PV_plot_dict['PVcol'],'refIndex','hours']].to_csv(os.path.join(folder, 'PVdata.csv'))
+
+        return all_dataRange
+
+    def whiteSpaceTrim(folderName='', file_match='*.png'):
+        '''Trims the white space from images.
+
+        Parameters
+        ----------
+        folderName : str (default='')
+            Path to folder within which target images are held
+        file_match : str (default='*.png')
+        '''
+
+        from PIL import Image
+        import glob
+        import os
+        from PIL import ImageOps
+
+        files = glob.glob(os.path.join(folderName, file_match))
+        print(files)
+
+        for file in files:
+            image=Image.open(file)
+            image.load()
+            imageSize = image.size
+
+            # remove alpha channel
+            invert_im = image.convert("RGB")
+
+            # invert image (so that white is 0)
+            invert_im = ImageOps.invert(invert_im)
+            imageBox = invert_im.getbbox()
+
+            cropped=image.crop(imageBox)
+            print (file, "Size:", imageSize, "New Size:", imageBox)
+            cropped.save(file)
 
 class decorrTheory():
     '''Calculate the theoretical decorrelation ceofficient between each source
@@ -1366,7 +1544,7 @@ class decorrInversion():
 
         # TODO: ATTEMPT TO BACK IMPLETMENT TO GET CONDITIONS WORKING
 
-        while iteration <= no_iteration or rms >= error_thresh:
+        while iteration <= no_iteration and rms >= error_thresh:
             iteration += 1
             for idx in range(n):
                 #cwd_inv = cwd.decorrInversion(G, d_obs[idx], L_0, L_c, sigma_m, cell_cent, verbose=True)
