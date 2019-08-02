@@ -704,21 +704,11 @@ class post_utilities:
             srcDrop = [ch[0] for ch in channels]
             recDrop = [ch[1] for ch in channels]
 
-#            CC_DB.drop(pd.MultiIndex.from_arrays([srcDrop, recDrop]), inplace=True)
-
             m = pd.MultiIndex.from_arrays([srcDrop,recDrop])
 
             CC_DB = CC_DB[~CC_DB.reset_index(level=2, drop=True).index.isin(m)]
 
         return CC_DB
-
-#            fn = CC_DB.index.get_level_values
-#            CC_DB = CC_DB[~(fn(0).isin(As) | fn(1).isin(Bs))]
-#
-#            for src, rec in zip(srcDrop, recDrop):
-#                CC_DB_drop_idx = CC_DB.loc[(src, rec, slice(None)), :].index
-#                CC_DB.drop(CC_DB_drop_idx, inplace=True, errors=errors)
-
 
     def calcSNR(TSsurvey, Noise_channels, all_channels, wdws, noiseCutOff=0, inspect=False):
         '''Determines the channels which are above a certain SNR.

@@ -377,9 +377,13 @@ class utilities():
             CCdata = CCdata.copy().loc[mask]
 
         # Time index for each survey based on second src_rec pair.
-        time_index = pd.to_datetime(CCdata.loc[([src_rec[1][0]], [src_rec[1][1]]),
+        time_index = np.array([0])
+        for sr in src_rec:
+            index = pd.to_datetime(CCdata.loc[([sr[0]], [sr[1]]),
                                                (lag, window[0], parameter)].
                                     unstack(level=[0, 1]).index)
+            if index.shape[0]>time_index.shape[0]:
+                time_index = index
 
         if len(window)>1:
             temp = []
@@ -503,7 +507,8 @@ class utilities():
 #            self.mesh_obj.saveMesh(os.path.join(loc,'Kernel%s_%s_No%s' % (srcrec[0], srcrec[1],idx)))
 
     def inversionSetup(mesh_param, channelPos, noise_chan, drop_ch,noiseCutOff,database,
-                       CCdataTBL, Emaxt0, TS_idx, inversion_param, verbose=False):
+                       CCdataTBL, Emaxt0, TS_idx, inversion_param, max_src_rec_dist = None,
+                       verbose=False):
         '''Run function intended to cluster the steps required to setup the
         inversion mesh and the associated sensitivity kernels. If the mesh_param
         dictionary key "makeMSH" is true, a new mesh will be constructed,
@@ -540,6 +545,9 @@ class utilities():
             calcKernels "If true calculate the sens. kernels, otherweise skip and database won't be
             overwritten."
             wdws_sta "remove the first n windows from the inversion d_obs data, default = 0"
+        max_src_rec_dist : float (default = None)
+            Max source/receiver separation distance. Any pairs greater than this will be removed
+            from the CCdata.
         verbose : Bool (default = False)
             True for the most verbose output to screen.
 
@@ -557,7 +565,7 @@ class utilities():
         import data as dt
 
         # ------------------- Apply Defaults -------------------#
-        default_dict = dict(sigma = None, wdws_sta = 0)
+        default_dict = dict(sigma = None, wdws_sta = 0, wdws_end = None)
         for k, v in default_dict.items():
             try:
                 inversion_param[k]
@@ -587,10 +595,10 @@ class utilities():
         # Read in the src/rec pairs
         CCdata = dt.utilities.DB_pd_data_load(database, CCdataTBL)
 
-
         # Calculate the window centre of each window in time
         TS = TSsurvey.columns.get_level_values('TSamp').unique().tolist()[0]
-        wdws = CCdata.columns.get_level_values('window').unique().tolist()[inversion_param['wdws_sta']:]
+        wdws = CCdata.columns.get_level_values('window').unique()\
+                                .tolist()[inversion_param['wdws_sta']:inversion_param['wdws_end']]
         wdws_cent = utilities.WindowTcent(TS, wdws)
 
         # Remove noisy channels
@@ -606,10 +614,40 @@ class utilities():
         else:
             noiseyChannels = None
 
+        src_rec = utilities.src_recNo(CCdata)
+
+        if max_src_rec_dist:
+            # List of src and rec
+            src = [src[0] for src in src_rec]
+            rec = [rec[1] for rec in src_rec]
+
+            # Create df with the src rec positions used (i.e. found in self.src_rec)
+            srR_df = pd.DataFrame({'src': src, 'rec': rec})
+
+            srR_df = pd.concat([srR_df, dfChan.loc[srR_df['src']]. \
+                       rename(columns = {'x':'sx', 'y':'sy', 'z':'sz'}). \
+                       reset_index(drop=True)], axis=1)
+
+            srR_df = pd.concat([srR_df, dfChan.loc[srR_df['rec']]. \
+                       rename(columns = {'x':'rx', 'y':'ry', 'z':'rz'}). \
+                       reset_index(drop=True)], axis=1)
+
+            # Assign the R value
+            R_vals =np.linalg.norm(dfChan.loc[src].values -
+                                   dfChan.loc[rec].values, axis=1)
+
+            srR_df['R'] = R_vals
+
+            ch_far = srR_df.loc[srR_df['R'] > max_src_rec_dist][['src', 'rec']].values.tolist()
+            CCdata = pp.post_utilities.CC_ch_drop(CCdata, ch_far, errors='ignore')
+            src_rec = utilities.src_recNo(CCdata)
+        else:
+            srR_df = None
+
         if drop_ch:
             pp.post_utilities.CC_ch_drop(CCdata, drop_ch, errors='ignore')
+            src_rec = utilities.src_recNo(CCdata)
 
-        src_rec = utilities.src_recNo(CCdata)
 
 
         # The linear regression for D and sigma using a trace selected mid-way
@@ -621,9 +659,13 @@ class utilities():
 
         D, sigma_temp = utilities.DiffRegress(trace, dfChan,
                                               Emaxt0, plotOut=verbose)
-
+        # ------------------- Deal with some param types -------------------#
         if inversion_param['sigma'] is None:
             inversion_param['sigma'] = sigma_temp
+
+
+        if inversion_param['wdws_end'] is None:
+            inversion_param['wdws_end'] = 'None'
 
         # Unity medium parameters
         inversion_param['D'] = D
@@ -678,7 +720,7 @@ class utilities():
         # Store various info in dict
         return {'CCdata' :CCdata, 'src_rec' : src_rec, 'dfChan' : dfChan,
                 'd_obs' : d_obs, 'wdws': wdws, 'cell_cents': clyMesh.cell_cent,
-                'noiseyChannels': noiseyChannels,
+                'noiseyChannels': noiseyChannels, 'srR_df': srR_df,
                 **inversion_param}
 
     def inv_on_mesh(hdf5File):
@@ -904,7 +946,8 @@ class utilities():
 
 
     def PV_INV_plot_final(hdf5File, fracture=None, trim=True, cbarLim=None,
-                          t_steps=None, PV_plot_dict=None, plane_vectors=([0.5,0.5,0],[0,0.5,0.5]),
+                          t_steps=None, PV_plot_dict=None,
+                          plane_vectors=([0.5, 0.5, 0], [0, 0.5, 0.5], [0, 0, 0]),
                           ):
         '''Intended for the creation of final images for publications. Includes the output of white
         space trimed png's and the a csv database of perturbation data corresponding to each
@@ -925,7 +968,11 @@ class utilities():
         PV_plot_dict : dict (default=None)
             Dictionary containing dict(database='loc_database', PVcol='name_ydata') defining the
             location of the raw input database and the PV data col.
-        plane_vectors : tuple(list(), list()) (default=([0.5,0.5,0],[0,0.5,0.5]))
+            Additional inputs are, dict(axis_slice='y', frac_slice_origin=(0,0.1,0),
+            pointa=None, pointb=None, # The start and end point of a sampling line
+            ball_rad=None, ball_pos=None # The radius and position of a sampling sphere
+            )
+        plane_vectors : tuple(list(v1,v2,origin), list()) (default=([0.5,0.5,0],[0,0.5,0.5]), [0, 0, 0])
             two non-parallel vectors defining plane through mesh. ([x,y,z], [x,y,z])
         Notes
         -----
@@ -936,6 +983,16 @@ class utilities():
         import mesh as msh
         import CWD as cwd
         import data as dt
+
+
+        # ------------------- Apply Defaults -------------------#
+        default_dict = dict(sigma = None, axis_slice='y', frac_slice_origin=(0,0.1,0),
+                            pointa=None, pointb=None, ball_rad = None, ball_pos=None)
+        for k, v in default_dict.items():
+            try:
+                PV_plot_dict[k]
+            except KeyError:
+                PV_plot_dict[k] = v
 
 
         def staggered_list(l1, l2):
@@ -989,33 +1046,43 @@ class utilities():
             all_dataRange=cbarLim
 
         # Calculate slice through mesh
-#        v1 = [-10,18,0]
-#        v2 = [inversions.bounds[0]-inversions.bounds[1], 0, 65]
         v = np.cross(plane_vectors[0], plane_vectors[1])
         v_hat = v / (v**2).sum()**0.5
 
-        # Plot data to disk
-        slice_y = inversions.slice(normal='y')
-        frac_y = fracture.slice(normal='y')
-        frac_slice = inversions.slice(normal=v_hat, origin=(inversions.bounds[1],0,2))
+        #----------------- Plot data to disk -----------------
+        slice_ax = inversions.slice(normal=PV_plot_dict['axis_slice'])
+        frac_y = fracture.slice(normal=PV_plot_dict['axis_slice'],
+                                origin=PV_plot_dict['frac_slice_origin'])
+        frac_slice = inversions.slice(normal=v_hat, origin=(plane_vectors[2]))
 
-        # Perform save for each t-step
+        # ----------------- Sample from mesh over time -----------------
+        if PV_plot_dict['pointa'] and PV_plot_dict['pointb']:
+            # Sample over line within fracture
+            frac_line = pv.Line(pointa=PV_plot_dict['pointa'],
+                                pointb=PV_plot_dict['pointb'])
+            frac_line_vals = frac_line.sample(inversions)
+            frac_line_DF = pd.DataFrame(index=range(frac_line_vals.n_points))
+        else:
+            frac_line_DF = None
+        if PV_plot_dict['ball_rad'] and PV_plot_dict['ball_pos']:
+            # Sample volume within sphere
+            ball = pv.Sphere(radius=PV_plot_dict['ball_rad'],
+                             center=PV_plot_dict['ball_pos'])
+            ball_vals = ball.sample(inversions)
+            ball_DF = pd.DataFrame(index=range(ball_vals.n_points))
+        else:
+            ball_DF = None
+
+        # ----------------- Perform save for each t-step -----------------
         for time, _ in enumerate(m_tildes.T):
-            for idx, view in enumerate([slice_y, frac_slice]):
+            for idx, view in enumerate([slice_ax, frac_slice]):
                 p = pv.Plotter(border=False, off_screen=False)
-                # p.add_text('Time: %s\n L_c: %g\n sigma_m: %g\n rms_max: %g' \
-                #            % (attri['Times'][time],
-                #               attri['L_c'],
-                #               attri['sigma_m'],
-                #               attri['rms_max']),
-                #            font_size=12)
-                # p.add_text(str(time), position=(10,10))
                 p.add_mesh(view, cmap='hot', lighting=True,
                                     stitle='Time  %g' % time,
                                     scalars=view.cell_arrays['time%g' % time],
                                     clim=all_dataRange,
                                     scalar_bar_args=dict(vertical=True))
-                p.add_mesh(frac_y, lighting=True)
+                p.add_mesh(frac_y)
                 if idx ==0:
                     p.view_xz(negative=True)
                 elif idx==1:
@@ -1026,12 +1093,26 @@ class utilities():
 
                 file_name = os.path.join(folder, invfolder)+'_view%g_%g.png' % (idx, time)
                 p.screenshot(file_name)
+                # Extract samples from domain
+                if frac_line_DF:
+                    frac_line_DF['time%g' % time] = frac_line_vals['time%g' % time]
+                if ball_DF:
+                    ball_DF['time%g' % time] = ball_vals['time%g' % time]
+
+        if  isinstance(frac_line_DF, pd.DataFrame):
+            frac_line_DF = frac_line_DF.T
+            frac_line_DF['ave'] = frac_line_DF.mean(axis=1).values
+            frac_line_DF.to_csv(os.path.join(folder, 'fracline.csv'))
+        if isinstance(ball_DF, pd.DataFrame):
+            ball_DF = ball_DF.T
+            ball_DF['ave'] = ball_DF.mean(axis=1).values
+            ball_DF.to_csv(os.path.join(folder, 'ball.csv'))
 
         # Make colorbar
         p = pv.Plotter(border=False, off_screen=False)
-        p.add_mesh(slice_y, cmap='hot', lighting=True,
+        p.add_mesh(slice_ax, cmap='hot', lighting=True,
                                 stitle='Time  %g' % time,
-                                scalars=slice_y.cell_arrays['time0'],
+                                scalars=slice_ax.cell_arrays['time0'],
                                 clim=all_dataRange,
                                 scalar_bar_args=dict(vertical=False,
                                                      position_x=0.2,
@@ -1533,7 +1614,7 @@ class decorrInversion():
 
         # Flattened array for positivity constraint enforcement
         m_tildes_zero = np.zeros(mshape[0]*mshape[1], dtype=np.float32)
-        rms = np.float32(0)
+        rms = np.float32(error_thresh*1.10)
         iteration = int(0)
 
         error_thresh = np.float32(error_thresh)
