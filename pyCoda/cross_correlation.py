@@ -11,6 +11,7 @@ import pickle
 import pandas as pd
 import itertools
 import data as dt
+import os
 
 from scipy import signal
 
@@ -32,7 +33,7 @@ class cross_correlation_survey():
                                                   'sig', 'survey_type',
                                                   'CC_folder',
                                                   'STA_meas', 'END_meas',
-                                                  'lagOverlap', 'taperAlpha'])
+                                                  'lagOverlap', 'taperAlpha','No_srcrecPairs'])
 
     def CC_run(self):
         '''Run the overhead tasks performing the cross-correlation, based on the
@@ -126,6 +127,19 @@ class cross_correlation_survey():
         elif 'multiple' == self.param['survey_type']:
             # Import TS groups from database
             TS_groups = dt.utilities.DB_group_names(self.Database, group_name = 'TSdata')
+
+            if self.param['No_srcrecPairs']:
+                survey_keep = []
+                for survey in TS_groups:
+                    No_srcrec =  dt.utilities.DB_pd_data_load(self.Database,
+                                                          os.path.join('TSdata',survey)).shape[1]
+                    if No_srcrec == self.param['No_srcrecPairs']:
+                        survey_keep.append(survey)
+                    else:
+                        print('Droped survey: %s (shape = %g, not expected %g)' % (survey,
+                                                                               No_srcrec,
+                                                                               self.param['No_srcrecPairs']))
+                TS_groups = survey_keep
 
             if self.param['STA_meas'] and self.param['END_meas']:
                 surveyTimes = [pd.to_datetime(group.split('survey')[1]) for group in

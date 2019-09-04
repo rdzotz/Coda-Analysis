@@ -1255,8 +1255,12 @@ class data_import:
         elif self.import_dtype == 'CSIRO':
             if not self.param['PV_file_hdr_rows'][0]:
                 self.param['PV_file_hdr_rows'] = [14, 15]
+
+            if not self.param['PV_file_skip_rows'][0]:
+                self.param['PV_file_skip_rows'] = [16, 17]
+
             df = pd.read_csv(self.PVloc, sep = '\t', header= self.param['PV_file_hdr_rows'],
-                             skiprows=[16, 17])
+                             skiprows=self.param['PV_file_skip_rows'])
             df.columns = ['%s%s' % (a, '%s' % b if b else '')
                           for a, b in df.columns]
         elif self.import_dtype == 'Shell_format':

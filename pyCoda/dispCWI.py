@@ -809,9 +809,17 @@ class dispCWI_DB:
 class dispCWI2:
     '''This class is intended to handel the display of PV/CC data stored within
     a single HDF5 database file.
+
+    Parameters
+    ----------
+    Database :  str
+        The path and name to the database from which display will be rendered.
+    CC_folder : str (default=None)
+        The CC folder from which the cross-correlations will be extracted. If ``None``, the database
+        attributes will be read from
     '''
 
-    def __init__(self, Database, verbose=False):
+    def __init__(self, Database, CC_folder=None, CC_type=None, verbose=False):
         self.Database  = Database
         self.hdl_cc = []      # list of handels
         self.verbose = verbose
@@ -819,6 +827,12 @@ class dispCWI2:
                                                  ['ww','ww_ol','wdwPos','CC_ref',
                                                   'CC_type', 'PV1', 'PV2',
                                                   'CC_folder'])
+        if CC_folder:
+            self.param['CC_folder'] = CC_folder
+        if CC_type:
+            self.param['CC_type'] = CC_type
+
+
     def plot_DB(self):
         ''' Generate Interactive plot of Cross-Correlation data within standard
         database.

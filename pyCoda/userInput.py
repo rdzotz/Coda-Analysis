@@ -88,6 +88,12 @@ class userInput:
 
         PVloc : location of folder/file containing the perturbation data.
 
+        PV_file_hdr_rows : the rows in raw input file which contain header. Currently only
+                active when ``import_dtype = 'CSIRO' ``.
+
+        PV_file_skip_rows : the rows in raw input file to be skiped after header. Currently only
+                active when ``import_dtype = 'CSIRO' ``.
+
         loadDB : If True, no attempt to reload raw data into database will be made
 
         ------------------- Pre-processing inputs  -------------------
@@ -98,6 +104,7 @@ class userInput:
 
         PV_time_col_unit : (Default = 'D') the time unit of the PV column to match,
             see pd.to_datetime
+
 
         sampNo : The number of sample points in a single trace recording, only
             required as input if not found in TS header information.
@@ -123,6 +130,11 @@ class userInput:
             then no start will be set. Note: only for ``survey_type``
             multiple, a date string in the format YYYY-MM-DD HH:MM:sec.msec must be
             given, which corresponds to the survey folder number.
+
+        No_srcrecPairs : int (Default False)
+            The expected number of source receiver pairs expected in each survey.
+            Only intended for ``survey_type='multiple'``. All surveys which do not include
+            the expected number of pairs (columns) will be dropped from the processing.
 
         sta_wdws : int (Optional)
             If ``wdwPos`` and ``ww_ol`` as given then the user can also define the
@@ -327,6 +339,11 @@ class userInput:
             self.param['PV_file_hdr_rows'] = False
 
         try:
+            self.param['PV_file_skip_rows']
+        except KeyError:
+            self.param['PV_file_skip_rows'] = False
+
+        try:
             self.param['disp_DB']
         except KeyError:
             # If does not exist then set to True
@@ -365,6 +382,12 @@ class userInput:
         except KeyError:
             # If does not exist then set to True
             self.param['STA_meas'] = 0
+
+        try:
+            self.param['No_srcrecPairs']
+        except KeyError:
+            # If does not exist then set to True
+            self.param['No_srcrecPairs'] = 0
 
         try:
             self.param['END_meas']
@@ -476,7 +499,7 @@ class userInput:
             self.param['PV2'] = False
 
         # Install some input processing
-        for NAME in ['CC_ref', 'wdwPos', 'ww','PV_file_hdr_rows']:
+        for NAME in ['CC_ref', 'wdwPos', 'ww','PV_file_hdr_rows', 'PV_file_skip_rows']:
             try:
                 if isinstance(self.param[NAME], str):
                     self.param[NAME] = [int(e) for e in

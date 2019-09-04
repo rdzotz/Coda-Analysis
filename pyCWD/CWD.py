@@ -946,7 +946,7 @@ class utilities():
 
 
     def PV_INV_plot_final(hdf5File, fracture=None, trim=True, cbarLim=None,
-                          t_steps=None, PV_plot_dict=None,
+                          t_steps=None, SaveImages=True, down_sample_figs=False, PV_plot_dict=None,
                           plane_vectors=([0.5, 0.5, 0], [0, 0.5, 0.5], [0, 0, 0]),
                           ):
         '''Intended for the creation of final images for publications. Includes the output of white
@@ -965,12 +965,21 @@ class utilities():
             Fix the global colour bar limits (min, max),
         t_steps : list (default=None)
             Select timesteps to display. Produces a filtered PV_INV database of a selection of tsteps
+        SaveImages: bool/int (default=True)
+            Produce all time-step images found in hdf5file.
+        down_sample_figs: bool (default=False)
+            Skip every ``down_sample_figs`` figure to save to disk
         PV_plot_dict : dict (default=None)
             Dictionary containing dict(database='loc_database', PVcol='name_ydata') defining the
             location of the raw input database and the PV data col.
-            Additional inputs are, dict(axis_slice='y', frac_slice_origin=(0,0.1,0),
+            Additional inputs are:
+            dict(axis_slice='y', frac_slice_origin=(0,0.1,0),
             pointa=None, pointb=None, # The start and end point of a sampling line
-            ball_rad=None, ball_pos=None # The radius and position of a sampling sphere
+            ball_rad=None, ball_pos=None # list of radius and position of a sampling sphere
+            ball_shift_at=None # ([0,3,0], 27) shift ball at time step 27
+            area = 27 # the area from which stress will be calculated,
+            frac_onset_hours = 103 # The hours at which fracturing onset occures, used to cacluate
+                                     the percentate of peak stress at which fracturing occurs.
             )
         plane_vectors : tuple(list(v1,v2,origin), list()) (default=([0.5,0.5,0],[0,0.5,0.5]), [0, 0, 0])
             two non-parallel vectors defining plane through mesh. ([x,y,z], [x,y,z])
@@ -984,17 +993,7 @@ class utilities():
         import CWD as cwd
         import data as dt
 
-
-        # ------------------- Apply Defaults -------------------#
-        default_dict = dict(sigma = None, axis_slice='y', frac_slice_origin=(0,0.1,0),
-                            pointa=None, pointb=None, ball_rad = None, ball_pos=None)
-        for k, v in default_dict.items():
-            try:
-                PV_plot_dict[k]
-            except KeyError:
-                PV_plot_dict[k] = v
-
-
+        # ------------------- Internal functions -------------------#
         def staggered_list(l1, l2):
 
             l3 = [None]*(len(l1)+len(l2))
@@ -1002,6 +1001,41 @@ class utilities():
             l3[1::2] = l2
 
             return l3
+
+        def viewcam(handel, axis_slice):
+            if axis_slice =='y':
+                return handel.view_xz(negative=True)
+            elif axis_slice =='x':
+                return handel.view_yz(negative=True)
+            elif axis_slice =='z':
+                return handel.view_xy(negative=False)
+
+        def core_dict(axis_slice):
+
+            if axis_slice == 'y':
+                return dict(show_xaxis=True, show_yaxis=False, show_zaxis=True, zlabel='Z [mm]',
+                                 xlabel='X [mm]', ylabel='Y [mm]', color='k')
+
+            if axis_slice == 'x':
+                return dict(show_xaxis=False, show_yaxis=True, show_zaxis=True, zlabel='Z [mm]',
+                                 xlabel='X [mm]', ylabel='Y [mm]', color='k')
+
+            if axis_slice == 'z':
+                return dict(show_xaxis=True, show_yaxis=True, show_zaxis=False, zlabel='Z [mm]',
+                                 xlabel='X [mm]', ylabel='Y [mm]', color='k')
+
+
+        # ------------------- Apply Defaults -------------------#
+        default_dict = dict(sigma = None, axis_slice='y', frac_slice_origin=(0,0.1,0),
+                            pointa=None, pointb=None, ball_rad = None, ball_pos=None,
+                            ball_shift_at=None, area = None, frac_onset_hours=0)
+        for k, v in default_dict.items():
+            try:
+                PV_plot_dict[k]
+            except KeyError:
+                PV_plot_dict[k] = v
+
+
 
         # Load in the model param
         groups = dt.utilities.DB_group_names(hdf5File, 'Inversion')
@@ -1022,7 +1056,10 @@ class utilities():
         clyMesh = msh.utilities.meshOjfromDisk()
 
         # Save the base mesh
-        clyMesh.setCellsVal(m_tildes.T[4])
+        for idx,col in enumerate(m_tildes.T):
+            if col[0]>0:
+                break
+        clyMesh.setCellsVal(m_tildes.T[idx])
         clyMesh.saveMesh('baseMesh')
 
         # Read in base mesh
@@ -1066,49 +1103,68 @@ class utilities():
             frac_line_DF = None
         if PV_plot_dict['ball_rad'] and PV_plot_dict['ball_pos']:
             # Sample volume within sphere
-            ball = pv.Sphere(radius=PV_plot_dict['ball_rad'],
-                             center=PV_plot_dict['ball_pos'])
-            ball_vals = ball.sample(inversions)
-            ball_DF = pd.DataFrame(index=range(ball_vals.n_points))
+            ball_dict = {}
+            for idx, (rad, pos) in enumerate(zip(PV_plot_dict['ball_rad'], PV_plot_dict['ball_pos'])):
+                ball_dict['ball_%g' %(idx+1)] = pv.Sphere(radius=rad, center=pos)
+                ball_dict['ball_%g_vals' %(idx+1)] = ball_dict['ball_%g' %(idx+1)].sample(inversions)
+                ball_dict['ball_%g_DF' %(idx+1)] = pd.DataFrame(
+                                        index=range(ball_dict['ball_%g' %(idx+1)].n_points))
         else:
-            ball_DF = None
+            ball_dict = None
 
         # ----------------- Perform save for each t-step -----------------
-        for time, _ in enumerate(m_tildes.T):
-            for idx, view in enumerate([slice_ax, frac_slice]):
-                p = pv.Plotter(border=False, off_screen=False)
-                p.add_mesh(view, cmap='hot', lighting=True,
-                                    stitle='Time  %g' % time,
-                                    scalars=view.cell_arrays['time%g' % time],
-                                    clim=all_dataRange,
-                                    scalar_bar_args=dict(vertical=True))
-                p.add_mesh(frac_y)
-                if idx ==0:
-                    p.view_xz(negative=True)
-                elif idx==1:
-                    p.view_vector(v_hat)
+        times = [time for time, _ in enumerate(m_tildes.T)]
+        count = 0
+        if down_sample_figs:
+            print('* Down Sample figures')
+            times_down = times[0::down_sample_figs]
+            times_down = times_down + t_steps
+            times_down = list(set(times_down))
+            times_down.sort()
+        else:
+            times_down = times
 
-                p.remove_scalar_bar()
-                p.set_background("white")
+        for time in times:
+            # Extract samples from domain
+            if isinstance(frac_line_DF, pd.DataFrame):
+                frac_line_DF['time%g' % time] = frac_line_vals['time%g' % time]
+            if ball_dict:
+                if PV_plot_dict['ball_shift_at']:
+                    for shifts in PV_plot_dict['ball_shift_at']:
+                        if time == shifts[1]:
+                            for no, shift in enumerate(shifts[0]):
+                                ball_dict['ball_%g' %(no+1)].translate(shift)
+                                ball_dict['ball_%g_vals' %(no+1)] = ball_dict['ball_%g_vals' %(no+1)].sample(inversions)
+                for ball, _ in enumerate(PV_plot_dict['ball_rad']):
+                    ball_dict['ball_%g_DF' %(ball+1)]['time%g' % time] = ball_dict['ball_%g_vals' %(ball+1)]['time%g' % time]
+#                    ball_DF['time%g' % time] = ball_vals['time%g' % time]
+            if SaveImages and time==times_down[count]:
+                count+=1
+                if count == len(times_down):
+                    count-=1
+                for idx, view in enumerate([slice_ax, frac_slice]):
+                    p = pv.Plotter(border=False, off_screen=False)
+                    p.add_mesh(view, cmap='hot', lighting=True,
+                                        stitle='Time  %g' % time,
+                                        scalars=view.cell_arrays['time%g' % time],
+                                        clim=all_dataRange,
+                                        scalar_bar_args=dict(vertical=True))
+                    p.add_mesh(frac_y)
+                    if idx ==0:
+                        p.view_xz(negative=True)
+                    elif idx==1:
+                        p.view_vector(v_hat)
 
-                file_name = os.path.join(folder, invfolder)+'_view%g_%g.png' % (idx, time)
-                p.screenshot(file_name)
-                # Extract samples from domain
-                if frac_line_DF:
-                    frac_line_DF['time%g' % time] = frac_line_vals['time%g' % time]
-                if ball_DF:
-                    ball_DF['time%g' % time] = ball_vals['time%g' % time]
+                    p.remove_scalar_bar()
+                    p.set_background("white")
 
-        if  isinstance(frac_line_DF, pd.DataFrame):
-            frac_line_DF = frac_line_DF.T
-            frac_line_DF['ave'] = frac_line_DF.mean(axis=1).values
-            frac_line_DF.to_csv(os.path.join(folder, 'fracline.csv'))
-        if isinstance(ball_DF, pd.DataFrame):
-            ball_DF = ball_DF.T
-            ball_DF['ave'] = ball_DF.mean(axis=1).values
-            ball_DF.to_csv(os.path.join(folder, 'ball.csv'))
+                    file_name = os.path.join(folder, invfolder)+'_view%g_%g.png' % (idx, time)
+                    p.screenshot(file_name)
 
-        # Make colorbar
+
+
+
+        # ----------------- Make colorbar -----------------
         p = pv.Plotter(border=False, off_screen=False)
         p.add_mesh(slice_ax, cmap='hot', lighting=True,
                                 stitle='Time  %g' % time,
@@ -1121,42 +1177,104 @@ class utilities():
         p.view_xz(negative=True)
         p.screenshot(os.path.join(folder, 'cbar.png'))
 
+        # ----------------- core example -----------------
+        clipped = inversions.clip(PV_plot_dict['axis_slice'])
+
+        a = [plane_vectors[2][0], plane_vectors[2][1], plane_vectors[2][2]]
+        b = [clipped.bounds[1], plane_vectors[1][1], plane_vectors[1][2]]
+        line = pv.Line(a, b)
+
+        p = pv.Plotter(border=False, off_screen=False,window_size=[1024*4, 768*4])
+
+#        p.add_mesh(inversions, opacity=0.1, edge_color ='k')
+        p.add_mesh(clipped, opacity=0.3, edge_color ='k',lighting=True,
+                   scalars=np.ones(clipped.n_cells))
+        p.add_mesh(fracture, lighting=True)
+        p.add_mesh(line, color="white", line_width=5)
+        p.add_point_labels(
+            [[a[0]*0.9, a[1], a[2]], b], ["A", "B"], font_size=60, point_color="red", text_color="k")
+        p.set_background("white")
+        viewcam(p, PV_plot_dict['axis_slice'])
+#        p.show_bounds(font_size=20,
+#                      location='outer',
+#                      padding=0.005,**core_dict(PV_plot_dict['axis_slice']))
+        p.remove_scalar_bar()
+
+        file_name = os.path.join(folder, invfolder)+'_coreview.png'
+        p.screenshot(file_name)
+
+        # ----------------- trim whitespace -----------------
         if trim:
             utilities.whiteSpaceTrim(folderName=folder, file_match=invfolder+'*.png')
 
-        if PV_plot_dict:
-                PVdata = dt.utilities.DB_pd_data_load(PV_plot_dict['database'], 'PVdata')
-                PVdata['refIndex'] = PVdata.index
-                PVdata['hours'] = pd.to_timedelta(PVdata['Time Stamp']-PVdata['Time Stamp'][0]). \
-                                        dt.total_seconds()/3600
-                PVdata.index = pd.to_datetime(PVdata['Time Stamp'])
+        # ----------------- Save requested data to disk -----------------
+        PVdata = dt.utilities.DB_pd_data_load(PV_plot_dict['database'], 'PVdata')
+        PVdata['refIndex'] = PVdata.index
+        PVdata['hours'] = pd.to_timedelta(PVdata['Time Stamp']-PVdata['Time Stamp'][0]). \
+                                dt.total_seconds()/3600
+        PVdata.index = pd.to_datetime(PVdata['Time Stamp'])
 
-                idx_near = [ PVdata.index[PVdata.index.get_loc(idx, method='nearest')] for
-                                          idx in  attri['Times']]
+        if PV_plot_dict['area']:
+            PVdata['Stress (MPa)'] = PVdata[PV_plot_dict['PVcol']]/PV_plot_dict['area']*1000
+            PeakStress = PVdata['Stress (MPa)'].max()
+            fracStress = PVdata.query('hours>=%g' % PV_plot_dict['frac_onset_hours'])['Stress (MPa)'].iloc[0]
+            percOfPeak = fracStress/PeakStress
 
-                y_time = PVdata[[PV_plot_dict['PVcol'],'refIndex','hours']].loc[idx_near].reset_index()
-                y_time.to_csv(os.path.join(folder, 'PV_INV.csv'))
-                if t_steps:
-                    y_time = y_time.loc[t_steps].reset_index()
-                    y_time.index += 1
-                    y_time.to_csv(os.path.join(folder, 'PV_INV_select.csv'), index_label='t_index')
+        near = [PVdata.index[PVdata.index.get_loc(idx, method='nearest')] for
+                                  idx in  attri['Times']]
 
-                    view1 =  [os.path.join(folder, invfolder)+'_view%g_%g.png' % (idx, time)
-                                             for idx, time in itertools.product([0], t_steps)]
+        idx_near = [timestampe if isinstance(timestampe, pd.Timestamp) else near[idx-1] for
+                    idx, timestampe in enumerate(near)]
 
-                    view2 = [os.path.join(folder, invfolder)+'_view%g_%g.png' % (idx, time)
-                                             for idx, time in itertools.product([1], t_steps)]
-                    m_tildes_str1 = ','.join(view1)
-                    m_tildes_str2 = ','.join(view2)
-                    with open(os.path.join(folder,'PV_INV_select.tex'), "w") as file:
-                        file.write("\\newcommand{\TimesA}{%s}\n" % ','.join(staggered_list(view1,
-                                                                                  view2)))
-                        file.write("\\newcommand{\TimesB}{%s}\n" % m_tildes_str1)
-                        file.write("\\newcommand{\TimesC}{%s}\n" % m_tildes_str2)
-                        file.write("\\newcommand{\cmin}{%s}\n" % all_dataRange[0])
-                        file.write("\\newcommand{\cmax}{%s}\n" % all_dataRange[1])
+        if isinstance(frac_line_DF, pd.DataFrame):
+            frac_line_DF = frac_line_DF.T
+            frac_line_DF['ave'] = frac_line_DF.mean(axis=1).values
+            frac_line_DF['hours'] = PVdata['hours'].loc[idx_near].values
+            frac_line_DF.to_csv(os.path.join(folder, 'fracline.csv'))
+        if ball_dict:
+            for DF_no, _ in enumerate(PV_plot_dict['ball_rad']):
+                ball_dict['ball_%g_DF' %(DF_no+1)] = ball_dict['ball_%g_DF' %(DF_no+1)].T
+                ball_dict['ball_%g_DF' %(DF_no+1)]['ave'] = ball_dict['ball_%g_DF' %(DF_no+1)].\
+                                                                                mean(axis=1).values
 
-                PVdata[[PV_plot_dict['PVcol'],'refIndex','hours']].to_csv(os.path.join(folder, 'PVdata.csv'))
+                ball_dict['ball_%g_DF' %(DF_no+1)]['hours'] = PVdata['hours'].loc[idx_near].values
+                ball_dict['ball_%g_DF' %(DF_no+1)].to_csv(os.path.join(folder, 'ball%g.csv' % DF_no))
+
+        if PV_plot_dict['area']:
+            y_time = PVdata[[PV_plot_dict['PVcol'], 'Stress (MPa)','refIndex','hours']].loc[idx_near].reset_index()
+        else:
+            y_time = PVdata[[PV_plot_dict['PVcol'],'refIndex','hours']].loc[idx_near].reset_index()
+        y_time.to_csv(os.path.join(folder, 'PV_INV.csv'))
+
+        if t_steps:
+            y_time = y_time.loc[t_steps].reset_index()
+            y_time.index += 1
+            y_time.to_csv(os.path.join(folder, 'PV_INV_select.csv'), index_label='t_index')
+
+            view1 =  [os.path.join(folder, invfolder)+'_view%g_%g.png' % (idx, time)
+                                     for idx, time in itertools.product([0], t_steps)]
+
+            view2 = [os.path.join(folder, invfolder)+'_view%g_%g.png' % (idx, time)
+                                     for idx, time in itertools.product([1], t_steps)]
+            m_tildes_str1 = ','.join(view1)
+            m_tildes_str2 = ','.join(view2)
+            with open(os.path.join(folder,'PV_INV_select.tex'), "w") as file:
+                file.write("\\newcommand{\TimesA}{%s}\n" % ','.join(staggered_list(view1,
+                                                                          view2)))
+                file.write("\\newcommand{\TimesB}{%s}\n" % m_tildes_str1)
+                file.write("\\newcommand{\TimesC}{%s}\n" % m_tildes_str2)
+                file.write("\\newcommand{\cmin}{%s}\n" % all_dataRange[0])
+                file.write("\\newcommand{\cmax}{%s}\n" % all_dataRange[1])
+                if PV_plot_dict['area']:
+                    file.write("\\newcommand{\PeakStress}{%g}\n" % PeakStress)
+                    file.write("\\newcommand{\\fracStress}{%g}\n" % fracStress)
+                    file.write("\\newcommand{\percOfPeak}{%g}\n" % percOfPeak)
+                    file.write("\\newcommand{\\fracOnsetHours}{%g}\n" % PV_plot_dict['frac_onset_hours'])
+
+        if PV_plot_dict['area']:
+            PVdata[[PV_plot_dict['PVcol'],'Stress (MPa)', 'refIndex','hours']].to_csv(os.path.join(folder, 'PVdata.csv'))
+        else:
+            PVdata[[PV_plot_dict['PVcol'],'refIndex','hours']].to_csv(os.path.join(folder, 'PVdata.csv'))
 
         return all_dataRange
 
@@ -1715,10 +1833,10 @@ class decorrInversion():
 
 
         # Deal with only one list(float) and one float
-        if isinstance(sigma_m, list) and not isinstance(L_c, list) and L_c:
+        if isinstance(sigma_m, tuple) and not isinstance(L_c, tuple) and L_c:
             L_c = [L_c]*len(sigma_m)
 
-        if isinstance(L_c, list) and not isinstance(sigma_m, list) and sigma_m:
+        if isinstance(L_c, tuple) and not isinstance(sigma_m, tuple) and sigma_m:
             sigma_m = [sigma_m]*len(L_c)
 
         if isinstance(L_c, list):
