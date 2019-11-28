@@ -321,8 +321,8 @@ class utilities:
 
         elif relVel:
             # Middle of each window
-            t_prop = np.array([(int(wdw[-2].split('-')[0]) +
-                                int(wdw[-2].split('-')[1]))/2
+            t_prop = np.array([(int(wdw[1].split('-')[0]) +
+                                int(wdw[1].split('-')[1]))/2
                                for wdw in cols]) * unit_dict[units] * period
 
             CC_df.loc[:, cols] = CC_df.loc[:, cols] * \

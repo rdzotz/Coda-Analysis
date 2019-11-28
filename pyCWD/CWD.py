@@ -957,7 +957,7 @@ class utilities():
         ----------
         hdf5File : str
             The hdf5 file from which each inversion result will be read
-        fracture : object (default=None)
+        fracture : list(object) (default=None)
             Aligned pyvista mesh object to be included into each time-step plot.
         trim : bool (default=True)
             Trim white space from each png produced.
@@ -982,7 +982,8 @@ class utilities():
                                      the percentate of peak stress at which fracturing occurs.
             )
         plane_vectors : tuple(list(v1,v2,origin), list()) (default=([0.5,0.5,0],[0,0.5,0.5]), [0, 0, 0])
-            two non-parallel vectors defining plane through mesh. ([x,y,z], [x,y,z])
+            two non-parallel vectors defining plane through mesh. ([x,y,z], [x,y,z]). If a list of
+            tuples is provided multiple slices of the domain will be made and saved to file.
         Notes
         -----
         '''
@@ -992,6 +993,7 @@ class utilities():
         import mesh as msh
         import CWD as cwd
         import data as dt
+        from string import ascii_uppercase
 
         # ------------------- Internal functions -------------------#
         def staggered_list(l1, l2):
@@ -1028,13 +1030,16 @@ class utilities():
         # ------------------- Apply Defaults -------------------#
         default_dict = dict(sigma = None, axis_slice='y', frac_slice_origin=(0,0.1,0),
                             pointa=None, pointb=None, ball_rad = None, ball_pos=None,
-                            ball_shift_at=None, area = None, frac_onset_hours=0)
+                            ball_shift_at=None, area = None, frac_onset_hours=0, anno_lines= None,
+                            channels=None)
         for k, v in default_dict.items():
             try:
                 PV_plot_dict[k]
             except KeyError:
                 PV_plot_dict[k] = v
 
+        if not isinstance(fracture, list):
+            fracture = [fracture]
 
 
         # Load in the model param
@@ -1083,14 +1088,30 @@ class utilities():
             all_dataRange=cbarLim
 
         # Calculate slice through mesh
-        v = np.cross(plane_vectors[0], plane_vectors[1])
-        v_hat = v / (v**2).sum()**0.5
+        if isinstance(plane_vectors, tuple):
+            v = np.cross(plane_vectors[0], plane_vectors[1])
+            v_hat = v / (v**2).sum()**0.5
+        elif isinstance(plane_vectors, list):
+            v_hat = []
+            for planes in plane_vectors:
+                v = np.cross(planes[0], planes[1])
+                v_hat.append(v / (v**2).sum()**0.5)
 
         #----------------- Plot data to disk -----------------
         slice_ax = inversions.slice(normal=PV_plot_dict['axis_slice'])
-        frac_y = fracture.slice(normal=PV_plot_dict['axis_slice'],
-                                origin=PV_plot_dict['frac_slice_origin'])
-        frac_slice = inversions.slice(normal=v_hat, origin=(plane_vectors[2]))
+
+        frac_y = [frac.slice(normal=PV_plot_dict['axis_slice'],
+                                origin=PV_plot_dict['frac_slice_origin']) for frac in fracture]
+
+#        frac_y = fracture.slice(normal=PV_plot_dict['axis_slice'],
+#                                origin=PV_plot_dict['frac_slice_origin'])
+        if isinstance(v_hat, list):
+            frac_slices = []
+            for idx, v in enumerate(v_hat):
+                frac_slices.append( inversions.slice(normal=v, origin=(plane_vectors[idx][2])) )
+        else:
+            frac_slices = [ inversions.slice(normal=v_hat, origin=(plane_vectors[2])) ]
+
 
         # ----------------- Sample from mesh over time -----------------
         if PV_plot_dict['pointa'] and PV_plot_dict['pointb']:
@@ -1142,18 +1163,23 @@ class utilities():
                 count+=1
                 if count == len(times_down):
                     count-=1
-                for idx, view in enumerate([slice_ax, frac_slice]):
+                for idx, view in enumerate([slice_ax]+frac_slices):
                     p = pv.Plotter(border=False, off_screen=False)
                     p.add_mesh(view, cmap='hot', lighting=True,
                                         stitle='Time  %g' % time,
                                         scalars=view.cell_arrays['time%g' % time],
                                         clim=all_dataRange,
                                         scalar_bar_args=dict(vertical=True))
-                    p.add_mesh(frac_y)
-                    if idx ==0:
+                    for fracy in frac_y:
+                        p.add_mesh(fracy)
+
+                    if idx == 0:
                         p.view_xz(negative=True)
-                    elif idx==1:
-                        p.view_vector(v_hat)
+                    elif idx >= 1:
+                        if isinstance(v_hat, list):
+                            p.view_vector(v_hat[idx-1])
+                        else:
+                            p.view_vector(v_hat)
 
                     p.remove_scalar_bar()
                     p.set_background("white")
@@ -1180,28 +1206,57 @@ class utilities():
         # ----------------- core example -----------------
         clipped = inversions.clip(PV_plot_dict['axis_slice'])
 
-        a = [plane_vectors[2][0], plane_vectors[2][1], plane_vectors[2][2]]
-        b = [clipped.bounds[1], plane_vectors[1][1], plane_vectors[1][2]]
-        line = pv.Line(a, b)
+        if isinstance(plane_vectors, tuple):
+            plane_draw = list(plane_vectors)
+        elif isinstance(plane_vectors, list):
+            plane_draw = plane_vectors
 
-        p = pv.Plotter(border=False, off_screen=False,window_size=[1024*4, 768*4])
+        a_s = []
+        b_s = []
+        lines = []
 
-#        p.add_mesh(inversions, opacity=0.1, edge_color ='k')
-        p.add_mesh(clipped, opacity=0.3, edge_color ='k',lighting=True,
-                   scalars=np.ones(clipped.n_cells))
-        p.add_mesh(fracture, lighting=True)
-        p.add_mesh(line, color="white", line_width=5)
-        p.add_point_labels(
-            [[a[0]*0.9, a[1], a[2]], b], ["A", "B"], font_size=60, point_color="red", text_color="k")
-        p.set_background("white")
-        viewcam(p, PV_plot_dict['axis_slice'])
-#        p.show_bounds(font_size=20,
-#                      location='outer',
-#                      padding=0.005,**core_dict(PV_plot_dict['axis_slice']))
-        p.remove_scalar_bar()
+        if PV_plot_dict['anno_lines']:
+            for plane in PV_plot_dict['anno_lines']:
+                a = plane[0]
+                b = plane[1]
+                a_s.append(a)
+                b_s.append(b)
+                lines.append(pv.Line(a, b))
 
-        file_name = os.path.join(folder, invfolder)+'_coreview.png'
-        p.screenshot(file_name)
+            p = pv.Plotter(border=False, off_screen=False,window_size=[1024*4, 768*4])
+
+    #        p.add_mesh(inversions, opacity=0.1, edge_color ='k')
+            p.add_mesh(clipped, opacity=0.3, edge_color ='k',lighting=True,
+                       scalars=np.ones(clipped.n_cells))
+
+            for frac in fracture:
+                p.add_mesh(frac,lighting=True)
+
+#            p.add_mesh(fracture, lighting=True)
+            for idx, (line, a, b) in enumerate(zip(lines, a_s, b_s)):
+                p.add_mesh(line, color="white", line_width=5)
+
+            flat_list = [item for sublist in PV_plot_dict['anno_lines'] for item in sublist]
+            labels = list(ascii_uppercase[:len(flat_list)])
+            p.add_point_labels(
+                    flat_list, labels, font_size=120, point_color="red", text_color="k")
+
+            if isinstance(PV_plot_dict['channels'], pd.DataFrame):
+                for index, row in PV_plot_dict['channels'].iterrows():
+                    ball = pv.Sphere(radius=1, center=row.tolist())
+                    p.add_mesh(ball, 'r')
+#                poly = pv.PolyData(PV_plot_dict['channels'].values)
+#                p.add_points(poly, point_size=20)
+
+            p.set_background("white")
+            viewcam(p, PV_plot_dict['axis_slice'])
+    #        p.show_bounds(font_size=20,
+    #                      location='outer',
+    #                      padding=0.005,**core_dict(PV_plot_dict['axis_slice']))
+            p.remove_scalar_bar()
+
+            file_name = os.path.join(folder, invfolder)+'_coreview.png'
+            p.screenshot(file_name)
 
         # ----------------- trim whitespace -----------------
         if trim:
@@ -1277,6 +1332,70 @@ class utilities():
             PVdata[[PV_plot_dict['PVcol'],'refIndex','hours']].to_csv(os.path.join(folder, 'PVdata.csv'))
 
         return all_dataRange
+
+    def movieFrames(outFolder = "Frac_rotate", add_vtk=None, delta_deg = 5, res = 3,
+                    meshObjectPath='cly.Mesh', trim=True):
+        '''Produces frames intended for the construction of a movie. Currently function only allows
+        one to perform
+
+        Parameters
+        ----------
+        outFolder : str (default='Frac_rotate')
+            The name of the output folder
+        add_vtk : list(mesh) (default=None)
+            A list of the mesh files to add to the domain
+        delta_deg : int (default=5)
+            rotation delta in degrees
+        res : int (default=3)
+            Resolution multiplyer
+        meshObjectPath : str (default='cly.Mesh')
+            Path to the base mesh file.
+        trim : bool (default=True)
+            Trim white space from each png produced.
+        '''
+        import pyvista as pv
+        import mesh as msh
+
+        # Load mesh object
+        clyMesh = msh.utilities.meshOjfromDisk(meshObjectPath)
+
+        clyMesh.saveMesh('baseMesh')
+
+        # Read in base mesh
+        core = pv.read('baseMesh.vtu')
+
+        # Make output folder
+        os.makedirs(outFolder, exist_ok=True)
+
+        res = 3
+        p = pv.Plotter(off_screen=True, window_size=[600*res, 800*res])
+
+        p.add_mesh(core, lighting=True, opacity=0.1)
+
+        if add_vtk:
+            for mesh in add_vtk:
+                p.add_mesh(mesh,lighting=True)
+
+
+        p.isometric_view()
+        p.set_background("white")
+        p.remove_scalar_bar()
+        # p.show_bounds(color='black',font_size=150)
+
+        increments = 360//delta_deg
+
+        for turn in range(increments):
+            if add_vtk:
+                for mesh in add_vtk:
+                    mesh.rotate_z(delta_deg)
+
+            core.rotate_z(delta_deg)
+            file_name = os.path.join(outFolder, "rorate_%g.png" % turn)
+            p.screenshot(file_name)
+
+        # ----------------- trim whitespace -----------------
+        if trim:
+            utilities.whiteSpaceTrim(folderName=outFolder, file_match='rorate_'+'*.png')
 
     def whiteSpaceTrim(folderName='', file_match='*.png'):
         '''Trims the white space from images.
