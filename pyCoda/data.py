@@ -278,11 +278,11 @@ class utilities:
                                      DF[baseName_stat].min())
         return DF
 
-    def CC_lag(CC_df, period, units='us', relVel = True):
+    def CC_lag(CC_df, period=None, units='us', relVel = True, strainCol=None):
         '''Convert CC lag or First Break Picked data from number of sample points
         to time or relative velocity change based on:
             .. math::
-                \dfrac{\delta v}{v} = \dfrac{\delta t}{t}
+                \dfrac{\delta v}{v} = -\dfrac{\delta t}{t}
         Expected column names should either contain 'lag' in the last of a tuple,
         eg. col[-1] in the case of lag correction, or 'FBP' in the case of First
         Break Picking correction. If a 'FBP' correction is required, then the
@@ -293,13 +293,17 @@ class utilities:
         CC_df : DataFrame
             Dataframe from which statistics will be generated. A three level
             dataframe is expected where the lowest level
-        period : float
-            Seconds per sample
+        period : float (default=None)
+            Seconds per sample,
         units : str
             unit of the arg (D,s,ms,us,ns) denote the unit, which is an integer
             or float number.
         relVel : bool
             Output the lag in terms of the relative velocity change.
+        strainCol : str (default=None)
+            The name of the strain column within ``CC_df`` which will be used
+            to correct the relative velocity calculation for a change in
+            separation distance.
         Returns
         -------
         DF : DataFrame
@@ -313,8 +317,12 @@ class utilities:
                 'FBP' in col]
 
         if relVel and 'FBP' in cols:
-            Vint = 1 / (CC_df.iloc[0, :] * period)
-            deltaV = 1 / (CC_df.loc[:, cols] * period) - Vint
+            if strainCol:
+                Vint = CC_df.loc[0, strainCol]/ CC_df.loc[0, cols[0]]
+                deltaV = CC_df.loc[:, strainCol]/ CC_df.loc[:, cols[0]] - Vint
+            else:
+                Vint = 1 / (CC_df.iloc[0, :] )
+                deltaV = 1 / (CC_df.loc[:, cols]) - Vint
 
             CC_df.loc[:, cols] = deltaV/Vint
             return CC_df
@@ -325,8 +333,8 @@ class utilities:
                                 int(wdw[1].split('-')[1]))/2
                                for wdw in cols]) * unit_dict[units] * period
 
-            CC_df.loc[:, cols] = CC_df.loc[:, cols] * \
-                                 period * unit_dict[units] / t_prop
+            CC_df.loc[:, cols] = (CC_df.loc[:, cols] * \
+                                 period * unit_dict[units] ) / t_prop*-1
             return CC_df
 
         t_prop = 1
