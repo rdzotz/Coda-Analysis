@@ -978,6 +978,9 @@ class utilities():
             ball_rad=None, ball_pos=None # list of radius and position of a sampling sphere
             ball_shift_at=None # ([0,3,0], 27) shift ball at time step 27
             area = 27 # the area from which stress will be calculated,
+            len_dia = (85, 39)( # initial length and diameter of the sample
+            LVDT_a = "name of axial LVDTs", can be a list in which case the average is calculated
+            LVDT_r = "name of radial LVDTs", can be a list in which case the average is calculated
             frac_onset_hours = 103 # The hours at which fracturing onset occures, used to cacluate
                                      the percentate of peak stress at which fracturing occurs.
             )
@@ -1030,7 +1033,10 @@ class utilities():
         # ------------------- Apply Defaults -------------------#
         default_dict = dict(sigma = None, axis_slice='y', frac_slice_origin=(0,0.1,0),
                             pointa=None, pointb=None, ball_rad = None, ball_pos=None,
-                            ball_shift_at=None, area = None, frac_onset_hours=0, anno_lines= None,
+                            ball_shift_at=None, area = None, len_dia = None, LVDT_a = None,
+                            LVDT_r = None,
+                            frac_onset_hours=0,
+                            anno_lines= None,
                             channels=None)
         for k, v in default_dict.items():
             try:
@@ -1275,6 +1281,12 @@ class utilities():
             fracStress = PVdata.query('hours>=%g' % PV_plot_dict['frac_onset_hours'])['Stress (MPa)'].iloc[0]
             percOfPeak = fracStress/PeakStress
 
+        if PV_plot_dict['len_dia'] and PV_plot_dict['LVDT_a']:
+            PVdata['strainAx'] = PVdata[PV_plot_dict['LVDT_a']].mean(axis=1)/PV_plot_dict['len_dia'][0]
+
+            if PV_plot_dict['LVDT_r']:
+                PVdata['strainVol'] = PVdata['strainAx'] - PVdata[PV_plot_dict['LVDT_r']]/PV_plot_dict['len_dia'][1]*2
+
         near = [PVdata.index[PVdata.index.get_loc(idx, method='nearest')] for
                                   idx in  attri['Times']]
 
@@ -1295,7 +1307,9 @@ class utilities():
                 ball_dict['ball_%g_DF' %(DF_no+1)]['hours'] = PVdata['hours'].loc[idx_near].values
                 ball_dict['ball_%g_DF' %(DF_no+1)].to_csv(os.path.join(folder, 'ball%g.csv' % DF_no))
 
-        if PV_plot_dict['area']:
+        if PV_plot_dict['area'] and PV_plot_dict['len_dia'] and PV_plot_dict['LVDT_a'] and PV_plot_dict['LVDT_r']:
+            y_time = PVdata[[PV_plot_dict['PVcol'],'Stress (MPa)', 'refIndex','hours', 'strainAx', 'strainVol']].loc[idx_near].reset_index()
+        elif PV_plot_dict['area']:
             y_time = PVdata[[PV_plot_dict['PVcol'], 'Stress (MPa)','refIndex','hours']].loc[idx_near].reset_index()
         else:
             y_time = PVdata[[PV_plot_dict['PVcol'],'refIndex','hours']].loc[idx_near].reset_index()
@@ -1326,7 +1340,10 @@ class utilities():
                     file.write("\\newcommand{\percOfPeak}{%g}\n" % percOfPeak)
                     file.write("\\newcommand{\\fracOnsetHours}{%g}\n" % PV_plot_dict['frac_onset_hours'])
 
-        if PV_plot_dict['area']:
+        if PV_plot_dict['area'] and PV_plot_dict['len_dia'] and PV_plot_dict['LVDT_a'] and PV_plot_dict['LVDT_r']:
+            PVdata[[PV_plot_dict['PVcol'],'Stress (MPa)', 'refIndex','hours', 'strainAx', 'strainVol']].\
+                                        to_csv(os.path.join(folder, 'PVdata.csv'))
+        elif PV_plot_dict['area']:
             PVdata[[PV_plot_dict['PVcol'],'Stress (MPa)', 'refIndex','hours']].to_csv(os.path.join(folder, 'PVdata.csv'))
         else:
             PVdata[[PV_plot_dict['PVcol'],'refIndex','hours']].to_csv(os.path.join(folder, 'PVdata.csv'))

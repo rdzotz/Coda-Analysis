@@ -137,11 +137,11 @@ class userInput:
             the expected number of pairs (columns) will be dropped from the processing.
 
         sta_wdws : int (Optional)
-            If ``wdwPos`` and ``ww_ol`` as given then the user can also define the
+            If ``wdwPos`` and ``ww_ol`` are given then the user can also define the
             start of the series of overlapping windows.
 
         end_wdws : int (Optional)
-            If ``wdwPos`` and ``ww_ol`` as given then the user can also define the
+            If ``wdwPos`` and ``ww_ol`` are given then the user can also define the
             end of the series of overlapping windows.
 
         wdwPos : (int, Default = False) The start position of the windows in trace sample numbers,

@@ -25,7 +25,7 @@ import shelve
 import pickle
 import numpy as np
 import pandas as pd
-from sqlalchemy import create_engine
+
 
 class utilities:
     '''Collection of functions intended for data related processes.
