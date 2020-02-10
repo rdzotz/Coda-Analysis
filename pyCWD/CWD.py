@@ -1448,6 +1448,39 @@ class utilities():
             print (file, "Size:", imageSize, "New Size:", imageBox)
             cropped.save(file)
 
+    def genRefMesh(m_tildes, pathRef='cly.Mesh', pathGen='baseMesh'):
+        '''generates base mesh vtu containing m_tilde data.
+
+        Parameters
+        ----------
+        m_tildes : Array of floats
+            No. of cells by no of time-steps.
+        pathRef : str (default is 'cly.Mesh').
+            Path to .Mesh file.
+        pathGen : str (default is 'baseMesh').
+            Path to store the baseMesh.vtu.
+
+        Returns
+        -------
+        mesh : pyvista class
+            The ``m_tilde data`` cast onto the ``pathRef`` mesh.
+        '''
+
+        import pyvista as pv
+        import mesh as msh
+
+        # Read in the mesh
+        clyMesh = msh.utilities.meshOjfromDisk(meshObjectPath=pathRef)
+        # Save the base mesh
+        for idx,col in enumerate(m_tildes.T):
+            if col[0]>0:
+                break
+        clyMesh.setCellsVal(m_tildes.T[idx])
+        clyMesh.saveMesh(pathGen)
+
+        # Read in base mesh
+        return pv.read(pathGen+".vtu")
+
 class decorrTheory():
     '''Calculate the theoretical decorrelation ceofficient between each source
     receiver pair, based on the Code-Wave Diffusion method (Rossetto2011).

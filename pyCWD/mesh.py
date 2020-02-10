@@ -114,7 +114,10 @@ class mesher():
             Name of the mesh file saved to the current directory.
         '''
 
-        meshio.write('%s.vtu' % name, self.points, self.cells, cell_data=self.cell_data)
+        mesh = meshio.Mesh(self.points, self.cells, cell_data=self.cell_data)
+
+        meshio.write('%s.vtu' % name, mesh)
+        # meshio.write('%s.vtu' % name, self.points, self.cells, cell_data=self.cell_data)
         # meshio.write('%s.msh4' % name, self.points, self.cells, cell_data=self.cell_data)
         # meshio.gmsh_io.write('%s.msh' % name, self.points, self.cells, cell_data=self.cell_data)
 
