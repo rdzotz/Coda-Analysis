@@ -951,7 +951,7 @@ class utilities():
                           ):
         '''Intended for the creation of final images for publications. Includes the output of white
         space trimed png's and the a csv database of perturbation data corresponding to each
-        time-step.
+        time-step. Spatial autocorrelation analysis available through ``statBall``.
 
         Parameters
         ----------
@@ -983,6 +983,9 @@ class utilities():
             LVDT_r = "name of radial LVDTs", can be a list in which case the average is calculated
             frac_onset_hours = 103 # The hours at which fracturing onset occures, used to cacluate
                                      the percentate of peak stress at which fracturing occurs.
+            statBallrad = Radius of the sphere whichin which Getis and Ord local G test is calculated
+            statBallpos = Position of the sphere whichin which Getis and Ord local G test is calculated
+            distThreshold = threshold used when calculating the distance weights
             )
         plane_vectors : tuple(list(v1,v2,origin), list()) (default=([0.5,0.5,0],[0,0.5,0.5]), [0, 0, 0])
             two non-parallel vectors defining plane through mesh. ([x,y,z], [x,y,z]). If a list of
@@ -1029,7 +1032,6 @@ class utilities():
                 return dict(show_xaxis=True, show_yaxis=True, show_zaxis=False, zlabel='Z [mm]',
                                  xlabel='X [mm]', ylabel='Y [mm]', color='k')
 
-
         # ------------------- Apply Defaults -------------------#
         default_dict = dict(sigma = None, axis_slice='y', frac_slice_origin=(0,0.1,0),
                             pointa=None, pointb=None, ball_rad = None, ball_pos=None,
@@ -1037,7 +1039,10 @@ class utilities():
                             LVDT_r = None,
                             frac_onset_hours=0,
                             anno_lines= None,
-                            channels=None)
+                            channels=None,
+                            statBallrad=None,
+                            statBallpos=None,
+                            distThreshold=5)
         for k, v in default_dict.items():
             try:
                 PV_plot_dict[k]
@@ -1046,7 +1051,6 @@ class utilities():
 
         if not isinstance(fracture, list):
             fracture = [fracture]
-
 
         # Load in the model param
         groups = dt.utilities.DB_group_names(hdf5File, 'Inversion')
@@ -1063,32 +1067,36 @@ class utilities():
         folder = 'final_figures'
         os.makedirs(folder, exist_ok=True)
 
-        # Load mesh
-        clyMesh = msh.utilities.meshOjfromDisk()
+        # Place each m_tilde onto the mesh
+        inversions, all_dataRange= cwd.utilities.genRefMesh(m_tildes,
+                                              pathRef='cly.Mesh',
+                                              pathGen='baseMesh')
+        # # Load mesh
+        # clyMesh = msh.utilities.meshOjfromDisk()
 
-        # Save the base mesh
-        for idx,col in enumerate(m_tildes.T):
-            if col[0]>0:
-                break
-        clyMesh.setCellsVal(m_tildes.T[idx])
-        clyMesh.saveMesh('baseMesh')
+        # # Save the base mesh
+        # for idx,col in enumerate(m_tildes.T):
+        #     if col[0]>0:
+        #         break
+        # clyMesh.setCellsVal(m_tildes.T[idx])
+        # clyMesh.saveMesh('baseMesh')
 
-        # Read in base mesh
-        inversions = pv.read('baseMesh.vtu')
+        # # Read in base mesh
+        # inversions = pv.read('baseMesh.vtu')
 
-        # Deal with padded zeros
-        pad = np.argwhere(inversions.cell_arrays['gmsh:physical']>0)[0][0]
+        # # Deal with padded zeros
+        # pad = np.argwhere(inversions.cell_arrays['gmsh:physical']>0)[0][0]
 
-        all_dataRange = [0,0]
-        # Add each time-step to the mesh and determine the data range
-        for time, m_tilde in enumerate(m_tildes.T):
-            inversions.cell_arrays['time%g' % time] = np.pad(m_tilde, (pad, 0), 'constant')
+        # all_dataRange = [0,0]
+        # # Add each time-step to the mesh and determine the data range
+        # for time, m_tilde in enumerate(m_tildes.T):
+        #     inversions.cell_arrays['time%g' % time] = np.pad(m_tilde, (pad, 0), 'constant')
 
-            if inversions.cell_arrays['time%g' % time].min() < all_dataRange[0]:
-                all_dataRange[0] = inversions.cell_arrays['time%g' % time].min()
+        #     if inversions.cell_arrays['time%g' % time].min() < all_dataRange[0]:
+        #         all_dataRange[0] = inversions.cell_arrays['time%g' % time].min()
 
-            if inversions.cell_arrays['time%g' % time].max() > all_dataRange[1]:
-                all_dataRange[1] = inversions.cell_arrays['time%g' % time].max()
+        #     if inversions.cell_arrays['time%g' % time].max() > all_dataRange[1]:
+        #         all_dataRange[1] = inversions.cell_arrays['time%g' % time].max()
 
         if cbarLim:
             all_dataRange=cbarLim
@@ -1116,10 +1124,10 @@ class utilities():
             for idx, v in enumerate(v_hat):
                 frac_slices.append( inversions.slice(normal=v, origin=(plane_vectors[idx][2])) )
         else:
-            frac_slices = [ inversions.slice(normal=v_hat, origin=(plane_vectors[2])) ]
+            frac_slices = [inversions.slice(normal=v_hat, origin=(plane_vectors[2]))]
 
 
-        # ----------------- Sample from mesh over time -----------------
+        # ----------------- Create Sample over line -----------------
         if PV_plot_dict['pointa'] and PV_plot_dict['pointb']:
             # Sample over line within fracture
             frac_line = pv.Line(pointa=PV_plot_dict['pointa'],
@@ -1128,6 +1136,8 @@ class utilities():
             frac_line_DF = pd.DataFrame(index=range(frac_line_vals.n_points))
         else:
             frac_line_DF = None
+
+        # ----------------- Create Sample at sphere -----------------
         if PV_plot_dict['ball_rad'] and PV_plot_dict['ball_pos']:
             # Sample volume within sphere
             ball_dict = {}
@@ -1138,6 +1148,25 @@ class utilities():
                                         index=range(ball_dict['ball_%g' %(idx+1)].n_points))
         else:
             ball_dict = None
+
+        # ----------- Create spatial statistics within sphere -----------
+        if PV_plot_dict['statBallrad'] and PV_plot_dict['statBallpos']:
+            import pysal
+            from pysal.explore.esda.getisord import G_Local
+
+            statBall_dict = {}
+            ball = pv.Sphere(radius=PV_plot_dict['statBallrad'],
+                             center=PV_plot_dict['statBallpos'],
+                             theta_resolution=20,
+                             phi_resolution=20)
+            clipped = inversions.clip_surface(ball, invert=True)
+            # Extract from clipped
+            cellTOpoint = clipped.cell_data_to_point_data()
+            statBall_dict['staball_coords'] = cellTOpoint.points
+            # Now calc the spatial statistics
+            statBall_dict['staball_w'] = pysal.lib.weights.DistanceBand(statBall_dict['staball_coords'],
+                                                                        threshold=PV_plot_dict['distThreshold'])
+            statBall_dict['staball_p_val'] = []
 
         # ----------------- Perform save for each t-step -----------------
         times = [time for time, _ in enumerate(m_tildes.T)]
@@ -1165,6 +1194,16 @@ class utilities():
                 for ball, _ in enumerate(PV_plot_dict['ball_rad']):
                     ball_dict['ball_%g_DF' %(ball+1)]['time%g' % time] = ball_dict['ball_%g_vals' %(ball+1)]['time%g' % time]
 #                    ball_DF['time%g' % time] = ball_vals['time%g' % time]
+
+            if statBall_dict:
+                np.random.seed(10)
+                lg = G_Local(cellTOpoint['time%g' % time],
+                             statBall_dict['staball_w'],
+                             transform='B')
+
+                statBall_dict['staball_p_val'].append(lg.p_sim[0])
+                # statBall_dict['staball_DF'][0, 'time%g' % time] = lg.p_sim[0]
+
             if SaveImages and time==times_down[count]:
                 count+=1
                 if count == len(times_down):
@@ -1307,6 +1346,11 @@ class utilities():
                 ball_dict['ball_%g_DF' %(DF_no+1)]['hours'] = PVdata['hours'].loc[idx_near].values
                 ball_dict['ball_%g_DF' %(DF_no+1)].to_csv(os.path.join(folder, 'ball%g.csv' % DF_no))
 
+        if statBall_dict:
+            statBall_dict['staball_DF'] = pd.DataFrame(statBall_dict['staball_p_val'], columns=['p_val'])
+            statBall_dict['staball_DF']['hours'] = PVdata['hours'].loc[idx_near].values
+            statBall_dict['staball_DF'].to_csv(os.path.join(folder, 'statBall.csv'))
+
         if PV_plot_dict['area'] and PV_plot_dict['len_dia'] and PV_plot_dict['LVDT_a'] and PV_plot_dict['LVDT_r']:
             y_time = PVdata[[PV_plot_dict['PVcol'],'Stress (MPa)', 'refIndex','hours', 'strainAx', 'strainVol']].loc[idx_near].reset_index()
         elif PV_plot_dict['area']:
@@ -1349,6 +1393,57 @@ class utilities():
             PVdata[[PV_plot_dict['PVcol'],'refIndex','hours']].to_csv(os.path.join(folder, 'PVdata.csv'))
 
         return all_dataRange
+
+    def genRefMesh(m_tildes, pathRef='cly.Mesh', pathGen='baseMesh'):
+        '''generates base mesh vtu containing m_tilde data.
+
+        Parameters
+        ----------
+        m_tildes : Array of floats
+            No. of cells by no of time-steps.
+        pathRef : str (default is 'cly.Mesh').
+            Path to .Mesh file.
+        pathGen : str (default is 'baseMesh').
+            Path to store the baseMesh.vtu.
+
+        Returns
+        -------
+        mesh : pyvista class
+            The ``m_tilde data`` cast onto the ``pathRef`` mesh.
+        all_dataRange : list
+            The range [min, max] data range over all time-steps.
+        '''
+
+        import mesh as msh
+        import pyvista as pv
+
+        # Read in the mesh
+        clyMesh = msh.utilities.meshOjfromDisk(meshObjectPath=pathRef)
+        # Save the base mesh
+        for idx,col in enumerate(m_tildes.T):
+            if col[0]>0:
+                break
+        clyMesh.setCellsVal(m_tildes.T[idx])
+        clyMesh.saveMesh(pathGen)
+
+        # Read in base mesh
+        mesh = pv.read(pathGen+".vtu")
+
+        # Deal With padded zeros
+        pad = np.argwhere(mesh.cell_arrays['gmsh:physical']>0)[0][0]
+
+        all_dataRange = [0,0]
+        # Add each time-step to the mesh and determine the data range
+        for time, m_tilde in enumerate(m_tildes.T):
+            mesh.cell_arrays['time%g' % time] = np.pad(m_tilde, (pad, 0), 'constant')
+
+            if mesh.cell_arrays['time%g' % time].min() < all_dataRange[0]:
+                all_dataRange[0] = mesh.cell_arrays['time%g' % time].min()
+
+            if mesh.cell_arrays['time%g' % time].max() > all_dataRange[1]:
+                all_dataRange[1] = mesh.cell_arrays['time%g' % time].max()
+
+        return mesh, all_dataRange
 
     def movieFrames(outFolder = "Frac_rotate", add_vtk=None, delta_deg = 5, res = 3,
                     meshObjectPath='cly.Mesh', trim=True):
@@ -1447,39 +1542,6 @@ class utilities():
             cropped=image.crop(imageBox)
             print (file, "Size:", imageSize, "New Size:", imageBox)
             cropped.save(file)
-
-    def genRefMesh(m_tildes, pathRef='cly.Mesh', pathGen='baseMesh'):
-        '''generates base mesh vtu containing m_tilde data.
-
-        Parameters
-        ----------
-        m_tildes : Array of floats
-            No. of cells by no of time-steps.
-        pathRef : str (default is 'cly.Mesh').
-            Path to .Mesh file.
-        pathGen : str (default is 'baseMesh').
-            Path to store the baseMesh.vtu.
-
-        Returns
-        -------
-        mesh : pyvista class
-            The ``m_tilde data`` cast onto the ``pathRef`` mesh.
-        '''
-
-        import pyvista as pv
-        import mesh as msh
-
-        # Read in the mesh
-        clyMesh = msh.utilities.meshOjfromDisk(meshObjectPath=pathRef)
-        # Save the base mesh
-        for idx,col in enumerate(m_tildes.T):
-            if col[0]>0:
-                break
-        clyMesh.setCellsVal(m_tildes.T[idx])
-        clyMesh.saveMesh(pathGen)
-
-        # Read in base mesh
-        return pv.read(pathGen+".vtu")
 
 class decorrTheory():
     '''Calculate the theoretical decorrelation ceofficient between each source
