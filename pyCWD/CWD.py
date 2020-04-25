@@ -1152,7 +1152,8 @@ class utilities():
         # ----------- Create spatial statistics within sphere -----------
         if PV_plot_dict['statBallrad'] and PV_plot_dict['statBallpos']:
             import pysal
-            from pysal.explore.esda.getisord import G_Local
+            from esda import G_Local
+            # from pysal.explore.esda.getisord import G_Local
 
             statBall_dict = {}
             ball = pv.Sphere(radius=PV_plot_dict['statBallrad'],
@@ -1231,9 +1232,6 @@ class utilities():
 
                     file_name = os.path.join(folder, invfolder)+'_view%g_%g.png' % (idx, time)
                     p.screenshot(file_name)
-
-
-
 
         # ----------------- Make colorbar -----------------
         p = pv.Plotter(border=False, off_screen=False)
