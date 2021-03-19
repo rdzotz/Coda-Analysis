@@ -6,7 +6,7 @@ numba==0.48.0
 scipy==1.4.1
 data==0.4
 meshio==4.0.10
-Pillow==7.0.0
+Pillow==8.1.1
 pygmsh==6.0.9
 pysal==2.2.0
 pyvista==0.24.0
