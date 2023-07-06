@@ -3,7 +3,7 @@ matplotlib==3.2.1
 h5py==2.10.0
 numpy==1.18.1
 numba==0.48.0
-scipy==1.4.1
+scipy==1.10.0
 data==0.4
 meshio==4.0.10
 Pillow==7.0.0
